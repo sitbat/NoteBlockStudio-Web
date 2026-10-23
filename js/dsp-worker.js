@@ -1,12 +1,30 @@
-import {GLOBAL, HEADER, STOPPED, PREROLL, RUNNING, PARAM_STRIDE, TIMING_SLOTS, EventTimeline, refillRing} from './dsp-protocol.js';
+import {GLOBAL, HEADER, STOPPED, PREROLL, RUNNING, PARAM_STRIDE, TIMING_SLOTS, EventTimeline, MetronomeTimeline, refillRing} from './dsp-protocol.js';
 
 let api, handle = 0, ring, header, stamps, pcm, params, paramBits, parameterCopy, parameterBits, timings, control;
 let blockFrames = 256, leadBlocks = 3, tracks = 0, epoch = -1, nextSequence = 0, timeline, stress = false;
-let active = false, scheduled = false, lastRevision = -1, outputBuffer, outputPointer = -1, outputLeft, outputRight;
+let active = false, draining = false, scheduled = false, lastRevision = -1, outputBuffer, outputPointer = -1, outputLeft, outputRight;
+let metronomeHandle = 0, metronomeEnabled = false, metronomeTimeline, metronomeSignature = 4, outputSampleRate = 48000;
+let clickBuffer, clickPointerCache = -1, clickLeft, clickRight;
 const channel = new MessageChannel();
 channel.port1.onmessage = () => { scheduled = false; pump(); };
 const kick = () => { if (!scheduled && active) { scheduled = true; channel.port2.postMessage(0); } };
 const fail = error => { active = false; self.postMessage({type: 'error', message: error?.message || String(error)}); };
+
+function setMetronome(data, frame) {
+  metronomeEnabled = !!data?.enabled && !draining;
+  metronomeSignature = Math.max(1, Math.min(16, Number(data?.timeSignature) || 4));
+  if (metronomeEnabled && !metronomeHandle) {
+    metronomeHandle = api.engine_create(1, outputSampleRate, blockFrames, 128);
+    if (!metronomeHandle) throw new Error('无法分配 Rust 节拍器。');
+    api.track(metronomeHandle, 0, 1, 0, 0, 1);
+    for (const sample of data.samples || []) {
+      const input = new Float32Array(sample.pcm), pointer = api.sample_alloc(metronomeHandle, sample.id, input.length);
+      if (!pointer) throw new Error('无法加载 Rust 节拍器音色。');
+      new Float32Array(api.memory.buffer, pointer, input.length).set(input);
+    }
+  }
+  metronomeTimeline = metronomeEnabled && timeline ? new MetronomeTimeline(timeline.config, frame) : null;
+}
 
 function applyParameters() {
   const revision = Atomics.load(header, HEADER.PARAM_REV);
@@ -35,9 +53,23 @@ function renderOne(publish = true) {
     outputLeft = new Float32Array(outputBuffer, ptr, blockFrames);
     outputRight = new Float32Array(outputBuffer, ptr + blockFrames * 4, blockFrames);
   }
+  let clicksLeft, clicksRight;
+  if (metronomeHandle && (metronomeEnabled || api.active_voices(metronomeHandle))) {
+    if (metronomeEnabled) metronomeTimeline?.dispatch(frame, blockFrames, (tick, offset) => {
+      api.voice(metronomeHandle, 0, tick % (4 * metronomeSignature) === 0 ? 1 : 0, 1, 1, 0, offset, 0);
+    });
+    const clickPointer = api.render(metronomeHandle);
+    if (clickBuffer !== api.memory.buffer || clickPointerCache !== clickPointer) {
+      clickBuffer = api.memory.buffer; clickPointerCache = clickPointer;
+      clickLeft = new Float32Array(clickBuffer, clickPointer, blockFrames);
+      clickRight = new Float32Array(clickBuffer, clickPointer + blockFrames * 4, blockFrames);
+    }
+    clicksLeft = clickLeft; clicksRight = clickRight;
+  }
   if (publish && epoch === Atomics.load(control, GLOBAL.EPOCH) && Atomics.load(control, GLOBAL.MODE) !== STOPPED) {
     const slot = nextSequence % ring.slots, base = slot * blockFrames * 2;
     pcm.set(outputLeft, base); pcm.set(outputRight, base + blockFrames);
+    if (clicksLeft) for (let i = 0; i < blockFrames; i++) { pcm[base + i] += clicksLeft[i]; pcm[base + blockFrames + i] += clicksRight[i]; }
     Atomics.store(stamps, slot, nextSequence + 1);
     Atomics.store(header, HEADER.WRITE, nextSequence + 1);
   }
@@ -81,7 +113,7 @@ self.onmessage = async ({data}) => {
       api = {memory: exports.memory, engine_create: exports.engine_create, engine_destroy: exports.engine_destroy};
       for (const name of ['sample_alloc', 'track', 'voice', 'render', 'reset', 'active_voices', 'dropped_voices', 'peak', 'wasm_simd']) api[name] = exports[`engine_${name}`] || exports[name];
       for (const name of ['engine_create', 'engine_destroy', 'sample_alloc', 'track', 'voice', 'render', 'reset', 'active_voices']) if (typeof api[name] !== 'function') throw new Error(`WASM 缺少导出：${name}`);
-      blockFrames = data.blockFrames; leadBlocks = data.leadBlocks; tracks = data.tracks;
+      blockFrames = data.blockFrames; leadBlocks = data.leadBlocks; tracks = data.tracks; outputSampleRate = data.sampleRate;
       ring = data.ring; header = new Int32Array(ring.header); stamps = new Int32Array(ring.stamps); pcm = new Float32Array(ring.pcm);
       params = new Float32Array(ring.params); paramBits = new Int32Array(ring.params);
       parameterCopy = new Float32Array(params.length); parameterBits = new Int32Array(parameterCopy.buffer);
@@ -96,18 +128,34 @@ self.onmessage = async ({data}) => {
       }
       self.postMessage({type: 'ready', simd: !!api.wasm_simd?.()});
     } else if (data.type === 'prepare') {
-      active = false; api.reset(handle); epoch = data.epoch; nextSequence = 0;
+      active = false; draining = false; api.reset(handle); epoch = data.epoch; nextSequence = 0;
       timeline = new EventTimeline(data.events, data.transport); stress = !!data.stress; lastRevision = -1;
+      if (metronomeHandle) api.reset(metronomeHandle);
+      setMetronome(data.metronome, 0);
       const revision = Atomics.load(header, HEADER.PARAM_REV);
       header.fill(0); Atomics.store(header, HEADER.PARAM_REV, revision);
       stamps.fill(0); timings.fill(0); outputBuffer = null; outputPointer = -1;
       active = true; self.postMessage({type: 'prepared', epoch}); kick();
     } else if (data.type === 'resume') { active = true; kick(); }
-    else if (data.type === 'events') { if (data.epoch === epoch) { if (data.transport) timeline = new EventTimeline(data.events, data.transport); else timeline.replace(data.events, nextSequence * blockFrames); } }
+    else if (data.type === 'events') { if (data.epoch === epoch && !draining) {
+      if (data.transport) { timeline = new EventTimeline(data.events, data.transport); if (metronomeEnabled) metronomeTimeline = new MetronomeTimeline(data.transport, nextSequence * blockFrames); }
+      else timeline.replace(data.events, nextSequence * blockFrames);
+      if (data.timeSignature !== undefined) metronomeSignature = Math.max(1, Math.min(16, Number(data.timeSignature) || 4));
+    } }
+    else if (data.type === 'metronome') { if (data.epoch === epoch) {
+      setMetronome(data, nextSequence * blockFrames);
+      self.postMessage({type: 'metronomeApplied', enabled: metronomeEnabled, sequence: nextSequence});
+    } }
+    else if (data.type === 'drain') { if (data.epoch === epoch && active) {
+      draining = true;
+      timeline.replace([], nextSequence * blockFrames);
+      metronomeEnabled = false; metronomeTimeline = null;
+      self.postMessage({type: 'drained', epoch, sequence: nextSequence}); kick();
+    } }
     else if (data.type === 'stop') active = false;
     else if (data.type === 'trigger') {
       const event = data.event;
-      const valid = active && data.epoch === epoch && Atomics.load(control, GLOBAL.MODE) !== STOPPED && event && Number.isInteger(event.track) && event.track >= 0 && event.track < tracks && Number.isInteger(event.sample) && event.sample >= 0 && event.sample <= 270 && Number.isFinite(event.rate) && event.rate > 0 && Number.isFinite(event.gain) && event.gain >= 0 && event.gain <= 1 && Number.isFinite(event.pan) && event.pan >= -1 && event.pan <= 1;
+      const valid = active && !draining && data.epoch === epoch && Atomics.load(control, GLOBAL.MODE) !== STOPPED && event && Number.isInteger(event.track) && event.track >= 0 && event.track < tracks && Number.isInteger(event.sample) && event.sample >= 0 && event.sample <= 270 && Number.isFinite(event.rate) && event.rate > 0 && Number.isFinite(event.gain) && event.gain >= 0 && event.gain <= 1 && Number.isFinite(event.pan) && event.pan >= -1 && event.pan <= 1;
       if (!valid) { self.postMessage({type: 'triggered', request: data.request, accepted: false, error: '实时试听事件无效或播放池已停止。'}); return; }
       applyParameters();
       const accepted = api.voice(handle, event.track, event.sample, event.rate, event.gain, event.pan, 0, 0);
@@ -123,6 +171,6 @@ self.onmessage = async ({data}) => {
     else if (data.type === 'clearStats') {
       for (const index of [HEADER.DROPPED, HEADER.MAX_US, HEADER.TOTAL_US, HEADER.BLOCKS, HEADER.TIMING_COUNT, HEADER.UNDERRUNS]) Atomics.store(header, index, 0);
       timings.fill(0);
-    } else if (data.type === 'destroy') { active = false; if (handle) api.engine_destroy(handle); handle = 0; self.close(); }
+    } else if (data.type === 'destroy') { active = false; if (handle) api.engine_destroy(handle); if (metronomeHandle) api.engine_destroy(metronomeHandle); handle = 0; metronomeHandle = 0; self.close(); }
   } catch (error) { fail(error); }
 };

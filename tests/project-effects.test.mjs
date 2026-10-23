@@ -41,3 +41,19 @@ test('ten thousand tracks and per-track effects survive an NBS file roundtrip',(
   assert.equal(parsed.layers.length,10000);assert.equal(parsed.notes.length,10000);
   assert.equal(parsed.layers[9999].reverb,9999%101);assert.equal(parsed.notes[9999].layer,9999);
 });
+
+test('native lock=1 mutes while solo=2 stays audible, and a Web edit-lock remains independent',()=>{
+  const song=createBlankSong();song.layers[0].locked=true;song.layers[1].solo=true;
+  const native=parseNBS(writeNBS(song,{webExtensions:false}));
+  assert.equal(native.layers[0].locked,true);assert.equal(native.layers[0].muted,true);assert.equal(native.layers[1].solo,true);assert.equal(native.layers[1].muted,false);
+  const web=parseNBS(writeNBS(song));assert.equal(web.metadata.webEffectsVersion,1);assert.equal(web.layers[0].locked,true);assert.equal(web.layers[0].muted,false);
+  for(const version of [0,1,2,3,4,5]){const restored=parseNBS(writeNBS(song,{version}));assert.equal(restored.layers[0].locked,true);assert.equal(restored.layers[0].muted,false);}
+});
+test('a valid older Web footer keeps unlisted lock flags as edit-lock; a corrupt footer never unmutes native tracks',()=>{
+  const song=createBlankSong();song.layers[0].locked=true;
+  const native=writeNBS(song,{webExtensions:false});
+  const olderFooter=encodeProjectEffects([{locked:false,reverb:0},{reverb:20,volume:100,muted:false,solo:false,locked:false}]);
+  const bytes=new Uint8Array(native.length+olderFooter.length);bytes.set(native);bytes.set(olderFooter,native.length);
+  const restored=parseNBS(bytes);assert.equal(restored.layers[0].locked,true);assert.equal(restored.layers[0].muted,false);assert.equal(restored.layers[1].reverb,20);
+  bytes[native.length]=255;const corrupted=parseNBS(bytes);assert.equal(corrupted.metadata.webEffectsVersion,undefined);assert.equal(corrupted.layers[0].muted,true);assert.equal(corrupted.layers[1].muted,false);
+});

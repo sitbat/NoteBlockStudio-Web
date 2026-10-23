@@ -21,6 +21,7 @@ export class NBSOutputProcessor extends (globalThis.AudioWorkletProcessor || cla
       Atomics.store(this.control, GLOBAL.OUTPUT_PEAK, 0); Atomics.store(this.control, GLOBAL.OUTPUT_RMS, 0); return true;
     }
     const epoch = Atomics.load(this.control, GLOBAL.EPOCH);
+    const mono = Atomics.load(this.control, GLOBAL.MONO) !== 0;
     if (epoch !== this.epoch) { this.epoch = epoch; this.sequence = 0; this.offset = 0; this.limiterGain = 1; }
     let out = 0, peakOutput = 0, energy = 0;
     while (out < left.length) {
@@ -45,6 +46,7 @@ export class NBSOutputProcessor extends (globalThis.AudioWorkletProcessor || cla
       for (let frame = out; frame < out + count; frame++) {
         let l = left[frame], r = right ? right[frame] : l;
         if (!Number.isFinite(l)) l = 0; if (!Number.isFinite(r)) r = 0;
+        if (mono) l = r = (l + r) * .5;
         const peak = Math.max(Math.abs(l), Math.abs(r));
         const target = Math.min(1, .98 / Math.max(peak, .000001));
         this.limiterGain = target < this.limiterGain ? target : this.limiterGain + (1 - this.limiterGain) * this.release;

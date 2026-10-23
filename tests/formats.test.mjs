@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseNBS, writeNBS, parseMIDI, writeMIDI, MIDI_PERCUSSION_DEFAULTS, MIDI_PROGRAM_DEFAULTS } from '../js/formats.js';
+import { parseNBS, writeNBS, parseMIDI, writeMIDI, MIDI_PERCUSSION_DEFAULTS, MIDI_PROGRAM_DEFAULTS, MIDI_PROGRAM_NAMES } from '../js/formats.js';
 
 function sample() {
   return {
     title: '本地歌曲 🎵', author: 'Composer', originalAuthor: 'Original', description: 'A\nB',
     tempo: 12.5, timeSignature: 3, length: 64, loop: true, loopStart: 8, loopCount: 3,
     layers: [
-      { id: 0, name: '钢琴', volume: 85, pan: -40, locked: true, muted: false, solo: false },
-      { id: 1, name: 'Bell', volume: 100, pan: 35, locked: false, muted: false, solo: true },
+      { id: 0, name: '钢琴', volume: 85, pan: -40, reverb: 0, locked: true, muted: false, solo: false },
+      { id: 1, name: 'Bell', volume: 100, pan: 35, reverb: 0, locked: false, muted: false, solo: true },
     ],
     notes: [
       { id: 'a', tick: 0, layer: 0, key: 0, instrument: 0, velocity: 17, pan: -100, pitch: -250 },
@@ -33,7 +33,7 @@ test('NBS v5 preserves Unicode, signed pitch, loop, layer settings and custom in
 test('all historical NBS versions load and normalize their missing fields', () => {
   for (let version = 0; version <= 5; version++) {
     const s = sample();
-    const actual = parseNBS(writeNBS(s, { version }));
+    const actual = parseNBS(writeNBS(s, { version, webExtensions: false }));
     assert.equal(actual.metadata.nbsVersion, version);
     assert.equal(actual.notes.length, 3);
     assert.equal(actual.notes[2].instrument, 16, `custom index v${version}`);
@@ -41,8 +41,20 @@ test('all historical NBS versions load and normalize their missing fields', () =
     assert.equal(actual.layers[0].pan, version >= 2 ? -40 : 0);
     assert.equal(actual.loop, version >= 4);
     assert.equal(actual.layers[0].locked, version >= 4);
+    assert.equal(actual.layers[0].muted, version >= 4, 'native lock also silences playback without a Web footer');
     assert.equal(actual.length, 64);
   }
+});
+
+test('native patch/channel naming is optional, source-exact and independent from the default MIDI track labels',()=>{
+  const name=[...new TextEncoder().encode('Original MIDI track')],data=midi([track([[0,0xff,3,name.length,...name],[0,0xc2,0],[0,0x92,60,100],[0,0xc4,73],[0,0x94,64,100],[0,0x99,36,100],[480,0xff,0x2f,0]])]);
+  const original=parseMIDI(data),patch=parseMIDI(data,{namingMode:'patch'}),channel=parseMIDI(data,{namingMode:'channel'});
+  assert.deepEqual(original.layers.map(layer=>layer.name),['Original MIDI track','Original MIDI track','Original MIDI track · 打击乐']);
+  assert.deepEqual(patch.layers.map(layer=>layer.name),['Piano 1','Flute','Percussion']);
+  assert.deepEqual(channel.layers.map(layer=>layer.name),['Channel 3','Channel 5','Channel 10']);
+  assert.deepEqual(parseMIDI(data,{namingMode:'patch',trackNames:false}).layers.map(layer=>layer.name),['轨道 1','轨道 1','轨道 1']);
+  assert.equal(patch.metadata.midiImportOptions.namingMode,'patch');assert.equal(MIDI_PROGRAM_NAMES.length,128);assert.equal(MIDI_PROGRAM_NAMES[127],'Gunshot');
+  assert.throws(()=>parseMIDI(data,{namingMode:'unknown'}),/namingMode/);
 });
 
 test('NBS imports legacy byte strings without corrupting accented characters', () => {
@@ -221,6 +233,25 @@ test('complete original GM preset is opt-in and reproduces native sample octave 
   assert.deepEqual(native.notes.map(note => [note.instrument, note.key]), [[1, 63], [7, 15], [6, 27]]);
   assert.deepEqual(parseMIDI(bytes).notes.map(note => note.key), [39, 39, 39], 'existing melodic automatic mapping remains compatible');
 });
+
+test('per-channel mappings separate identical patches and override later program changes without changing other channels', () => {
+  const bytes = midi([track([[0, 0xc0, 0], [0, 0xc1, 0], [0, 0xc2, 0], [0, 0x90, 60, 100], [0, 0x91, 60, 100], [0, 0x92, 60, 100], [480, 0xc0, 73], [0, 0x90, 60, 100], [480, 0xff, 0x2f, 0]])]);
+  const options = {customInstruments: [{name: 'Sample', file: 'sample.ogg', key: 45, pressKey: true}], programMap: {0: {instrument: 7, octave: 1}, 73: -1}, channelMap: {0: {instrument: 5, octave: -1}, 1: {instrument: 16, octave: 1}}};
+  const before = structuredClone(options), imported = parseMIDI(bytes, options);
+  assert.deepEqual(imported.notes.map(note => [note.instrument, note.key]), [[5, 27], [16, 51], [7, 51], [5, 27]]);
+  assert.deepEqual(imported.metadata.midiImportOptions.channelMap, options.channelMap);
+  assert.deepEqual(options, before);
+  assert.deepEqual(parseMIDI(bytes, {...options, channelMap: {0: 5, 1: -1}}).notes.map(note => [note.instrument, note.key]), [[5, 39], [7, 51], [5, 39]], 'omitted channel octave resets patch transposition to zero and -1 skips that channel');
+});
+
+test('channel 10 override retains resolved percussion keys then applies its own instrument and octave', () => {
+  const bytes = midi([track([[0, 0xc9, 73], [0, 0x99, 36, 100], [0, 38, 100], [480, 0xff, 0x2f, 0]])]);
+  const options = {percussionMap: {36: {instrument: 7, key: 57}}, programMap: {73: {instrument: 6, octave: 2}}, channelMap: {9: {instrument: 5, octave: -1}}};
+  assert.deepEqual(parseMIDI(bytes, options).notes.map(note => [note.instrument, note.key]), [[5, 45], [5, 29]]);
+  assert.deepEqual(parseMIDI(bytes, {percussionMap: options.percussionMap}).notes.map(note => [note.instrument, note.key]), [[7, 57], [3, 41]], 'without the channel override the native per-key drum mapping remains unchanged');
+  const skipped = parseMIDI(bytes, {...options, channelMap: {9: -1}});
+  assert.equal(skipped.notes.length, 0); assert.equal(skipped.metadata.skippedMappedNotes, 2);
+});
 test('complete original percussion table and explicit key/instrument/skip mappings are applied', () => {
   assert.equal(Object.keys(MIDI_PERCUSSION_DEFAULTS).length, 64);
   assert.deepEqual(MIDI_PERCUSSION_DEFAULTS[36], {instrument: 2, key: 39}); assert.deepEqual(MIDI_PERCUSSION_DEFAULTS[56], {instrument: 11, key: 38});
@@ -249,7 +280,7 @@ test('maxLayers and invalid import settings reject without mutating input bytes 
   const bytes = midi([track([[0, 0x90, 60, 100], [0, 64, 100], [0, 67, 100], [480, 0xff, 0x2f, 0]])]), before = bytes.slice();
   const options = {maxLayers: 2}; assert.throws(() => parseMIDI(bytes, options), /未截断或丢弃/);
   assert.deepEqual(bytes, before); assert.deepEqual(options, {maxLayers: 2}); assert.equal(parseMIDI(bytes, {maxLayers: 3}).notes.length, 3);
-  for (const invalid of [{gridSubdivision: 0}, {gridSubdivision: 1.5}, {gridSubdivision: 17}, {octaveOffset: 9}, {targetTempo: 0}, {targetTempo: 655.35, gridSubdivision: 2}, {maxLayers: 0}, {keepPan: 'yes'}, {programMap: {128: 0}}, {programMap: {0: 16}}, {programMap: {0: {instrument: 0, octave: 9}}}, {percussionMap: {36: {instrument: 2, key: 88}}}, {customInstruments: Array(256).fill({})}]) assert.throws(() => parseMIDI(bytes, invalid));
+  for (const invalid of [{gridSubdivision: 0}, {gridSubdivision: 1.5}, {gridSubdivision: 17}, {octaveOffset: 9}, {targetTempo: 0}, {targetTempo: 655.35, gridSubdivision: 2}, {maxLayers: 0}, {keepPan: 'yes'}, {programMap: {128: 0}}, {programMap: {0: 16}}, {programMap: {0: {instrument: 0, octave: 9}}}, {percussionMap: {36: {instrument: 2, key: 88}}}, {channelMap: {16: 0}}, {channelMap: {'-1': 0}}, {channelMap: {0: 16}}, {channelMap: {9: {instrument: 2, octave: 1.5}}}, {channelMap: []}, {customInstruments: Array(256).fill({})}]) assert.throws(() => parseMIDI(bytes, invalid));
 });
 test('SMPTE timing accepts the same grid/trim options and excessive timelines fail explicitly', () => {
   const bytes = midi([track([[1000, 0x90, 60, 100], [1000, 0x80, 60, 0], [0, 0xff, 0x2f, 0]])], 0xe728, 0);

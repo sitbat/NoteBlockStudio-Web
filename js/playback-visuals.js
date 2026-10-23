@@ -1,3 +1,5 @@
+import {tickFrameOffset} from './dsp-protocol.js';
+import {controlType} from './tempo-map.js';
 const KEY_COUNT = 88;
 const EXACT_CYCLE_LIMIT = 1024;
 const NON_PIANO_INSTRUMENTS = new Set([2, 3, 4]);
@@ -10,11 +12,11 @@ export function pressesPiano(note, song, {playerMode = false} = {}) {
   return instrument < 16 ? !NON_PIANO_INSTRUMENTS.has(instrument) : !!song?.customInstruments?.[instrument - 16]?.pressKey;
 }
 
-function lastAtFrame(ticks, origin, framesPerTick, frame) {
+function lastAtFrame(ticks, origin, config, frame) {
   let low = 0, high = ticks.length;
   while (low < high) {
     const middle = (low + high) >>> 1;
-    if (Math.round(origin + ticks[middle] * framesPerTick) <= frame) low = middle + 1;
+    if (Math.round(origin + tickFrameOffset(ticks[middle], config)) <= frame) low = middle + 1;
     else high = middle;
   }
   return low - 1;
@@ -32,9 +34,9 @@ export class PlaybackVisuals {
     this._noteTicks = new WeakMap();
     const sets = Array.from({length: KEY_COUNT}, () => new Set()), layers = song.layers || [];
     const solo = layers.some(layer => layer.solo);
-    const audible = layers.map(layer => !layer.muted && (!solo || layer.solo) && Number(layer.volume ?? 100) > 0);
+    const audible = layers.map(layer => !layer.muted && (!solo || layer.solo));
     for (const note of song.notes || []) {
-      if (!note || !audible[note.layer] || !(Number(note.velocity ?? 100) > 0)) continue;
+      if (!note || !audible[note.layer] || !controlType(note, song) && (!(Number(note.velocity ?? 100) > 0) || !(Number(layers[note.layer]?.volume ?? 100) > 0))) continue;
       const tick = Number(note.tick), key = Number(note.key);
       if (!Number.isFinite(tick) || tick < 0 || !Number.isInteger(key) || key < 0 || key >= KEY_COUNT) continue;
       this._noteTicks.set(note, tick);
@@ -53,15 +55,15 @@ export class PlaybackVisuals {
 
   _resetCycles(config) {
     this._config = config;
-    this._initial = {index: 0, origin: config.startFrame - config.fromTick * config.framesPerTick,
-      end: config.startFrame + (config.length - config.fromTick) * config.framesPerTick, minimum: config.fromTick};
+    const origin = config.startFrame - tickFrameOffset(config.fromTick, config);
+    this._initial = {index: config.completedLoops || 0, origin, end: origin + tickFrameOffset(config.length, config), minimum: config.fromTick};
     this._cycle = this._initial; this._previous = null;
   }
 
   _trigger(tick, cycle) {
     const c = this._config, frame = this._snapshot.frame;
     if (!cycle || tick < cycle.minimum || tick >= c.length) return -Infinity;
-    const trigger = Math.round(cycle.origin + tick * c.framesPerTick);
+    const trigger = Math.round(cycle.origin + tickFrameOffset(tick, c));
     return trigger <= frame && trigger < Math.round(cycle.end) ? trigger : -Infinity;
   }
 
@@ -70,17 +72,17 @@ export class PlaybackVisuals {
   }
 
   _fastForward(frame) {
-    const c = this._config, period = (c.length - c.loopStart) * c.framesPerTick;
+    const c = this._config, period = tickFrameOffset(c.length, c) - tickFrameOffset(c.loopStart, c);
     if (!Number.isFinite(period) || period <= 0) return false;
     // round(onset) <= frame iff onset < floor(frame) + 0.5. ceil preserves
     // the strict half-frame boundary without subtracting a floating epsilon.
     let index = Math.max(0, Math.ceil((Math.floor(frame) + 0.5 - this._initial.end) / period));
-    if (c.loopCount) index = Math.min(index, c.loopCount);
+    if (c.loopCount) index = Math.min(index, c.loopCount - this._initial.index);
     if (!Number.isSafeInteger(index)) return false;
     const cycleAt = count => {
       if (count === 0) return this._initial;
-      const origin = this._initial.end + (count - 1) * period - c.loopStart * c.framesPerTick;
-      return {index: count, origin, end: origin + c.length * c.framesPerTick, minimum: c.loopStart};
+      const origin = this._initial.end + (count - 1) * period - tickFrameOffset(c.loopStart, c);
+      return {index: this._initial.index + count, origin, end: origin + tickFrameOffset(c.length, c), minimum: c.loopStart};
     };
     this._cycle = cycleAt(index);
     this._previous = index > 0 ? cycleAt(index - 1) : null;
@@ -90,9 +92,11 @@ export class PlaybackVisuals {
   sample({playing, frame, sampleRate, transport} = {}) {
     if (!playing || !Number.isFinite(frame) || frame < 0 || !Number.isFinite(sampleRate) || sampleRate <= 0 || !transport) { this.clear(); return this.keyAges; }
     const next = {startFrame: Number(transport.startFrame ?? 0), framesPerTick: Number(transport.framesPerTick), fromTick: Number(transport.fromTick),
-      length: Number(transport.length), loopStart: Number(transport.loopStart), loop: !!transport.loop, loopCount: Number(transport.loopCount) || 0};
+      length: Number(transport.length), loopStart: Number(transport.loopStart), loop: !!transport.loop, loopCount: Number(transport.loopCount) || 0,
+      completedLoops: Number(transport.completedLoops) || 0,
+      sampleRate: Number(transport.sampleRate || sampleRate), tempo: Number(transport.tempo) || 10, tempoMap: transport.tempoMap || null, tempoSignature: transport.tempoMap?.signature || ''};
     if (![next.startFrame, next.framesPerTick, next.fromTick, next.length, next.loopStart, next.loopCount].every(Number.isFinite) || next.framesPerTick <= 0 || next.length <= 0 || next.fromTick < 0 || next.fromTick >= next.length || next.loopStart < 0 || next.loopStart >= next.length || next.loopCount < 0) { this.clear(); return this.keyAges; }
-    const changed = !this._config || Object.keys(next).some(key => next[key] !== this._config[key]);
+    const changed = !this._config || Object.keys(next).some(key => key !== 'tempoMap' && next[key] !== this._config[key]);
     if (changed || frame < (this._snapshot?.frame ?? 0)) this._resetCycles(next);
     this._snapshot = {frame, sampleRate};
     // Ordinary frames keep EventTimeline's exact floating-point recurrence.
@@ -103,8 +107,8 @@ export class PlaybackVisuals {
     let advanced = 0;
     while (advanced < EXACT_CYCLE_LIMIT && shouldAdvance()) {
       this._previous = this._cycle;
-      const origin = this._cycle.end - next.loopStart * next.framesPerTick;
-      this._cycle = {index: this._cycle.index + 1, origin, end: origin + next.length * next.framesPerTick, minimum: next.loopStart};
+      const origin = this._cycle.end - tickFrameOffset(next.loopStart, next);
+      this._cycle = {index: this._cycle.index + 1, origin, end: origin + tickFrameOffset(next.length, next), minimum: next.loopStart};
       advanced++;
     }
     if (shouldAdvance() && !this._fastForward(frame)) { this.clear(); return this.keyAges; }
@@ -112,7 +116,7 @@ export class PlaybackVisuals {
     for (let key = 0; key < KEY_COUNT; key++) {
       const ticks = this.keyTicks[key];
       if (!ticks.length) { this.keyAges[key] = Infinity; continue; }
-      const index = lastAtFrame(ticks, cycle.origin, next.framesPerTick, fence);
+      const index = lastAtFrame(ticks, cycle.origin, next, fence);
       const current = index < 0 ? -Infinity : this._trigger(ticks[index], cycle);
       const trigger = Math.max(current, this._completedTrigger(ticks[ticks.length - 1]));
       this.keyAges[key] = trigger === -Infinity ? Infinity : (frame - trigger) / sampleRate * 1000;

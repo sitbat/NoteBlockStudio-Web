@@ -8,6 +8,22 @@ const note=(tick,key=45,extra={})=>({id:`${tick}/${key}`,tick,key,layer:0,instru
 const song=(notes,extra={})=>({tempo:10,length:8,loop:false,loopStart:0,loopCount:0,layers:[layer()],customInstruments:[],notes,...extra});
 const sample=(visual,song,frame,options={})=>visual.sample({playing:true,frame,sampleRate:1000,transport:transportConfig(song,options,1000)});
 
+test('variable-tempo visual ages match actual EventTimeline through section seeks and repeated cycles',()=>{
+  const notes=Array.from({length:12},(_,tick)=>note(tick,40+tick%3)),s=song([...notes,{tick:4,layer:0,instrument:16,pitch:300,key:39},{tick:8,layer:0,instrument:16,pitch:75,key:39}],
+    {length:12,loop:true,loopStart:2,loopCount:3,customInstruments:[{name:'Tempo Changer',pressKey:false}]}),transport=transportConfig(s,{fromTick:2,endTick:10,loopStart:2},1000),timeline=new EventTimeline(notes,transport),onsets=[];
+  for(let frame=0;frame<transport.endFrame+128;frame+=128)timeline.dispatch(frame,128,(n,offset)=>onsets.push({note:n,frame:frame+offset}));
+  const visual=new PlaybackVisuals(s);
+  for(let frame=0;frame<transport.endFrame+100;frame+=13){
+    visual.sample({playing:true,frame,sampleRate:1000,transport});
+    for(const n of notes){const last=onsets.filter(event=>event.note===n&&event.frame<=frame).at(-1);assert.equal(visual.noteAge(n),last?frame-last.frame:Infinity,`${n.tick} @ ${frame}`);}
+  }
+});
+
+test('zero-gain control notes animate while their silent special instruments do not press the piano',()=>{
+  const control=note(0,39,{instrument:16,velocity:0,pitch:300}),s=song([control],{layers:[layer({volume:0})],customInstruments:[{name:'Tempo Changer',pressKey:false}]}),visual=new PlaybackVisuals(s);
+  sample(visual,s,20);assert.equal(visual.noteAge(control),20);assert.equal(visual.keyAges[39],Infinity);
+});
+
 test('sample returns reusable 88-key ages from the sample clock, never from future notes',()=>{
   const first=note(0),later=note(2,46),s=song([first,later]),visual=new PlaybackVisuals(s);
   const ages=sample(visual,s,0);assert.ok(ages instanceof Float64Array);assert.equal(ages.length,88);assert.equal(ages[45],0);assert.equal(ages[46],Infinity);assert.equal(visual.noteAge(later),Infinity);

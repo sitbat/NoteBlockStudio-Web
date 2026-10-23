@@ -5,7 +5,7 @@ export function prepareSong(raw,options={},kind='schematic'){
   const song=normalizeSong(raw),warnings=[],range=options.commandBlocks||kind==='datapack'&&options.includeOutOfRange?[9,81]:[33,57];
   const selected=options.layers?new Set(options.layers.map(Number)):null,solo=song.layers.some(l=>l.solo);
   const start=Math.max(0,Math.floor(options.rangeStart||0)),end=Math.min(song.length-1,Math.floor(options.rangeEnd??song.length-1));if(end<start)throw new Error('导出范围无效。');
-  let excluded=0,custom=0,pitch=0;const notes=song.notes.filter(n=>{const layer=song.layers[n.layer];if(n.tick<start||n.tick>end||selected&&!selected.has(n.layer)||!options.includeLocked&&(layer.locked||layer.muted)||solo&&!layer.solo)return false;
+  let excluded=0,custom=0,pitch=0;const notes=song.notes.filter(n=>{const layer=song.layers[n.layer];if(n.tick<start||n.tick>end||selected&&!selected.has(n.layer)||!options.includeLocked&&(layer.locked||layer.muted||solo&&!layer.solo))return false;
     const k=n.key+(kind==='datapack'||options.commandBlocks?n.pitch/100:0);if(k<range[0]||k>range[1]){excluded++;return false;}if(n.instrument>=16)custom++;if(n.pitch&&kind!=='datapack'&&!options.commandBlocks)pitch++;return true;}).map(n=>({...n,tick:n.tick-start}));
   if(excluded)warnings.push(`${excluded} 个音符超出 ${range[0]}–${range[1]} 音域，已跳过。`);
   if(custom&&kind!=='datapack'&&!options.commandBlocks)warnings.push(`${custom} 个自定义乐器音符使用所选支撑方块对应的原版音色；原版音符盒不能播放外部采样。`);

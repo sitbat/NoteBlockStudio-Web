@@ -1,0 +1,18 @@
+{
+  "sourceArchive": "NoteBlockStudio.tar.gz",
+  "kind": "unmodified original metronome audio",
+  "files": [
+    {
+      "file": "UI/metronome.ogg",
+      "source": "datafiles/Data/Sounds/UI/metronome.ogg",
+      "bytes": 7538,
+      "sha256": "80d311bae48a9753c529bc826b55a80065a09e7bbc93a273a5baf5e5964646ce"
+    },
+    {
+      "file": "UI/metronome_click.ogg",
+      "source": "datafiles/Data/Sounds/UI/metronome_click.ogg",
+      "bytes": 7445,
+      "sha256": "a78206330947a04fc17c87f29ae95c50517a2a14beaf1cc57b8b02d2fddb7dee"
+    }
+  ]
+}

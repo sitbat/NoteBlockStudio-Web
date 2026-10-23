@@ -5,10 +5,10 @@ const decoder = new TextDecoder('utf-8', {fatal: true});
 const sameMagic = bytes => bytes.length >= 12 && MAGIC.every((n, i) => bytes[bytes.length - 8 + i] === n);
 
 export function encodeProjectEffects(layers) {
-  if (!layers.some(l => l.reverb || l.muted || l.locked && l.solo)) return new Uint8Array();
+  if (!layers.some(l => l.reverb || l.muted || l.locked)) return new Uint8Array();
   const tracks = [];
   layers.forEach((l, index) => {
-    if (l.reverb || l.muted || l.locked && l.solo) tracks.push({i: index, r: l.reverb || 0, m: !!l.muted, s: !!l.solo, k: !!l.locked, v: l.volume ?? 100});
+    if (l.reverb || l.muted || l.locked) tracks.push({i: index, r: l.reverb || 0, m: !!l.muted, s: !!l.solo, k: !!l.locked, v: l.volume ?? 100});
   });
   const payload = encoder.encode(JSON.stringify({version: 1, tracks}));
   const bytes = new Uint8Array(payload.length + 12);

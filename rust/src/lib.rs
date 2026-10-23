@@ -157,7 +157,8 @@ impl Engine {
             let track = &self.tracks[voice.track];
             let sample = &self.samples[voice.sample].data;
             let length = sample.len();
-            let pan = (track.pan + voice.pan).clamp(-1.0, 1.0);
+            // Native NBS keeps note pan on centred layers and averages otherwise.
+            let pan = if track.pan == 0.0 { voice.pan } else { (track.pan + voice.pan) * 0.5 };
             let left = ((1.0 - pan) * 0.5).sqrt() * track.dry * voice.gain;
             let right = ((1.0 + pan) * 0.5).sqrt() * track.dry * voice.gain;
             let group_offset = (voice.track / LANES) * self.frames * LANES + voice.track % LANES;
@@ -357,7 +358,7 @@ mod tests {
     fn dry_pan_gain_and_onset_are_exact() {
         let mut engine = setup(1, 8); sample(&mut engine, &[1.0, 0.5, 0.0]);
         engine.track(0, 0.5, -1.0, 0.0, true);
-        assert!(engine.voice(0, 0, 1.0, 0.5, 0.0, 2, false));
+        assert!(engine.voice(0, 0, 1.0, 0.5, -1.0, 2, false));
         let out = output(&mut engine);
         assert_eq!(&out[0..5], &[0.0, 0.0, 0.25, 0.125, 0.0]);
         assert!(out[8..].iter().all(|value| *value == 0.0));
@@ -368,7 +369,7 @@ mod tests {
     fn pitch_uses_linear_interpolation() {
         let mut engine = setup(1, 8); sample(&mut engine, &[0.0, 1.0, 0.0]);
         engine.track(0, 1.0, -1.0, 0.0, true);
-        engine.voice(0, 0, 0.5, 1.0, 0.0, 0, false);
+        engine.voice(0, 0, 0.5, 1.0, -1.0, 0, false);
         assert_eq!(&output(&mut engine)[0..8], &[0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0]);
     }
 
@@ -423,7 +424,7 @@ mod tests {
     #[test]
     fn gain_transitions_finish_within_32_samples() {
         let mut engine = setup(1, 64); sample(&mut engine, &[1.0]); engine.track(0, 1.0, -1.0, 0.0, true);
-        engine.voice(0, 0, 1.0, 1.0, 0.0, 0, true); engine.render(); engine.track(0, 0.0, -1.0, 0.0, true);
+        engine.voice(0, 0, 1.0, 1.0, -1.0, 0, true); engine.render(); engine.track(0, 0.0, -1.0, 0.0, true);
         let out = output(&mut engine); near(out[0], 31.0 / 32.0); assert!(out[31..64].iter().all(|value| *value == 0.0));
     }
 }

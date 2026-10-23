@@ -41,7 +41,7 @@ test('real WASM exposes the documented ABI and SIMD build', () => {
 
 test('dry sample onset, track gain, note gain and stereo pan are exact', () => {
   const e = new Engine(1, 8); e.sample([1, 0.5, 0]); e.track(0, 0.5, -1);
-  assert.equal(e.voice(0, 0, 1, 0.5, 0, 2), 1);
+  assert.equal(e.voice(0, 0, 1, 0.5, -1, 2), 1);
   assert.deepEqual([...e.render()], [0,0,0.25,0.125,0,0,0,0,0,0,0,0,0,0,0,0]);
   assert.equal(e.api.engine_active_voices(e.handle), 0);
   e.destroy();
@@ -49,10 +49,10 @@ test('dry sample onset, track gain, note gain and stereo pan are exact', () => {
 
 test('pitch interpolation and looping retain the expected sample phase', () => {
   const e = new Engine(1, 8); e.sample([0,1,0]); e.track(0, 1, -1);
-  e.voice(0,0,0.5);
+  e.voice(0,0,0.5,1,-1);
   assert.deepEqual([...e.render().slice(0,8)], [0,0.5,1,0.5,0,0,0,0]);
   e.api.engine_reset(e.handle);
-  e.voice(0,0,1,1,0,0,1);
+  e.voice(0,0,1,1,-1,0,1);
   assert.deepEqual([...e.render().slice(0,8)], [0,1,0,0,1,0,0,1]);
   assert.deepEqual([...e.render().slice(0,8)], [0,0,1,0,0,1,0,0]);
   assert.equal(e.api.engine_active_voices(e.handle), 1);
@@ -107,13 +107,19 @@ test('muting, invalid parameters and nonfinite PCM never output invalid numbers'
 
 test('gain changes finish smoothly in 32 samples including partial render blocks', () => {
   const e=new Engine(2,16);e.sample([1]);e.track(0,1,-1);e.track(1,1,1);
-  e.voice(0,0,1,1,0,0,1);e.voice(1,0,1,1,0,0,1);e.render();
+  e.voice(0,0,1,1,-1,0,1);e.voice(1,0,1,1,1,0,1);e.render();
   e.track(0,0,-1);let out=e.render();near(out[0],31/32);near(out[15],0.5);near(out[16],1);
   e.track(1,0,1);out=e.render();near(out[0],15/32);near(out[15],0);near(out[16],31/32);near(out[31],0.5);
   out=e.render();near(out[0],0);near(out[16],15/32);near(out[31],0);e.destroy();
 });
 
 const scalarPath=process.env.NBS_SCALAR_WASM;
+test('native pan preserves note pan on a centred layer and averages on other layers', () => {
+  for (const [layerPan,notePan,expected] of [[0,-1,-1],[0,1,1],[-1,0,-.5],[1,0,.5],[.4,-.1,.15],[-1,1,0],[1,-1,0],[-1,-1,-1],[1,1,1]]) {
+    const e=new Engine(1,8);e.sample([1]);e.track(0,1,layerPan);e.voice(0,0,1,1,notePan);
+    const out=e.render();near(out[0],Math.sqrt((1-expected)/2));near(out[8],Math.sqrt((1+expected)/2));e.destroy();
+  }
+});
 test('SIMD matches the independently compiled scalar reverb across lanes, groups and gain ramps',{skip:!scalarPath},async()=>{
   const scalarModule=await WebAssembly.compile(await readFile(scalarPath));
   const simd=new Engine(9,16,64),scalar=new Engine(9,16,64,scalarModule);

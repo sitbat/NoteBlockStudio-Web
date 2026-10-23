@@ -1,6 +1,7 @@
 import {AudioEngine, INSTRUMENTS, sampleRateForNote} from './audio.js';
 import {assertRealtimeEnvironment} from './browser-environment.js';
-import {GLOBAL, HEADER, STOPPED, PREROLL, RUNNING, PARAM_STRIDE, TIMING_SLOTS, createRing, shardRanges, transportConfig, tickAtFrame, songLength} from './dsp-protocol.js';
+import {GLOBAL, HEADER, STOPPED, PREROLL, RUNNING, PARAM_STRIDE, TIMING_SLOTS, createRing, shardRanges, transportConfig, tickAtFrame, tickFrameOffset, completedLoopsAtFrame, rainbowAtFrame} from './dsp-protocol.js';
+import {controlType} from './tempo-map.js';
 
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, Number(n) || 0));
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -13,11 +14,12 @@ function idOf(buffer) { if (!bufferIds.has(buffer)) bufferIds.set(buffer, nextBu
 export class WasmAudioEngine extends AudioEngine {
   constructor(options = {}) {
     super(options);
-    this.config = {workers: 14, blockFrames: 256, leadBlocks: 4, voicesPerTrack: 4};
+    this.config = {workers: 14, blockFrames: 256, leadBlocks: 6, voicesPerTrack: 4};
     this.configure(options);
     this.wasmURL = options.wasmURL || new URL('../wasm/nbs_dsp.wasm', import.meta.url);
     this._pool = null; this._poolPromise = null; this._pcmCache = new WeakMap();
     this._lastStats = null; this._transport = null; this._benchmarking = false;
+    this._recordedMonitors = new Map(); this._songRevision = 0;
   }
 
   async init() {
@@ -30,29 +32,88 @@ export class WasmAudioEngine extends AudioEngine {
   }
 
   async preview(note, layer = {}, masterVolume = this.volume) {
-    await this.init();
-    if (!this._previewEngine) {
-      this._previewEngine = new WasmAudioEngine({context: this.context, workers: 1, blockFrames: 128, leadBlocks: this.config.leadBlocks, voicesPerTrack: 16});
-      this._previewEngine.buffers = this.buffers; this._previewEngine.bundledCustomSamples = this.bundledCustomSamples;
-      this._previewEngine._pcmCache = this._pcmCache;
+    return this.previewNotes([{...note, layer: 0}], [{...layer, muted: false, solo: false}], masterVolume);
+  }
+
+  /** Audition an entire column/chord in one Rust play call, preserving each layer's mix. */
+  async previewNotes(notes, layers = this._song?.layers || [], masterVolume = this.volume) {
+    if (!Array.isArray(notes) || notes.length > 1000000) throw new Error('试听音符数量无效。');
+    const request = this._previewRequest = (this._previewRequest || 0) + 1;
+    const definitions = this.customInstruments ?? this._song?.customInstruments ?? [], solo = layers.some(layer => layer.solo);
+    const compact = new Map(), previewLayers = [], previewNotes = [];
+    for (const note of notes) {
+      const source = Math.max(0, Math.trunc(Number(note.layer) || 0)), layer = layers[source] || {};
+      if (layer.muted || solo && !layer.solo || controlType(note, {customInstruments: definitions})) continue;
+      if (!compact.has(source)) { compact.set(source, previewLayers.length); previewLayers.push({...layer, id: previewLayers.length, muted: false, solo: false}); }
+      previewNotes.push({...note, layer: compact.get(source), tick: 0});
     }
-    const preview = this._previewEngine;
-    if (preview.config.leadBlocks !== this.config.leadBlocks) { preview.stop(); preview.configure({leadBlocks: this.config.leadBlocks}); }
-    preview.customSamples = this.customSamples;
-    preview._modulePromise = this._modulePromise || preview._modulePromise;
-    preview._workletPromise = this._workletPromise || preview._workletPromise;
-    const definitions = this.customInstruments ?? this._song?.customInstruments ?? [];
-    const song = {tempo: 10, length: 1, loop: false, customInstruments: definitions,
-      layers: [{...layer, id: 0, muted: false, solo: false}], notes: [{...note, layer: 0, tick: 0}]};
-    await preview.play(song, {masterVolume});
-    this._modulePromise = preview._modulePromise; this._workletPromise = preview._workletPromise;
-    for (const warning of preview.warnings) if (!this.warnings.includes(warning)) this.warnings.push(warning);
-    return this.warnings;
+    if (!previewNotes.length) return this.warnings;
+    const run = async () => {
+      if (request !== this._previewRequest) return this.warnings;
+      await this.init();
+      if (request !== this._previewRequest) return this.warnings;
+      const config = {workers: previewLayers.length > 64 ? this.config.workers : 1,
+        blockFrames: previewLayers.length > 64 ? this.config.blockFrames : 128, leadBlocks: this.config.leadBlocks, voicesPerTrack: 16};
+      if (!this._previewEngine) {
+        this._previewEngine = new WasmAudioEngine({context: this.context, ...config});
+        this._previewEngine.buffers = this.buffers; this._previewEngine.bundledCustomSamples = this.bundledCustomSamples;
+        this._previewEngine._pcmCache = this._pcmCache;
+      }
+      const preview = this._previewEngine;
+      if (Object.entries(config).some(([key, value]) => preview.config[key] !== value)) { preview.stop(); preview.configure(config); }
+      preview.customSamples = this.customSamples;
+      preview._modulePromise = this._modulePromise || preview._modulePromise;
+      preview._workletPromise = this._workletPromise || preview._workletPromise;
+      const song = {tempo: 10, length: 1, loop: false, customInstruments: definitions,
+        layers: previewLayers, notes: previewNotes};
+      await preview.play(song, {masterVolume, mono: !!this._mono});
+      this._modulePromise = preview._modulePromise; this._workletPromise = preview._workletPromise;
+      for (const warning of preview.warnings) if (!this.warnings.includes(warning)) this.warnings.push(warning);
+      return this.warnings;
+    };
+    const pending = (this._previewChain || Promise.resolve()).catch(() => {}).then(run);
+    this._previewChain = pending;
+    return pending;
+  }
+
+  async _loadMetronome() {
+    await this.init();
+    if (!this._metronomePromise) this._metronomePromise = Promise.all(['metronome.ogg', 'metronome_click.ogg'].map(async (file, id) => {
+      if (this.buffers.has(271 + id)) return;
+      const response = await fetch(new URL(`UI/${file}`, this.assetBase));
+      if (!response.ok) throw new Error(`无法加载节拍器音色 ${file}。`);
+      this.buffers.set(271 + id, await this.context.decodeAudioData(await response.arrayBuffer()));
+    })).catch(error => { this._metronomePromise = null; throw error; });
+    await this._metronomePromise;
+  }
+
+  _metronomeMessage(enabled = this._metronome) {
+    const ready = !!enabled && this.buffers.has(271) && this.buffers.has(272);
+    return {enabled: ready, timeSignature: Math.max(1, Math.min(16, Number(this._song?.timeSignature) || 4)),
+      samples: ready ? [271, 272].map((id, index) => ({id: index, pcm: this._monoPCM(this.buffers.get(id)).buffer})) : []};
+  }
+
+  async setMetronome(enabled) {
+    this._metronome = !!enabled;
+    if (enabled) await this._loadMetronome();
+    const pool = this._pool;
+    if (pool && !pool.destroyed) pool.workers[0].postMessage({type: 'metronome', epoch: Atomics.load(pool.control, GLOBAL.EPOCH), ...this._metronomeMessage(this._metronome)});
+    return this._metronome;
   }
 
   setVolume(value) {
     super.setVolume(value);
     this._liveEngine?.setVolume(this.volume);
+  }
+
+  /** A final stereo-output downmix; changing it never resets transport or Rust state. */
+  setMono(enabled) {
+    this._mono = !!enabled;
+    for (const engine of [this, this._previewEngine, this._liveEngine]) if (engine) {
+      engine._mono = this._mono;
+      if (engine._pool && !engine._pool.destroyed) Atomics.store(engine._pool.control, GLOBAL.MONO, this._mono ? 1 : 0);
+    }
+    return this._mono;
   }
 
   async _ensureLive() {
@@ -75,7 +136,7 @@ export class WasmAudioEngine extends AudioEngine {
         layers: oldSong?.layers || Array.from({length: 16}, (_, id) => ({id, volume: 100, pan: 0, reverb: 0, muted: false, solo: false})), notes: []};
       const bank = live._samplesFor(song);
       const key = `${16}/${this.context.sampleRate}/${JSON.stringify(live.config)}/${bank.signature}`;
-      if (!live.playing || live._pool?.key !== key) await live.play(song, {masterVolume: this.volume});
+      if (!live.playing || live._pool?.key !== key) await live.play(song, {masterVolume: this.volume, mono: !!this._mono});
       else { live._song = song; live.customInstruments = definitions; }
       if (session !== (this._liveSession || 0) || !live.playing) throw new DOMException('实时试听已停止。', 'AbortError');
       this._modulePromise = live._modulePromise; this._workletPromise = live._workletPromise;
@@ -92,6 +153,8 @@ export class WasmAudioEngine extends AudioEngine {
     if (!note || !Number.isInteger(Number(note.key)) || Number(note.key) < 0 || Number(note.key) > 87) throw new Error('实时试听音高必须在 0–87 之间。');
     const instrument = Number(note.instrument ?? 0), velocity = Number(note.velocity ?? 100), pan = Number(note.pan ?? 0), pitch = Number(note.pitch ?? 0);
     if (!Number.isInteger(instrument) || instrument < 0 || instrument > 270 || !Number.isFinite(velocity) || velocity < 0 || velocity > 100 || !Number.isFinite(pan) || pan < -100 || pan > 100 || !Number.isFinite(pitch) || pitch < -32768 || pitch > 32767) throw new Error('实时试听的乐器、力度、声像或微调音高无效。');
+    const definitions = this.customInstruments ?? this._song?.customInstruments ?? [];
+    if (controlType(note, {customInstruments: definitions})) return {accepted: false, activeVoices: 0, control: true};
     const session = this._liveSession || 0, live = await this._ensureLive();
     if (session !== (this._liveSession || 0)) throw new DOMException('实时试听已停止。', 'AbortError');
     if (instrument >= 16 + live._song.customInstruments.length) throw new Error('实时试听引用了未定义的自定义乐器。');
@@ -109,6 +172,39 @@ export class WasmAudioEngine extends AudioEngine {
       pool.triggerRequests.set(request, receive);
       pool.workers[0].postMessage({type: 'trigger', request, epoch: Atomics.load(pool.control, GLOBAL.EPOCH), event: {track: channel, sample: instrument, rate, gain: velocity / 100, pan: pan / 100}});
     });
+  }
+
+  /** Mark synchronously before publishing the edit, then audition without moving transport. */
+  async monitorRecordedNote(note, {layer = {}, id = note?.id} = {}) {
+    if ((typeof id !== 'string' && typeof id !== 'number') || !String(id).length || String(id).length > 256) throw new Error('录制监听需要音符的有效唯一 ID。');
+    const definitions = this.customInstruments ?? this._song?.customInstruments ?? [];
+    if (controlType(note, {customInstruments: definitions})) return {accepted: false, activeVoices: 0, control: true};
+    const now = performance.now();
+    for (const [key, mark] of this._recordedMonitors) if (mark.expiresAt <= now) this._recordedMonitors.delete(key);
+    const key = String(id), previous = this._recordedMonitors.get(key);
+    if (!previous && this._recordedMonitors.size >= 4096) throw new Error('录制监听队列已满，请稍后重试。');
+    // Pending sample/worker initialization must also suppress the initial timeline onset.
+    const mark = {expiresAt: Infinity}; this._recordedMonitors.set(key, mark);
+    this._songRevision++;
+    if (this.playing && this._song) this.updateSong(this._song);
+    try {
+      const result = await this.triggerLive(note, {channel: note.channel ?? 0, layer});
+      if (this._recordedMonitors.get(key) === mark) {
+        if (result.accepted) mark.expiresAt = performance.now() + 1000;
+        else if (previous) this._recordedMonitors.set(key, previous);
+        else this._recordedMonitors.delete(key);
+        this._songRevision++;
+        if (this.playing && this._song) this.updateSong(this._song);
+      }
+      return result;
+    } catch (error) {
+      if (this._recordedMonitors.get(key) === mark) {
+        if (previous) this._recordedMonitors.set(key, previous); else this._recordedMonitors.delete(key);
+        this._songRevision++;
+        if (this.playing && this._song) this.updateSong(this._song);
+      }
+      throw error;
+    }
   }
 
   stopLive() {
@@ -196,6 +292,7 @@ export class WasmAudioEngine extends AudioEngine {
     for (const note of song.notes || []) instruments.add(Number(note.instrument) || 0);
     const samples = [], signature = [];
     for (const instrument of [...instruments].sort((a, b) => a - b)) {
+      if (controlType({instrument}, song)) continue;
       const {buffer} = this._sample({instrument}, song);
       if (!buffer) throw new Error(`音色 ${instrument + 1} 未解码，无法启动 Rust 音频。`);
       samples.push({id: instrument, pcm: this._monoPCM(buffer).buffer});
@@ -258,7 +355,10 @@ export class WasmAudioEngine extends AudioEngine {
 
   _eventsFor(song, pool) {
     const events = pool.ranges.map(() => []);
+    const now = performance.now(), frame = this.playing ? this._playedFrames() : 0, sampleRate = this.context?.sampleRate || 48000;
+    for (const [id, mark] of this._recordedMonitors) if (mark.expiresAt <= now) this._recordedMonitors.delete(id);
     for (const note of song.notes || []) {
+      if (controlType(note, song)) continue;
       const layer = Math.trunc(Number(note.layer));
       if (!Number.isInteger(layer) || layer < 0 || layer >= pool.tracks) continue;
       let shard = 0; while (layer >= pool.ranges[shard].end) shard++;
@@ -267,8 +367,10 @@ export class WasmAudioEngine extends AudioEngine {
       const key = definition?.key ?? 45;
       const rate = sampleRateForNote(note, key);
       if (!Number.isFinite(rate) || rate <= 0) throw new Error('音符播放速率无效。');
+      const mark = this._recordedMonitors.get(String(note.id));
       events[shard].push({tick: Math.max(0, Number(note.tick) || 0), track: layer - pool.ranges[shard].start, sample: instrument,
-        rate, gain: clamp(note.velocity ?? 100, 0, 100) / 100, pan: clamp(note.pan, -100, 100) / 100});
+        rate, gain: clamp(note.velocity ?? 100, 0, 100) / 100, pan: clamp(note.pan, -100, 100) / 100,
+        ...(mark ? {notBeforeFrame: Number.isFinite(mark.expiresAt) ? frame + Math.ceil((mark.expiresAt - now) * sampleRate / 1000) : Number.MAX_SAFE_INTEGER} : {})});
     }
     for (const list of events) list.sort((a, b) => a.tick - b.tick || a.track - b.track);
     return events;
@@ -313,6 +415,7 @@ export class WasmAudioEngine extends AudioEngine {
 
   /** Membership edits replace only future event lists, preserving the live reverb states. */
   updateSong(song) {
+    this._songRevision++;
     this._song = song; this.customInstruments = song.customInstruments || [];
     if (!this._pool) return true;
     if (Math.max(1, song.layers?.length || 1) !== this._pool.tracks) return false;
@@ -320,13 +423,16 @@ export class WasmAudioEngine extends AudioEngine {
     if (this.playing) {
       const events = this._eventsFor(song, this._pool), epoch = Atomics.load(this._pool.control, GLOBAL.EPOCH);
       let transport;
-      const current = this._transport;
-      if (Number(song.tempo) !== current.tempo || songLength(song) !== current.length || !!song.loop !== current.loop || Number(song.loopStart || 0) !== current.loopStart || Number(song.loopCount || 0) !== current.loopCount) {
+      const current = this._transport, options = {...this._playOptions, loop: !!song.loop};
+      const next = transportConfig(song, options, this.context.sampleRate);
+      if (next.tempo !== current.tempo || next.length !== current.length || next.loop !== current.loop || next.loopStart !== current.loopStart || next.loopCount !== current.loopCount || next.tempoMap?.signature !== current.tempoMap?.signature || next.rainbowSignature !== current.rainbowSignature) {
         const frame = this._playedFrames(), tick = tickAtFrame(frame, current);
-        transport = transportConfig(song, {fromTick: tick, startFrame: frame}, this.context.sampleRate);
+        transport = transportConfig(song, {...options, fromTick: tick, startFrame: frame,
+          completedLoops: next.loop === current.loop && next.loopCount === current.loopCount ? completedLoopsAtFrame(frame, current) : 0,
+          rainbowBaseParity: rainbowAtFrame(frame - 1, current)}, this.context.sampleRate);
         this._transport = transport;
-      }
-      this._pool.workers.forEach((worker, index) => worker.postMessage({type: 'events', events: events[index], epoch, transport}));
+      } else this._transport = {...current, rainbowEvents: next.rainbowEvents};
+      this._pool.workers.forEach((worker, index) => worker.postMessage({type: 'events', events: events[index], epoch, transport, timeSignature: song.timeSignature}));
     }
     return true;
   }
@@ -334,44 +440,55 @@ export class WasmAudioEngine extends AudioEngine {
   async play(song, options = {}) {
     const generation = ++this._generation;
     this._halt(false);
+    this._song = song; this.customInstruments = song.customInstruments || []; this._playOptions = options;
+    this._metronome = options.metronome === undefined ? !!this._metronome : !!options.metronome;
+    if (options.mono !== undefined) this.setMono(!!options.mono);
     await this.init();
     if (generation !== this._generation) return;
-    const pool = await this._ensurePool(song, {output: !options.offline});
+    if (this._metronome) await this._loadMetronome();
     if (generation !== this._generation) return;
-    this._song = song; this.customInstruments = song.customInstruments || [];
-    this._transport = transportConfig(song, options, this.context.sampleRate);
-    this._pausedTick = this._transport.fromTick; this._onTick = options.onTick; this._onEnded = options.onEnded; this._onError = options.onError;
-    this._runtimeError = null; this._ended = false; this._draining = false;
-    this.setVolume(options.masterVolume ?? this.volume);
-    Atomics.store(pool.control, GLOBAL.MODE, STOPPED);
-    const epoch = Atomics.add(pool.control, GLOBAL.EPOCH, 1) + 1;
-    for (const i of [GLOBAL.READ, GLOBAL.OFFSET, GLOBAL.UNDERRUNS, GLOBAL.QUANTA, GLOBAL.OUTPUT_PEAK, GLOBAL.OUTPUT_RMS]) Atomics.store(pool.control, i, 0);
-    this.updateTrackParams(song);
-    const events = this._eventsFor(song, pool);
-    pool.prepared = new Map();
-    // Publish before posting: a fast worker may finish prepare while this loop
-    // is still sending to other cores. It must never observe STOPPED here.
-    Atomics.store(pool.control, GLOBAL.MODE, PREROLL);
-    const prepared = pool.workers.map((worker, index) => new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('音频线程准备超时。')), 15000);
-      pool.prepared.set(index, readyEpoch => { if (readyEpoch === epoch) { clearTimeout(timeout); resolve(); } });
-      worker.postMessage({type: 'prepare', epoch, events: events[index], transport: this._transport, stress: !!options.stress});
-    }));
     try {
-      await Promise.all(prepared);
-      const deadline = performance.now() + 15000;
-      while (pool.rings.some(ring => Atomics.load(ring.headerView, HEADER.WRITE) < this.config.leadBlocks)) {
-        if (generation !== this._generation || pool.destroyed) return;
-        if (this._runtimeError) throw this._runtimeError;
-        if (performance.now() > deadline) throw new Error('Rust 音频预缓冲超时。');
-        await sleep(2);
+      // Recording can add chord notes/layers while asynchronous sample loading or
+      // PREROLL runs. Refresh only this inaudible preparation, never a live tail.
+      while (generation === this._generation) {
+        const revision = this._songRevision, currentSong = this._song;
+        const pool = await this._ensurePool(currentSong, {output: !options.offline});
+        if (generation !== this._generation) return;
+        if (revision !== this._songRevision) continue;
+        this._transport = transportConfig(currentSong, options, this.context.sampleRate);
+        this._pausedTick = this._transport.fromTick; this._onTick = options.onTick; this._onEnded = options.onEnded; this._onError = options.onError;
+        this._runtimeError = null; this._ended = false; this._draining = false;
+        this.setVolume(options.masterVolume ?? this.volume); this.setMono(this._mono);
+        Atomics.store(pool.control, GLOBAL.MODE, STOPPED);
+        const epoch = Atomics.add(pool.control, GLOBAL.EPOCH, 1) + 1;
+        for (const i of [GLOBAL.READ, GLOBAL.OFFSET, GLOBAL.UNDERRUNS, GLOBAL.QUANTA, GLOBAL.OUTPUT_PEAK, GLOBAL.OUTPUT_RMS]) Atomics.store(pool.control, i, 0);
+        this.updateTrackParams(currentSong);
+        const events = this._eventsFor(currentSong, pool);
+        pool.prepared = new Map();
+        // Publish before posting: a fast worker may finish before the other posts.
+        Atomics.store(pool.control, GLOBAL.MODE, PREROLL);
+        const prepared = pool.workers.map((worker, index) => new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('音频线程准备超时。')), 15000);
+          pool.prepared.set(index, readyEpoch => { if (readyEpoch === epoch) { clearTimeout(timeout); resolve(); } });
+          worker.postMessage({type: 'prepare', epoch, events: events[index], transport: this._transport, stress: !!options.stress,
+            metronome: index === 0 ? this._metronomeMessage() : undefined});
+        }));
+        await Promise.all(prepared);
+        const deadline = performance.now() + 15000;
+        while (pool.rings.some(ring => Atomics.load(ring.headerView, HEADER.WRITE) < this.config.leadBlocks)) {
+          if (generation !== this._generation || pool.destroyed) return;
+          if (this._runtimeError) throw this._runtimeError;
+          if (performance.now() > deadline) throw new Error('Rust 音频预缓冲超时。');
+          await sleep(2);
+        }
+        if (generation !== this._generation) return;
+        if (revision !== this._songRevision) continue;
+        Atomics.store(pool.control, GLOBAL.MODE, RUNNING);
+        pool.workers.forEach(worker => worker.postMessage({type: 'resume'}));
+        this.playing = true;
+        if (!options.offline) this._timer = setInterval(() => this._monitor(), 25);
+        return this.warnings;
       }
-      if (generation !== this._generation) return;
-      Atomics.store(pool.control, GLOBAL.MODE, RUNNING);
-      pool.workers.forEach(worker => worker.postMessage({type: 'resume'}));
-      this.playing = true; this._playOptions = options;
-      if (!options.offline) this._timer = setInterval(() => this._monitor(), 25);
-      return this.warnings;
     } catch (error) { this._halt(false); throw error; }
   }
 
@@ -387,8 +504,36 @@ export class WasmAudioEngine extends AudioEngine {
 
   /** AudioWorklet consumption clock for visuals; transport is a read-only snapshot. */
   getPlaybackPosition() {
-    return {playing: this.playing, benchmarking: this._benchmarking, frame: this._playedFrames(), sampleRate: this.context?.sampleRate || 48000,
-      transport: this._transport ? {...this._transport} : null};
+    const frame = this._playedFrames();
+    return {playing: this.playing, benchmarking: this._benchmarking, frame, sampleRate: this.context?.sampleRate || 48000,
+      transport: this._transport ? {...this._transport} : null, rainbowActive: !!(this.playing && this._transport && rainbowAtFrame(frame, this._transport))};
+  }
+
+  _tailFrames() {
+    let seconds = 3;
+    for (const note of this._song?.notes || []) {
+      const {buffer, key} = this._sample(note, this._song);
+      const duration = buffer ? buffer.duration / sampleRateForNote(note, key) : 0;
+      if (Number.isFinite(duration) && duration > 0) seconds = Math.max(seconds, duration + 3);
+    }
+    return Math.ceil(Math.min(seconds, 60) * this.context.sampleRate);
+  }
+
+  /** Keep the current Rust voices/FDNs and already published PCM, but no future notes. */
+  _drain(tick) {
+    const pool = this._pool;
+    if (!pool || pool.destroyed || !this._transport || (!this.playing && !this._draining) || Atomics.load(pool.control, GLOBAL.MODE) !== RUNNING) return false;
+    this._pausedTick = tick; this.playing = false; this._ended = true;
+    if (!this._draining) {
+      this._draining = true; this._tailEndFrame = this._playedFrames() + this._tailFrames();
+      const epoch = Atomics.load(pool.control, GLOBAL.EPOCH);
+      for (let i = 0; i < pool.workers.length; i++) {
+        pool.workers[i].postMessage({type: 'drain', epoch});
+        Atomics.add(pool.rings[i].headerView, HEADER.WAKE, 1); Atomics.notify(pool.rings[i].headerView, HEADER.WAKE);
+      }
+    }
+    if (!this._timer) this._timer = setInterval(() => this._monitor(), 25);
+    return true;
   }
 
   _monitor() {
@@ -398,12 +543,7 @@ export class WasmAudioEngine extends AudioEngine {
     if (!this._ended && frame >= this._transport.endFrame) {
       this._ended = true; this.playing = false; this._pausedTick = this._transport.length;
       // Keep rendering sample/reverb tails after the UI transport reaches its end.
-      let tail = 3;
-      for (const note of this._song.notes || []) {
-        const {buffer, key} = this._sample(note, this._song);
-        if (buffer) tail = Math.max(tail, buffer.duration / sampleRateForNote(note, key) + 3);
-      }
-      this._tailEndFrame = frame + Math.min(tail, 60) * this.context.sampleRate;
+      this._tailEndFrame = frame + this._tailFrames();
       this._draining = true; this._onEnded?.();
     }
     if (this._draining && frame >= this._tailEndFrame) this._halt(false);
@@ -424,8 +564,8 @@ export class WasmAudioEngine extends AudioEngine {
     if (resetTick) this._pausedTick = 0;
   }
 
-  pause() { const tick = this.getTick(); this._generation++; this._halt(false); this._pausedTick = tick; return tick; }
-  stop() { this._generation++; this._halt(true); this._previewEngine?.stop(); this.stopLive(); this._onTick?.(0); }
+  pause({tails = false} = {}) { const tick = this.getTick(); this._generation++; if (!tails || !this._drain(tick)) this._halt(false); this._pausedTick = tick; return tick; }
+  stop({tails = false} = {}) { this._generation++; this._recordedMonitors.clear(); this._songRevision++; this._previewRequest = (this._previewRequest || 0) + 1; if (!tails || !this._drain(0)) this._halt(true); this._previewEngine?.stop(); this.stopLive(); this._onTick?.(0); }
 
   _destroyPool() {
     const pool = this._pool;
@@ -442,7 +582,7 @@ export class WasmAudioEngine extends AudioEngine {
   getStats() {
     const pool = this._pool;
     const empty = {workers: 0, blockFrames: this.config.blockFrames, leadFrames: 0, underruns: 0, activeVoices: 0, droppedVoices: 0, maxWorkerMs: 0, p95WorkerMs: 0, rtRatio: 0, latencyMs: 0, renderAheadMs: 0, controlPipelineMs: 0, controlAckMs: 0, outputPeak: 0, outputRms: 0, baseLatencyMs: (this.context?.baseLatency || 0) * 1000, outputLatencyMs: (this.context?.outputLatency || 0) * 1000, sampleRate: this.context?.sampleRate || 0, simd: false, tracks: 0, reverbTracks: 0, backend: 'Rust/WASM SIMD worker pool'};
-    if (!pool) return this._lastStats || empty;
+    if (!pool) return this._lastStats ? {...this._lastStats, activeVoices: 0} : empty;
     const stats = {...empty, workers: pool.workers.length, simd: pool.simd, tracks: pool.tracks, reverbTracks: (this._song?.layers || []).filter(layer => Number(layer.reverb) > 0 && !layer.muted).length};
     const read = Atomics.load(pool.control, GLOBAL.READ), timing = [];
     stats.underruns = Atomics.load(pool.control, GLOBAL.UNDERRUNS);
@@ -462,6 +602,7 @@ export class WasmAudioEngine extends AudioEngine {
     stats.renderAheadMs = stats.leadFrames / this.context.sampleRate * 1000;
     stats.latencyMs = stats.renderAheadMs + stats.baseLatencyMs + stats.outputLatencyMs;
     if (this._benchmarking && this._benchmarkMetrics) { stats.controlChangeCount = this._benchmarkMetrics.liveControlChanges; stats.maxControlPipelineMs = this._benchmarkMetrics.maxControlPipelineMs; stats.maxControlAckMs = this._benchmarkMetrics.maxControlAckMs; }
+    if (Atomics.load(pool.control, GLOBAL.MODE) === STOPPED) stats.activeVoices = 0;
     return stats;
   }
 
@@ -487,10 +628,10 @@ export class WasmAudioEngine extends AudioEngine {
       const rate = this.context.sampleRate;
       if (sampleRate !== undefined && Number(sampleRate) !== rate) throw new Error(`Rust WAV 使用当前音频设备采样率 ${rate} Hz。`);
       const config = transportConfig(song, {fromTick: 0, loop: false}, rate);
-      let seconds = config.length / config.tempo;
+      let seconds = tickFrameOffset(config.length, config) / rate;
       for (const note of song.notes || []) {
         const {buffer, key} = this._sample(note, song);
-        if (buffer) seconds = Math.max(seconds, Math.max(0, note.tick) / config.tempo + buffer.duration / sampleRateForNote(note, key));
+        if (buffer) seconds = Math.max(seconds, tickFrameOffset(Math.max(0, note.tick), config) / rate + buffer.duration / sampleRateForNote(note, key));
       }
       seconds += song.layers.some(layer => Number(layer.reverb) > 0) ? 3 : .05;
       const frames = Math.ceil(seconds * rate), bytes = 44 + frames * 4;

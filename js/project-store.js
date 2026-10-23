@@ -31,10 +31,14 @@ export class ProjectStore {
     });
   }
   parse(file,onProgress,options){if(this.failure)return Promise.reject(this.failure);return file.arrayBuffer().then(bytes=>this.request('parse',{filename:file.name,bytes,options},[bytes],onProgress));}
-  save(project,samples){return this.request('save',{project,samples});}
+  save(project,samples,options){return this.request('save',{project,samples,options});}
   load(){return this.request('load');}
   loadSamples(){return this.request('loadSamples');}
   backup(project,label='手动备份'){return this.request('backup',{project,label});}
   history(){return this.request('history');}
   restore(key){return this.request('restore',{key});}
+  remember(project,samples){return this.request('remember',{project,samples});}
+  recent(){return this.request('recent');}
+  loadRecent(key){return this.request('loadRecent',{key});}
+  clearRecent(){return this.request('clearRecent');}
 }

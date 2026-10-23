@@ -122,7 +122,7 @@ test('Wasm engine configuration validates supported blocks without creating an A
   assert.equal(audio.context, null);
   assert.equal(audio.config.workers, 14);
   assert.equal(audio.config.blockFrames, 256);
-  assert.equal(audio.config.leadBlocks, 4);
+  assert.equal(audio.config.leadBlocks, 6);
   audio.configure({workers: 14, leadBlocks: 2, voicesPerTrack: 8});
   assert.equal(audio.config.leadBlocks, 2);
   assert.throws(() => audio.configure({blockFrames: 100}), /128/);
@@ -130,16 +130,19 @@ test('Wasm engine configuration validates supported blocks without creating an A
 
 test('full WasmAudioEngine reuses workers across pause/seek, exposes PCM and parameter telemetry, and renders reverb WAV', async t => {
   const old = {Worker: globalThis.Worker, AudioWorkletNode: globalThis.AudioWorkletNode, isSecureContext: globalThis.isSecureContext, crossOriginIsolated: globalThis.crossOriginIsolated};
+  let onPrepare;
   class BrowserWorker {
     constructor() {
+      this.messages = [];
       this.inner = new Worker(new URL('./dsp-worker-adapter.mjs', import.meta.url));
-      this.inner.on('message', data => this.onmessage?.({data}));
+      this.inner.on('message', data => { this.messages.push(data); this.onmessage?.({data}); });
       this.inner.on('error', error => this.onerror?.({message: error.message}));
     }
     postMessage(data) {
       if (data.type === 'init') this.control = new Int32Array(data.global);
       // Enforce ordering even if another CPU handles prepare before this call returns.
       if (data.type === 'prepare') assert.equal(Atomics.load(this.control, GLOBAL.MODE), PREROLL, 'PREROLL must publish before the first prepare message');
+      if (data.type === 'prepare') onPrepare?.(data);
       this.inner.postMessage(data);
     }
     terminate() { return this.inner.terminate(); }
@@ -201,6 +204,8 @@ test('full WasmAudioEngine reuses workers across pause/seek, exposes PCM and par
   assert.ok(stats.controlAckMs > 0); assert.ok(stats.controlPipelineMs >= 0);
   assert.equal(stats.underruns, 0);
   audio.stop();
+  assert(audio._pool.rings.some(ring=>Atomics.load(ring.headerView,HEADER.ACTIVE)>0),'stopped worker headers retain the prior looping voice count');
+  assert.equal(audio.getStats().activeVoices,0,'a stopped pool reports zero currently rendering voices despite historical headers');
   const blob = await audio.exportWav({...song, length: 1}, {masterVolume: .5});
   const wav = await blob.arrayBuffer(), view = new DataView(wav);
   assert.equal(new TextDecoder().decode(wav.slice(0, 4)), 'RIFF');
@@ -237,6 +242,118 @@ test('full WasmAudioEngine reuses workers across pause/seek, exposes PCM and par
   const liveAtStop = audio._liveEngine._pool;
   audio.stop();
   assert.equal(liveAtStop.destroyed, true, 'parent stop clears isolated monitoring voices and worker');
+
+  const tempoSong = {tempo:100,length:8,loop:false,customInstruments:[{name:'Tempo Changer',file:''}],
+    layers:[{volume:100,pan:0,reverb:0}],notes:[{tick:0,layer:0,key:45,instrument:0,velocity:100},{tick:4,layer:0,key:39,instrument:16,pitch:3000}]};
+  const tempoWav = new DataView(await (await audio.exportWav(tempoSong)).arrayBuffer());
+  assert(Math.abs(tempoWav.getUint32(40,true)/4-5280)<=1,'offline Rust duration uses the same variable tempo map (0.06 s plus 0.05 s tail)');
+  await audio.play(tempoSong,{stress:true});
+  const auditionMainPool=audio._pool,auditionMainFrame=audio._playedFrames();
+  await audio.previewNotes([{tick:4,layer:0,key:33,instrument:0,velocity:100},{tick:4,layer:2,key:37,instrument:0,velocity:100},{tick:4,layer:7,key:40,instrument:0,velocity:100}],song.layers);
+  assert.equal(audio._previewEngine.getStats().activeVoices,3,'a column/chord is one polyphonic play operation');
+  assert.equal(audio._previewEngine._song.layers.length,3,'only participating source tracks are compacted');
+  assert.deepEqual(audio._previewEngine._song.layers.map(layer=>layer.reverb),[75,50,50]);
+  assert.equal(audio._pool,auditionMainPool);assert.equal(audio._playedFrames(),auditionMainFrame);assert.equal(audio.playing,true);
+  await Promise.all([audio.previewNotes([{layer:0,key:45,instrument:0}],song.layers),audio.previewNotes([{layer:0,key:49,instrument:0},{layer:1,key:52,instrument:0}],song.layers)]);
+  assert.deepEqual(audio._previewEngine._song.notes.map(note=>note.key),[49,52],'a newer scrub request replaces queued older work');
+  audio.stop();
+
+  // Initial recording, including another key arriving during PREROLL, must
+  // immediately use the isolated monitor but not double in the song timeline.
+  const recordedSong={tempo:100,length:10,loop:true,layers:[{volume:100,pan:0,reverb:0}],customInstruments:[],
+    notes:[{id:'first',tick:0,layer:0,key:45,instrument:0,velocity:100}]};
+  let lateMonitor, inserted=false;const preparedLists=[];
+  onPrepare=data=>{
+    if(data.events.length)preparedLists.push(data.events);
+    if(inserted || data.events[0]?.notBeforeFrame===undefined)return;
+    inserted=true;
+    const late={id:'late',tick:4,layer:0,key:49,instrument:0,velocity:100};recordedSong.notes.push(late);
+    lateMonitor=audio.monitorRecordedNote(late,{layer:recordedSong.layers[0]});audio.updateSong(recordedSong);
+  };
+  await Promise.all([audio.monitorRecordedNote(recordedSong.notes[0],{layer:recordedSong.layers[0]}),audio.play(recordedSong)]);
+  await lateMonitor;onPrepare=null;
+  assert.equal(inserted,true);assert.ok(preparedLists.some(events=>events.length===2),'the final initial snapshot includes the chord note added during prepare');
+  const recordPool=audio._pool,recordLivePool=audio._liveEngine._pool;
+  let earlyEnergy=0,laterEnergy=0,monitorEnergy=0;
+  for(let sequence=0;sequence<400;sequence++){
+    await until(()=>Atomics.load(recordPool.rings[0].headerView,HEADER.WRITE)>sequence);
+    recordPool.node.processor.process([],[[left,right]]);
+    const energy=left.reduce((sum,value)=>sum+value*value,0);
+    if(sequence<4)earlyEnergy+=energy;if(sequence*128>=48000)laterEnergy+=energy;
+    if(sequence<12){await until(()=>Atomics.load(recordLivePool.rings[0].headerView,HEADER.WRITE)>sequence);recordLivePool.node.processor.process([],[[left,right]]);monitorEnergy+=left.reduce((sum,value)=>sum+value*value,0);}
+  }
+  assert.equal(earlyEnergy,0,'new recorded onsets are absent from actual Rust timeline PCM');
+  assert.ok(monitorEnergy>0,'the isolated Rust monitor immediately produces audible PCM');
+  assert.ok(laterEnergy>0,'actual repeated Rust timeline notes resume after the one-second frame threshold');
+  assert.equal(recordedSong.notes.some(note=>'notBeforeFrame'in note),false);
+  audio.stop();
+
+  let tailEnded=0,tailTicks=0;
+  const tailSong={tempo:10,length:100,loop:false,layers:[{volume:100,pan:0,reverb:80}],customInstruments:[],notes:[
+    {tick:0,layer:0,key:45,instrument:0,velocity:100},{tick:4,layer:0,key:45,instrument:0,velocity:100}]};
+  await audio.play(tailSong,{onEnded:()=>tailEnded++,onTick:()=>tailTicks++});
+  audio._pool.node.processor.process([],[[left,right]]);
+  const tailPool=audio._pool,tailEpoch=Atomics.load(tailPool.control,GLOBAL.EPOCH),tailRead=Atomics.load(tailPool.control,GLOBAL.READ);
+  const paused=audio.pause({tails:true}),ticksBefore=tailTicks;
+  assert(paused>0);assert.equal(audio.playing,false);assert.equal(audio._draining,true);
+  assert.equal(Atomics.load(tailPool.control,GLOBAL.EPOCH),tailEpoch);assert.equal(Atomics.load(tailPool.control,GLOBAL.READ),tailRead);
+  assert.equal(Atomics.load(tailPool.control,GLOBAL.MODE),RUNNING);
+  await until(()=>tailPool.workers.every(worker=>worker.messages.some(data=>data.type==='drained'&&data.epoch===tailEpoch)));
+  let pauseTailEnergy=0;
+  for(let i=0;i<200;i++){
+    const sequence=Atomics.load(tailPool.control,GLOBAL.READ);
+    await until(()=>Atomics.load(tailPool.rings[0].headerView,HEADER.WRITE)>sequence);
+    tailPool.node.processor.process([],[[left,right]]);pauseTailEnergy+=left.reduce((sum,value)=>sum+value*value,0);
+    if(sequence>=20)assert.equal(audio.getStats().activeVoices,0,'drained song does not trigger the future column at frame 19,200');
+    audio._monitor();assert.equal(audio.getTick(),paused);
+  }
+  assert(pauseTailEnergy>0,'actual Rust samples/FDN remain audible after pause');
+  assert.equal(tailEnded,0);assert.equal(tailTicks,ticksBefore,'a draining clock never advances the editor cursor');
+  assert(audio._tailEndFrame>tailRead*128&&audio._tailEndFrame<=tailRead*128+48000*60);
+  audio.stop();assert.equal(audio.getStats().activeVoices,0);assert.equal(Atomics.load(tailPool.control,GLOBAL.MODE),STOPPED);
+  tailPool.node.processor.process([],[[left,right]]);assert(left.every(value=>value===0));
+
+  await audio.play(tailSong,{onEnded:()=>tailEnded++});
+  assert(Atomics.load(audio._pool.control,GLOBAL.EPOCH)>tailEpoch,'restart hard-cancels the previous tail');
+  audio._pool.node.processor.process([],[[left,right]]);audio.stop({tails:true});
+  assert.equal(audio.getTick(),0);assert.equal(audio.playing,false);assert.equal(audio._draining,true);
+  const stopTailPool=audio._pool,stopTailEpoch=Atomics.load(stopTailPool.control,GLOBAL.EPOCH);
+  await until(()=>stopTailPool.workers.every(worker=>worker.messages.some(data=>data.type==='drained'&&data.epoch===stopTailEpoch)));
+  let stopEnergy=0;
+  for(let i=0;i<16;i++){const sequence=Atomics.load(stopTailPool.control,GLOBAL.READ);await until(()=>Atomics.load(stopTailPool.rings[0].headerView,HEADER.WRITE)>sequence);stopTailPool.node.processor.process([],[[left,right]]);stopEnergy+=left.reduce((sum,value)=>sum+value*value,0);assert.equal(audio.getTick(),0);}
+  assert(stopEnergy>0);assert.equal(tailEnded,0);
+  const underruns=audio.getStats().underruns,dropped=audio.getStats().droppedVoices;
+  const actualClock=audio._playedFrames;audio._playedFrames=()=>audio._tailEndFrame;audio._monitor();audio._playedFrames=actualClock;
+  assert.equal(audio._draining,false);assert.equal(audio._timer,null);assert.equal(Atomics.load(stopTailPool.control,GLOBAL.MODE),STOPPED);
+  assert.equal(tailEnded,0,'bounded tail completion never fires the song-ended callback');
+  audio.stop();audio._destroyPool();assert.equal(audio.getStats().activeVoices,0);
+  assert.equal(audio.getStats().underruns,underruns);assert.equal(audio.getStats().droppedVoices,dropped);
+});
+
+test('metronome lazily loads only its original local samples and publishes independently of song layers',async()=>{
+  const originalFetch=globalThis.fetch,requests=[],messages=[];
+  const audio=new WasmAudioEngine({context:{sampleRate:48000,decodeAudioData:async()=>({length:16,numberOfChannels:1,sampleRate:48000,getChannelData:()=>new Float32Array(16).fill(.1)})},assetBase:new URL('https://local.invalid/sub/assets/sounds/')});
+  audio.init=async()=>audio;audio._song={timeSignature:3,layers:[{muted:true,volume:0,reverb:100}]};
+  audio._pool={control:new Int32Array(new SharedArrayBuffer(64)),workers:[{postMessage:message=>messages.push(message)}]};
+  globalThis.fetch=async url=>{requests.push(String(url));return {ok:true,arrayBuffer:async()=>new ArrayBuffer(1)};};
+  try{
+    await audio.setMetronome(false);assert.equal(requests.length,0);
+    await audio.setMetronome(true);await audio.setMetronome(false);await audio.setMetronome(true);
+    assert.deepEqual(requests,['https://local.invalid/sub/assets/sounds/UI/metronome.ogg','https://local.invalid/sub/assets/sounds/UI/metronome_click.ogg']);
+    assert.equal(messages.at(-1).timeSignature,3);assert.equal(messages.at(-1).samples.length,2);assert.equal(messages.at(-1).enabled,true);
+    assert.equal(audio._song.layers[0].muted,true);assert.equal(audio._song.layers[0].volume,0);
+  }finally{globalThis.fetch=originalFetch;}
+});
+
+test('setMono propagates to main, preview and MIDI output flags without restarting any pool',()=>{
+  const audio=new WasmAudioEngine(),controls=Array.from({length:3},()=>new Int32Array(new SharedArrayBuffer(64)));
+  for(const control of controls){Atomics.store(control,GLOBAL.EPOCH,7);Atomics.store(control,GLOBAL.READ,91);}
+  const pools=controls.map(control=>({control}));audio._pool=pools[0];audio._previewEngine={_pool:pools[1]};audio._liveEngine={_pool:pools[2]};
+  for(const enabled of [true,false,true]){
+    assert.equal(audio.setMono(enabled),enabled);
+    for(const control of controls){assert.equal(Atomics.load(control,GLOBAL.MONO),Number(enabled));assert.equal(Atomics.load(control,GLOBAL.EPOCH),7);assert.equal(Atomics.load(control,GLOBAL.READ),91);}
+    assert.equal(audio._pool,pools[0]);assert.equal(audio._previewEngine._pool,pools[1]);assert.equal(audio._liveEngine._pool,pools[2]);
+  }
 });
 
 test('late custom-sample decode is aborted before mutating a replacement project', async () => {

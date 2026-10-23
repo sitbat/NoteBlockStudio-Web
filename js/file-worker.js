@@ -3,10 +3,10 @@ import {normalizeSong} from './model.js';
 
 let dbPromise;
 const openDB=()=>dbPromise ||= new Promise((resolve,reject)=>{
-  const request=indexedDB.open('NoteBlockStudioRustWeb',2);
-  request.onupgradeneeded=()=>{for(const name of ['projects','samples','history','snapshots'])if(!request.result.objectStoreNames.contains(name))request.result.createObjectStore(name);};
+  const request=indexedDB.open('NoteBlockStudioRustWeb',3);
+  request.onupgradeneeded=()=>{for(const name of ['projects','samples','history','snapshots','recents'])if(!request.result.objectStoreNames.contains(name))request.result.createObjectStore(name);};
   request.onblocked=()=>reject(new Error('请关闭此地址的旧版标签页，再重新打开以升级本地项目存储。'));
-  request.onerror=()=>reject(request.error);request.onsuccess=()=>resolve(request.result);
+  request.onerror=()=>reject(request.error);request.onsuccess=()=>{request.result.onversionchange=()=>request.result.close();resolve(request.result);};
 });
 const dbRequest=async(mode,run,store='projects')=>{const db=await openDB();return new Promise((resolve,reject)=>{const transaction=db.transaction(store,mode),request=run(transaction.objectStore(store));let result;request.onsuccess=()=>result=request.result;request.onerror=()=>reject(request.error);transaction.oncomplete=()=>resolve(result);transaction.onabort=()=>reject(transaction.error||new Error('本地存储事务失败'));});};
 let saveQueue=Promise.resolve(),lastAutoBackup=0,backupSequence=0;
@@ -18,9 +18,14 @@ async function snapshot(project,label){
     tx.oncomplete=()=>resolve(key);tx.onabort=()=>reject(tx.error||new Error('备份失败'));
   });
 }
-async function saveProject(project,samples){
+async function saveProject(project,samples,options={}){
   const db=await openDB();await new Promise((resolve,reject)=>{const tx=db.transaction(samples===undefined?['projects']:['projects','samples'],'readwrite');tx.objectStore('projects').put(project,'current');if(samples!==undefined)tx.objectStore('samples').put(samples,'current');tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error||new Error('保存失败'));});
-  if(Date.now()-lastAutoBackup>=300000){await snapshot(project,'自动备份');lastAutoBackup=Date.now();}
+  const minutes=Math.max(1,Math.min(60,Number(options.backupMinutes)||5));
+  if(options.autoBackup!==false&&Date.now()-lastAutoBackup>=minutes*60000){await snapshot(project,'自动备份');lastAutoBackup=Date.now();}
+}
+async function rememberProject(project,samples){
+  const key=String(project.metadata?.browserProjectId||project.title||'untitled'),db=await openDB();
+  return new Promise((resolve,reject)=>{const tx=db.transaction('recents','readwrite'),store=tx.objectStore('recents');store.put({key,project,samples:samples||[],title:project.title,createdAt:Date.now(),notes:project.notes.length},key);const request=store.getAll();request.onsuccess=()=>{for(const old of request.result.sort((a,b)=>b.createdAt-a.createdAt).slice(11))store.delete(old.key);};tx.oncomplete=()=>resolve(key);tx.onabort=()=>reject(tx.error||new Error('最近歌曲保存失败'));});
 }
 self.onmessage=async({data})=>{
   const {id,type}=data;
@@ -36,7 +41,7 @@ self.onmessage=async({data})=>{
       self.postMessage({id,result:normalizeSong(song)});
     }else if(type==='save'){
       const project=data.project;
-      saveQueue=saveQueue.catch(()=>{}).then(()=>saveProject(project,data.samples));
+      saveQueue=saveQueue.catch(()=>{}).then(()=>saveProject(project,data.samples,data.options));
       await saveQueue;self.postMessage({id,result:true});
     }else if(type==='load'){
       const raw=await dbRequest('readonly',store=>store.get('current'));
@@ -49,6 +54,14 @@ self.onmessage=async({data})=>{
       self.postMessage({id,result:await dbRequest('readonly',store=>store.getAll(),'history')});
     }else if(type==='restore'){
       const raw=await dbRequest('readonly',store=>store.get(String(data.key)),'snapshots');if(!raw)throw new Error('备份已不存在。');self.postMessage({id,result:normalizeSong(raw)});
+    }else if(type==='remember'){
+      self.postMessage({id,result:await rememberProject(data.project,data.samples)});
+    }else if(type==='recent'){
+      const rows=await dbRequest('readonly',store=>store.getAll(),'recents');self.postMessage({id,result:rows.sort((a,b)=>b.createdAt-a.createdAt).map(({key,title,createdAt,notes})=>({key,title,createdAt,notes}))});
+    }else if(type==='loadRecent'){
+      const row=await dbRequest('readonly',store=>store.get(String(data.key)),'recents');if(!row)throw new Error('最近歌曲已不存在。');self.postMessage({id,result:{...row,project:normalizeSong(row.project)}});
+    }else if(type==='clearRecent'){
+      await dbRequest('readwrite',store=>store.clear(),'recents');self.postMessage({id,result:true});
     }else throw new Error('未知后台文件任务');
   }catch(error){self.postMessage({id,error:error?.message||String(error)});}
 };

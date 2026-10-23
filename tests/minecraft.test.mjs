@@ -6,7 +6,38 @@ import {createBlankSong,normalizeSong} from '../js/model.js';
 import {exportMinecraft,importMinecraft,importDatapack,importCircuit,buildCircuit,parseStructure,buildDatapack,buildBundledResourcePack,buildCustomResourcePack,VISUALIZERS} from '../js/minecraft.js';
 import {encodeNBT,decodeNBT,compound,string,list,int,bytes} from '../js/minecraft/nbt.js';
 import {readZip} from '../js/archive.js';
+import {prepareSong} from '../js/minecraft/circuit.js';
+import {playSoundCommand,radiusVolume} from '../js/minecraft/sound.js';
 const song=(notes,extra={})=>normalizeSong({...createBlankSong(),title:'测试曲目 🎹',length:16,layers:Array.from({length:8},(_,id)=>({id,name:`声部${id}`,volume:100,pan:0})),notes:notes.map((n,i)=>({tick:i*2,layer:0,key:45,instrument:0,velocity:100,pan:0,pitch:0,...n})),...extra});
+test('includeLocked bypasses native mute/solo exclusions for every Minecraft export family',()=>{
+  const s=song([{tick:0,layer:0},{tick:0,layer:1},{tick:0,layer:2}],{layers:[{solo:true},{muted:true,locked:true},{}]});
+  for(const kind of ['schematic','structure','branch','track','datapack']){assert.equal(prepareSong(s,{},kind).song.notes.length,1,kind);assert.equal(prepareSong(s,{includeLocked:true},kind).song.notes.length,3,kind);assert.equal(prepareSong(s,{includeLocked:true,layers:[2]},kind).song.notes[0].layer,2);}
+});
+test('nearby radius is specified in blocks and converted by the native radius-to-volume formula',()=>{
+  const s=song([{tick:0}]);assert.equal(radiusVolume(16),1);assert.equal(radiusVolume(100),6.04);
+  assert.match(playSoundCommand(s,s.notes[0],{radius:true,radiusValue:16}),/@a ~ ~ ~ 1 1$/);
+  assert.match(playSoundCommand(s,s.notes[0],{radius:true,radiusValue:100}),/@a ~ ~ ~ 6.04 1$/);
+  assert.match(playSoundCommand(s,s.notes[0],{radius:true}),/@a ~ ~ ~ 1 1$/);
+  for(const radius of [0,15,100001,Infinity,'invalid'])assert.throws(()=>radiusVolume(radius),/16–100000/);
+});
+test('named datapacks in the same namespace isolate every function, scoreboard and visualizer tag',async()=>{
+  const s=song([{tick:0},{tick:4}]),packs=[];
+  for(const name of ['first','second']){
+    const pack=await buildDatapack(s,{namespace:'album',name,functionPath:'music/disc',visualizer:true}),prefix=`album:music/disc/${name}/`,base=`data/album/function/music/disc/${name}/`;
+    assert.equal(pack.commands.play,`/function ${prefix}play`);assert.equal(pack.functionPath,`music/disc/${name}`);assert.ok(pack.files.has(base+'notes/0.mcfunction'));
+    for(const [file,data]of pack.files)if(file.endsWith('.mcfunction'))for(const match of new TextDecoder().decode(data).matchAll(/\bfunction ([^\s]+)/g))assert.ok(match[1].startsWith(prefix),`${file}: ${match[1]}`);
+    for(const kind of ['load','tick'])assert.deepEqual(JSON.parse(new TextDecoder().decode(pack.files.get(`data/minecraft/tags/function/${kind}.json`))).values,[prefix+kind]);
+    assert.match(new TextDecoder().decode(pack.files.get('README.txt')),new RegExp('/function '+prefix+'play'));
+    packs.push(pack);
+  }
+  const load=pack=>new TextDecoder().decode([...pack.files].find(([file])=>file.endsWith('/load.mcfunction'))[1]);
+  assert.notEqual(load(packs[0]).match(/objectives add (\S+)/)[1],load(packs[1]).match(/objectives add (\S+)/)[1]);assert.notEqual(load(packs[0]).match(/team add (\S+)/)[1],load(packs[1]).match(/team add (\S+)/)[1]);
+  const legacy=await buildDatapack(s,{namespace:'album'});assert.equal(legacy.commands.play,'/function album:play');
+});
+test('datapack path validation prevents invalid relative functions and preserves distinct Unicode names',async()=>{
+  const s=song([{tick:0}]);for(const functionPath of ['../escape','folder/../escape','/absolute','a//b','a\\b','Upper'])await assert.rejects(buildDatapack(s,{name:'song',functionPath}),/子目录/);
+  const a=await buildDatapack({...s,title:'春天'},{namespace:'album',name:''}),b=await buildDatapack({...s,title:'夏天'},{namespace:'album',name:''});assert.notEqual(a.functionPath,b.functionPath);assert.notEqual(a.commands.play,b.commands.play);
+});
 // Separate reader based on Java's tag widths, used to inspect exported bytes.
 function independentNBT(input){const a=gunzipSync(input);let p=0;const str=()=>{const n=a.readUInt16BE(p);p+=2;const s=a.subarray(p,p+n).toString();p+=n;return s;};function read(t){switch(t){case 1:return a.readInt8(p++);case 2:{const n=a.readInt16BE(p);p+=2;return n;}case 3:{const n=a.readInt32BE(p);p+=4;return n;}case 4:{const n=a.readBigInt64BE(p);p+=8;return n;}case 5:{const n=a.readFloatBE(p);p+=4;return n;}case 6:{const n=a.readDoubleBE(p);p+=8;return n;}case 7:{const n=read(3),v=a.subarray(p,p+n);p+=n;return v;}case 8:return str();case 9:{const type=a[p++],n=read(3);return Array.from({length:n},()=>read(type));}case 10:{const v={};while(a[p]){const type=a[p++],name=str();v[name]=read(type);}p++;return v;}case 11:return Array.from({length:read(3)},()=>read(3));default:throw new Error(`unexpected tag${t}`);}}assert.equal(a[p++],10);const name=str(),value=read(10);assert.equal(p,a.length);return{name,value};}
 test('NBT is bounded, Java modified UTF-8 compatible, and rejects truncated or duplicate tags',()=>{const a=encodeNBT(compound({text:string('中文\0🎹'),values:list(3,[1,-2,65536]),blob:bytes(new Uint8Array([255,0]))}));assert.equal(decodeNBT(a).value.text,'中文\0🎹');assert.ok(Buffer.from(a).includes(Buffer.from([0xc0,0x80])));assert.ok(Buffer.from(a).includes(Buffer.from([0xed,0xa0,0xbc,0xed,0xbe,0xb9])));assert.throws(()=>decodeNBT(a.subarray(0,-1)),/截断/);assert.throws(()=>decodeNBT(a,{maxItems:2}),/过多|超限/);});

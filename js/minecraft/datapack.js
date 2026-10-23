@@ -6,6 +6,17 @@ import {normalizeSong,createBlankSong,MAX_NOTES,MAX_LAYERS} from '../model.js';
 export const VISUALIZERS=['Arc','Fall','Rise','Bounce','Piano Roll','Fountain','Rittai Onkyou'];
 const enc=new TextEncoder(),dec=new TextDecoder('utf-8',{fatal:true}),json=value=>JSON.stringify(value,null,2)+'\n';
 const hash=value=>{let h=2166136261;for(const c of value)h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0).toString(16).padStart(8,'0');};
+function functionLocation(options,song){
+  const rawPath=options.functionPath??'';
+  if(typeof rawPath!=='string'||rawPath.length>240||rawPath&&(!/^[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/.test(rawPath)||rawPath.split('/').some(part=>part==='.'||part==='..')))throw new Error('数据包函数子目录必须为小写相对路径，不能包含空段、反斜线或 ..。');
+  const named=options.name!==undefined||!!rawPath;
+  if(!named)return{name:'',functionPath:''};
+  if(options.name!==undefined&&(typeof options.name!=='string'||options.name.length>1024))throw new Error('数据包曲目名称无效。');
+  const rawName=options.name||song.title||'song',normalized=resourceId(rawName,'song');
+  // Retain distinct Unicode/space-containing names after converting to resource IDs.
+  const name=normalized+(normalized!==rawName.toLowerCase()?`_${hash(rawName)}`:'');
+  return{name,functionPath:[rawPath,name].filter(Boolean).join('/')};
+}
 export function visualizerCommands(song,n,options={},tag='nbs_visual'){
   const type=options.visualizerType||'Arc';if(!VISUALIZERS.includes(type))throw new Error('未知可视化类型。');const key=n.key+n.pitch/100,ins=n.instrument,layer=song.layers[n.layer],volume=layer.volume*n.velocity/10000,pan=-(layer.pan+n.pan)/200;
   const x=Number(options.x)||0,y=Number(options.y??100),z=Number(options.z)||0;if(![x,y,z].every(Number.isFinite))throw new Error('可视化坐标必须是有限数值。');const support=options.instrumentBlocks?.[ins]?blockSpec(options.instrumentBlocks[ins]).name:`minecraft:${SUPPORT_NAMES[ins]||'stone'}`,team=`${tag}_${ins%16}`,glow=options.glow!==false;
@@ -21,32 +32,32 @@ export function visualizerCommands(song,n,options={},tag='nbs_visual'){
   if(glow)commands.push(`team join ${team} @e[tag=${team}]`);return commands;
 }
 export async function buildDatapack(raw,options={}){
-  const {song,warnings}=prepareSong(raw,options,'datapack'),namespace=resourceId(options.namespace||song.title,'noteblock'),id=hash(namespace),clock=`nbs_${id}`,last=`nbl_${id}`,repeat=`nbr_${id}`,playing=`nbs_${id}_playing`,visual=`nbv_${id}`;
-  const modern=String(options.mcVersion??'1.21')!=='1.20',folder=modern?'function':'functions',format=modern?48:41,path=`data/${namespace}/${folder}/`,files=new Map(),put=(name,data)=>files.set(name,typeof data==='string'?enc.encode(data):data),fn=(name,lines)=>put(`${path}${name}.mcfunction`,Array.isArray(lines)?lines.join('\n')+'\n':lines+'\n');
+  const {song,warnings}=prepareSong(raw,options,'datapack'),namespace=resourceId(options.namespace||song.title,'noteblock'),location=functionLocation(options,song),functionPrefix=`${namespace}:${location.functionPath?location.functionPath+'/':''}`,id=hash(location.functionPath?functionPrefix:namespace),clock=`nbs_${id}`,last=`nbl_${id}`,repeat=`nbr_${id}`,playing=`nbs_${id}_playing`,visual=`nbv_${id}`;
+  const modern=String(options.mcVersion??'1.21')!=='1.20',folder=modern?'function':'functions',format=modern?48:41,path=`data/${namespace}/${folder}/${location.functionPath?location.functionPath+'/':''}`,files=new Map(),put=(name,data)=>files.set(name,typeof data==='string'?enc.encode(data):data),fn=(name,lines)=>put(`${path}${name}.mcfunction`,Array.isArray(lines)?lines.join('\n')+'\n':lines+'\n');
   const speed=Math.max(1,Math.min(120,Math.round(song.tempo*4)));if(speed/4!==song.tempo)warnings.push(`数据包速度为 ${speed/4} tick/s（原曲 ${song.tempo}）；按原版 20 Hz 游戏时钟调度。`);
   const byTick=new Map();for(const n of song.notes){if(!byTick.has(n.tick))byTick.set(n.tick,[]);byTick.get(n.tick).push(n);}const ticks=[...byTick.keys()].sort((a,b)=>a-b);
   if(ticks.length>20000)throw new Error('数据包包含过多独立时间点（最多 20000）；请分段导出。');
   const range=(start,end)=>start===end?String(start):`${start}..${end}`;
-  function tree(lo,hi){const start=ticks[lo],end=ticks[hi],name=`tree/${start}_${end}`;if(lo===hi){fn(name,[`execute if score @s ${clock} matches ${start*80}.. if score @s ${last} matches ..${start-1} run function ${namespace}:notes/${start}`]);return name;}
-    const mid=(lo+hi)>>1,children=[[lo,mid],[mid+1,hi]],lines=[];for(const [a,b]of children){const child=tree(a,b);lines.push(`execute if score @s ${clock} matches ${ticks[a]*80}.. if score @s ${last} matches ..${ticks[b]-1} run function ${namespace}:${child}`);}fn(name,lines);return name;}
+  function tree(lo,hi){const start=ticks[lo],end=ticks[hi],name=`tree/${start}_${end}`;if(lo===hi){fn(name,[`execute if score @s ${clock} matches ${start*80}.. if score @s ${last} matches ..${start-1} run function ${functionPrefix}notes/${start}`]);return name;}
+    const mid=(lo+hi)>>1,children=[[lo,mid],[mid+1,hi]],lines=[];for(const [a,b]of children){const child=tree(a,b);lines.push(`execute if score @s ${clock} matches ${ticks[a]*80}.. if score @s ${last} matches ..${ticks[b]-1} run function ${functionPrefix}${child}`);}fn(name,lines);return name;}
   for(const tick of ticks){const lines=[];for(const n of byTick.get(tick)){lines.push(playSoundCommand(song,n,{...options,namespace:options.customNamespace||'minecraft'}));if(options.visualizer)lines.push(...visualizerCommands(song,n,options,visual));}lines.push(`scoreboard players set @s ${last} ${tick}`);fn(`notes/${tick}`,lines);}
   const root=tree(0,ticks.length-1),finishAt=song.length*80;
   fn('load',[`scoreboard objectives add ${clock} dummy`,`scoreboard objectives add ${last} dummy`,`scoreboard objectives add ${repeat} dummy`,`scoreboard players set #speed ${clock} ${speed}`,...(options.visualizer&&options.glow!==false?Array.from({length:16},(_,i)=>[`team add ${visual}_${i}`,`team modify ${visual}_${i} color ${['green','dark_green','dark_gray','yellow','gray','red','gold','gold','dark_aqua','aqua','gray','dark_gray','dark_red','light_purple','yellow','dark_purple'][i]}`]).flat():[])]);
-  fn('tick',[`execute as @a[tag=${playing}] at @s run function ${namespace}:player_tick`]);
-  fn('player_tick',[`scoreboard players operation @s ${clock} += #speed ${clock}`,`function ${namespace}:${root}`,`execute if score @s ${clock} matches ${finishAt}.. run function ${namespace}:finish`]);
+  fn('tick',[`execute as @a[tag=${playing}] at @s run function ${functionPrefix}player_tick`]);
+  fn('player_tick',[`scoreboard players operation @s ${clock} += #speed ${clock}`,`function ${functionPrefix}${root}`,`execute if score @s ${clock} matches ${finishAt}.. run function ${functionPrefix}finish`]);
   const loop=options.loop??song.loop,loopStart=Math.max(0,Math.min(song.length-1,song.loopStart)),loopCount=Number(options.loopCount??song.loopCount)||0;
-  fn('finish',loop?[`scoreboard players add @s ${repeat} 1`,...(loopCount?[`execute if score @s ${repeat} matches ${loopCount+1}.. run function ${namespace}:stop`,`execute if score @s ${repeat} matches ..${loopCount} run function ${namespace}:loop`]:[`function ${namespace}:loop`])]:[`function ${namespace}:stop`]);
+  fn('finish',loop?[`scoreboard players add @s ${repeat} 1`,...(loopCount?[`execute if score @s ${repeat} matches ${loopCount+1}.. run function ${functionPrefix}stop`,`execute if score @s ${repeat} matches ..${loopCount} run function ${functionPrefix}loop`]:[`function ${functionPrefix}loop`])]:[`function ${functionPrefix}stop`]);
   fn('loop',[`scoreboard players set @s ${clock} ${loopStart*80}`,`scoreboard players set @s ${last} ${loopStart-1}`]);
-  fn('play',[`execute unless score @s ${clock} matches 0.. run scoreboard players set @s ${clock} 0`,`execute unless score @s ${last} matches -1.. run scoreboard players set @s ${last} -1`,`execute unless score @s ${repeat} matches 0.. run scoreboard players set @s ${repeat} 0`,`tag @s add ${playing}`,`function ${namespace}:${root}`]);
+  fn('play',[`execute unless score @s ${clock} matches 0.. run scoreboard players set @s ${clock} 0`,`execute unless score @s ${last} matches -1.. run scoreboard players set @s ${last} -1`,`execute unless score @s ${repeat} matches 0.. run scoreboard players set @s ${repeat} 0`,`tag @s add ${playing}`,`function ${functionPrefix}${root}`]);
   fn('pause',[`tag @s remove ${playing}`]);fn('stop',[`tag @s remove ${playing}`,`scoreboard players reset @s ${clock}`,`scoreboard players reset @s ${last}`,`scoreboard players reset @s ${repeat}`]);
-  fn('restart',[`function ${namespace}:stop`,`function ${namespace}:play`]);fn('cleanup',[`kill @e[tag=${visual}]`]);
-  fn('uninstall',[`tag @a remove ${playing}`,`scoreboard objectives remove ${clock}`,`scoreboard objectives remove ${last}`,`scoreboard objectives remove ${repeat}`,`function ${namespace}:cleanup`,...(options.visualizer&&options.glow!==false?Array.from({length:16},(_,i)=>`team remove ${visual}_${i}`):[])]);
+  fn('restart',[`function ${functionPrefix}stop`,`function ${functionPrefix}play`]);fn('cleanup',[`kill @e[tag=${visual}]`]);
+  fn('uninstall',[`tag @a remove ${playing}`,`scoreboard objectives remove ${clock}`,`scoreboard objectives remove ${last}`,`scoreboard objectives remove ${repeat}`,`function ${functionPrefix}cleanup`,...(options.visualizer&&options.glow!==false?Array.from({length:16},(_,i)=>`team remove ${visual}_${i}`):[])]);
   put('pack.mcmeta',json({pack:{pack_format:format,description:`${song.title}${song.author?` — ${song.author}`:''}`}}));
-  put(`data/minecraft/tags/${folder}/load.json`,json({values:[`${namespace}:load`]}));put(`data/minecraft/tags/${folder}/tick.json`,json({values:[`${namespace}:tick`]}));
+  put(`data/minecraft/tags/${folder}/load.json`,json({values:[`${functionPrefix}load`]}));put(`data/minecraft/tags/${folder}/tick.json`,json({values:[`${functionPrefix}tick`]}));
   put('nbs-web-project.json',json({version:1,namespace,song,options:{...options,speed}}));
-  put('README.txt',`Note Block Studio 本地导出的 Java Edition 数据包\n目标：${modern?'1.21':'1.20.5–1.20.6'}\n\n将 ZIP 放入世界 datapacks 目录，运行 /reload。\n以玩家执行：\n/function ${namespace}:play\n/function ${namespace}:pause\n/function ${namespace}:stop\n/function ${namespace}:restart\n/function ${namespace}:cleanup\n卸载前：/function ${namespace}:uninstall\n\n支持多位玩家独立播放。速度为 ${speed/4} tick/s。\n扩展八度及自定义音色需要在客户端另装对应资源包。\n可视化使用真实 falling_block 实体；cleanup 清理本曲仍存在的实体。\n`);
+  put('README.txt',`Note Block Studio 本地导出的 Java Edition 数据包\n目标：${modern?'1.21':'1.20.5–1.20.6'}\n\n将 ZIP 放入世界 datapacks 目录，运行 /reload。\n以玩家执行：\n/function ${functionPrefix}play\n/function ${functionPrefix}pause\n/function ${functionPrefix}stop\n/function ${functionPrefix}restart\n/function ${functionPrefix}cleanup\n卸载前：/function ${functionPrefix}uninstall\n\n支持多位玩家独立播放。速度为 ${speed/4} tick/s。\n扩展八度及自定义音色需要在客户端另装对应资源包。\n可视化使用真实 falling_block 实体；cleanup 清理本曲仍存在的实体。\n`);
   const extended=song.notes.some(n=>soundEvent(song,n).extended),custom=song.notes.some(n=>n.instrument>=16);if(extended)warnings.push('超出原版两八度的音符需要“扩展音域资源包”。');if(custom)warnings.push('自定义音色需要安装包含相应声音事件的资源包；可使用“自定义音色资源包”导出 OGG 文件。');
-  return{files,bytes:await writeZip([...files].map(([name,data])=>({name,data}))),namespace,warnings,summary:{notes:song.notes.length,files:files.size,tempo:speed/4,mcVersion:modern?'1.21':'1.20.5',visualizer:options.visualizer?options.visualizerType||'Arc':null},commands:{play:`/function ${namespace}:play`,pause:`/function ${namespace}:pause`,stop:`/function ${namespace}:stop`}};
+  return{files,bytes:await writeZip([...files].map(([name,data])=>({name,data}))),namespace,name:location.name,functionPath:location.functionPath,warnings,summary:{notes:song.notes.length,files:files.size,tempo:speed/4,mcVersion:modern?'1.21':'1.20.5',name:location.name,functionPath:location.functionPath,visualizer:options.visualizer?options.visualizerType||'Arc':null},commands:{play:`/function ${functionPrefix}play`,pause:`/function ${functionPrefix}pause`,stop:`/function ${functionPrefix}stop`}};
 }
 export async function importDatapack(input,options={}){
   const files=input instanceof Map?input:await readZip(input);if(!files.size||!files.has('pack.mcmeta'))throw new Error('数据包为空或缺少根目录 pack.mcmeta。');let metadata;try{metadata=JSON.parse(dec.decode(files.get('pack.mcmeta')));}catch{throw new Error('数据包 pack.mcmeta 不是有效 JSON。');}if(!metadata?.pack||!Number.isInteger(metadata.pack.pack_format)||metadata.pack.pack_format<1)throw new Error('数据包 pack_format 无效。');

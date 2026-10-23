@@ -1,4 +1,5 @@
 /** Local Web Audio renderer. Pitch follows the original play_sound.gml. */
+import {controlType} from './tempo-map.js';
 export const INSTRUMENTS = [
   ['竖琴', 'Harp', 'harp.ogg', '#6ab4e6', '🎹'],
   ['低音提琴', 'Double Bass', 'dbass.ogg', '#a08de5', '♬'],
@@ -40,6 +41,12 @@ const lengthOf = song => (song.notes || []).reduce((length, note) => Math.max(le
 /** NBS key45 = F#4 and the native sample's untransposed pitch. */
 export function sampleRateForNote(note, instrumentKey = 45) {
   return 2 ** ((numeric(note.key, 45) + numeric(instrumentKey, 45) - 90 + numeric(note.pitch, 0) / 100) / 12);
+}
+
+/** Original control_draw.gml: a centred layer preserves note pan; otherwise average. */
+export function nativePan(notePan = 0, layerPan = 0) {
+  const note = clamp(numeric(notePan, 0), -100, 100), layer = clamp(numeric(layerPan, 0), -100, 100);
+  return (layer === 0 ? note : (layer + note) / 2) / 100;
 }
 
 /** Encode an AudioBuffer as interleaved, little-endian stereo 16-bit PCM. */
@@ -133,6 +140,7 @@ export class AudioEngine {
   removeCustomSample(index) { this.customSamples.delete(customIndex(index)); }
 
   _sample(note, song = {}) {
+    if (controlType(note, song)) return {buffer: null, key: 45};
     const instrument = Math.max(0, Math.trunc(numeric(note.instrument, 0)));
     if (instrument < 16) return {buffer: this.buffers.get(instrument), key: 45};
     const index = instrument - 16;
@@ -165,7 +173,7 @@ export class AudioEngine {
     const gain = context.createGain();
     gain.gain.value = volume;
     const panner = context.createStereoPanner();
-    panner.pan.value = clamp((numeric(note.pan, 0) + numeric(layer.pan, 0)) / 100, -1, 1);
+    panner.pan.value = nativePan(note.pan, layer.pan);
     source.connect(gain); gain.connect(panner); panner.connect(destination);
     if (track) {
       this._sources.add(source);

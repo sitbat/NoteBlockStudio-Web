@@ -99,12 +99,14 @@ export function parseNBS(input) {
     }
   }
   // Layer metadata and the custom section were optional in some classic files.
+  const nativeMutedLayers = [];
   for (let i = 0; i < layerCount; i++) {
     let layer = defaultLayer(i);
     if (r.pos < r.end) {
       layer.name = r.str();
       const lock = version >= 4 ? r.u8() : 0;
       layer.locked = lock === 1; layer.solo = lock === 2;
+      if (lock === 1) nativeMutedLayers.push(i);
       layer.volume = clamp(r.u8(), 0, 100);
       layer.pan = version >= 2 ? clamp(r.u8() - 100, -100, 100) : 0;
     }
@@ -121,6 +123,9 @@ export function parseNBS(input) {
     if (extension.remaining.length) song.metadata.trailingBytes = extension.remaining;
     if (extension.restored) song.metadata.webEffectsVersion = 1;
   }
+  // Native lock=1 also silences playback. A valid Web footer explicitly restores
+  // the Web editor's independent edit-lock/mute flags, including omitted defaults.
+  if (!song.metadata.webEffectsVersion) for (const index of nativeMutedLayers) song.layers[index].muted = true;
   song.length = Math.max(declaredLength, tick + 1, 1);
   return song;
 }
@@ -185,6 +190,8 @@ const PROGRAMS = [0, 32, 116, 117, 115, 27, 73, 9, 112, 13, 11, 113, 109, 80, 10
 // Optional source-exact preset, kept separate so existing automatic melodic imports stay compatible.
 const NATIVE_PROGRAMS = [[0,0],[15,0],[15,0],[15,0],[0,0],[0,0],[5,1],[14,0],[7,-2],[7,-2],[7,-2],[10,0],[10,0],[9,-2],[7,-2],[5,1],[6,-1],[10,0],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[5,1],[5,1],[0,0],[5,1],[1,2],[12,2],[12,2],[5,3],[1,2],[1,2],[1,2],[1,2],[5,1],[5,1],[1,2],[15,0],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[1,2],[0,0],[3,0],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[3,-1],[6,-1],[6,-1],[6,-1],[12,2],[6,-1],[12,2],[12,2],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[13,0],[6,-1],[6,-1],[6,-1],[5,1],[6,-1],[6,-1],[1,2],[7,-2],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[6,-1],[8,-2],[8,-2],[6,-1],[8,-2],[5,1],[15,0],[6,-1],[6,-1],[5,1],[14,0],[14,0],[14,0],[5,1],[10,0],[6,-1],[6,-1],[6,-1],[8,-2],[11,-1],[10,0],[9,-2],[2,0],[3,0],[3,0],[8,-2],[4,1],[6,-1],[8,-2],[6,1],[7,2],[2,0],[3,0],[3,0]];
 export const MIDI_PROGRAM_DEFAULTS = Object.freeze(Object.fromEntries(NATIVE_PROGRAMS.map(([instrument, octave], i) => [i, Object.freeze({instrument, octave})])));
+// Native midi_instruments.gml shortened names, falling back to its full patch name.
+export const MIDI_PROGRAM_NAMES = Object.freeze(["Piano 1","Piano 2","Piano 3","Honky-tonk","E.Piano 1","E.Piano 2","Harpsichord","Clavinet","Celesta","Glockenspiel","Music Box","Vibraphone","Marimba","Xylophone","Tubular Bells","Dulcimer","Organ 1","Organ 2","Rock Organ","Church Organ","Reed Organ","Accordion","Harmonica","Bandoneon","Nylon-str.Gt","Steel-str.Gt","Jazz Guitar","Clean Guitar","Muted Guitar","Overdrive Gt","Distortion Gt","Gt Harmonics","Acoustic Bass","Fingered Bass","Picked Bass","Fretless Bass","Slap Bass 1","Slap Bass 2","Synth Bass 1","Synth Bass 2","Violin","Viola","Cello","Contrabass","Tremolo Str.","Pizzicato","Harp","Timpani","Strings 1","Strings 2","Syn.Strings1","Syn.Strings2","Choir Aahs","Voice Oohs","Synth Voice","Orchestra Hit","Trumpet","Trombone","Tuba","Muted Trumpet","French Horn","Brass","Synth Brass 1","Synth Brass 2","Soprano Sax","Alto Sax","Tenor Sax","Baritone Sax","Oboe","English Horn","Bassoon","Clarinet","Piccolo","Flute","Recorder","Pan Flute","Blown Bottle","Shakuhachi","Whistle","Ocarina","Square Lead","Saw Lead","Calliope","Chiff Lead","Charang","Voice Lead","Fifth Lead","Bass+Lead","Fantasia","Warm Pad","Polysynth","Space Choir","Bowed Glass","Metal Pad","Halo Pad","Sweep Pad","Rain Drop","Soundtrack","Crystal","Atmosphere","Brightness","Goblins","Echoes","SF","Sitar","Banjo","Shamisen","Koto","Kalimba","Bag pipe","Fiddle","Shanai","Tinkle Bell","Agogo","Steel Drums","Woodblock","Taiko Drum","Melodic Tom","Synth Drum","Reverse Cym.","Gt Fret Noise","Breath Noise","Seashore","Bird","Telephone","Helicopter","Applause","Gunshot"]);
 function programInstrument(program) {
   const exact = PROGRAMS.indexOf(program); if (exact >= 0) return exact;
   if (program >= 32 && program <= 39) return 1;
@@ -213,16 +220,18 @@ function midiImportOptions(options) {
     return value;
   };
   const custom = options.customInstruments ?? [];
+  const namingMode = options.namingMode ?? 'track';
+  if (!['track', 'patch', 'channel'].includes(namingMode)) throw new Error('MIDI namingMode 必须为 track、patch 或 channel。');
   if (!Array.isArray(custom) || custom.length > 255) throw new Error('MIDI 自定义乐器必须是数组，最多 255 个。');
   const customInstruments = custom.map((definition, i) => {
     if (!definition || typeof definition !== 'object' || Array.isArray(definition) || typeof definition.name !== 'string' || definition.name.length > 1024 || typeof definition.file !== 'string' || definition.file.length > 4096 || !Number.isInteger(definition.key) || definition.key < 0 || definition.key > 87) throw new Error(`MIDI 自定义乐器 ${i + 1} 的定义无效。`);
     try { return {...structuredClone(definition), pressKey: !!definition.pressKey}; } catch { throw new Error(`MIDI 自定义乐器 ${i + 1} 不能复制。`); }
   });
-  const mapping = (name, percussion) => {
+  const mapping = (name, percussion, maxId = 127) => {
     const source = options[name] ?? {};
-    if (!source || typeof source !== 'object' || Array.isArray(source) || Object.keys(source).length > 128) throw new Error(`MIDI ${name} 必须是最多 128 项的映射对象。`);
+    if (!source || typeof source !== 'object' || Array.isArray(source) || Object.keys(source).length > maxId + 1) throw new Error(`MIDI ${name} 必须是最多 ${maxId + 1} 项的映射对象。`);
     return Object.fromEntries(Object.entries(source).map(([key, value]) => {
-      if (!/^(0|[1-9]\d*)$/.test(key) || Number(key) > 127) throw new Error(`MIDI ${name} 的编号必须在 0–127 之间。`);
+      if (!/^(0|[1-9]\d*)$/.test(key) || Number(key) > maxId) throw new Error(`MIDI ${name} 的编号必须在 0–${maxId} 之间。`);
       const record = typeof value === 'number' ? {instrument: value} : value;
       if (!record || typeof record !== 'object' || Array.isArray(record) || !Number.isInteger(record.instrument) || record.instrument < -1 || record.instrument > 15 + customInstruments.length) throw new Error(`MIDI ${name}[${key}] 引用了无效或未定义的乐器。`);
       const result = {instrument: record.instrument};
@@ -240,8 +249,8 @@ function midiImportOptions(options) {
   return {targetTempo: options.targetTempo == null ? null : numeric('targetTempo', 8, .05, 655.35),
     gridSubdivision: numeric('gridSubdivision', 1, 1, 16, true), octaveOffset: numeric('octaveOffset', 0, -8, 8, true),
     keepVelocity: boolean('keepVelocity', true), keepPan: boolean('keepPan', true), removeSilent: boolean('removeSilent', false),
-    keepWithinOctaveRange: boolean('keepWithinOctaveRange', false), maxLayers: numeric('maxLayers', 65535, 1, 65535, true), trackNames: boolean('trackNames', true),
-    programMap: mapping('programMap', false), percussionMap: mapping('percussionMap', true), customInstruments};
+    keepWithinOctaveRange: boolean('keepWithinOctaveRange', false), maxLayers: numeric('maxLayers', 65535, 1, 65535, true), trackNames: boolean('trackNames', true), namingMode,
+    programMap: mapping('programMap', false), channelMap: mapping('channelMap', false, 15), percussionMap: mapping('percussionMap', true), customInstruments};
 }
 
 /** Import SMF 0/1. Flatten tempo changes in seconds onto a configurable fixed tick grid. */
@@ -349,6 +358,10 @@ export function parseMIDI(input, options = {}) {
       const selected = settings.programMap[n.program];
       if (selected) { instrument = selected.instrument; octave = selected.octave || 0; }
     }
+    // A channel override replaces the entire melodic patch mapping. On channel
+    // 10 it keeps the per-drum absolute key, then transposes that resolved key.
+    const channel = settings.channelMap[n.channel];
+    if (channel) { instrument = channel.instrument; octave = channel.octave || 0; }
     if (instrument === -1) { mappedOut++; continue; }
     key += (settings.octaveOffset + octave) * 12;
     if (settings.keepWithinOctaveRange) { while (key < 33) key += 12; while (key > 57) key -= 12; }
@@ -371,8 +384,8 @@ export function parseMIDI(input, options = {}) {
       const id = song.layers.length;
       if (id >= settings.maxLayers) throw new Error(`MIDI 导入需要超过 ${settings.maxLayers} 个图层；未截断或丢弃任何和弦。`);
       lane = { id, tick: -1 }; group.lanes.push(lane);
-      const name = settings.trackNames && trackNames[n.track] || `轨道 ${n.track + 1}`;
-      song.layers.push(defaultLayer(id, `${name}${n.channel === 9 ? ' · 打击乐' : ''}${group.lanes.length > 1 ? ` · ${group.lanes.length}` : ''}`));
+      const name = !settings.trackNames ? `轨道 ${n.track + 1}` : settings.namingMode === 'patch' ? n.channel === 9 ? 'Percussion' : MIDI_PROGRAM_NAMES[n.program] : settings.namingMode === 'channel' ? `Channel ${n.channel + 1}` : trackNames[n.track] || `轨道 ${n.track + 1}`;
+      song.layers.push(defaultLayer(id, `${name}${n.channel === 9 && settings.namingMode === 'track' ? ' · 打击乐' : ''}${group.lanes.length > 1 ? ` · ${group.lanes.length}` : ''}`));
     }
     lane.tick = tick;
     const duration = Math.max(1, Math.round((secondsAt(n.endTick ?? n.tick + division / 4) - secondsAt(n.tick)) * song.tempo));

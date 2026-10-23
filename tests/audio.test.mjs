@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {access} from 'node:fs/promises';
-import {AudioEngine, INSTRUMENTS, BUNDLED_CUSTOM_SOUNDS, encodeWav, sampleRateForNote} from '../js/audio.js';
+import {AudioEngine, INSTRUMENTS, BUNDLED_CUSTOM_SOUNDS, encodeWav, sampleRateForNote, nativePan} from '../js/audio.js';
 
 class Param {
   value = 0;
@@ -106,7 +106,11 @@ test('audio graph multiplies velocity/layer volume and combines stereo pan', () 
   assert.equal(source.when, 10.1);
   assert.equal(source.playbackRate.value, 2);
   assert.equal(source.destination.gain.value, 0.25);
-  assert.equal(source.destination.destination.pan.value, 0.3);
+  assert.equal(source.destination.destination.pan.value, 0.15);
+});
+
+test('native layer/note pan rules agree at centre, extremes and opposite directions', () => {
+  for (const [layer, note, expected] of [[0,-100,-1],[0,100,1],[-100,0,-.5],[100,0,.5],[40,-10,.15],[-100,100,0],[100,-100,0],[-100,-100,-1],[100,100,1]]) assert.equal(nativePan(note,layer),expected);
 });
 
 test('mute and solo silence excluded layers', () => {
@@ -174,7 +178,7 @@ test('future voices honor in-place mute, solo, volume and pan changes during pla
   audio.context.currentTime = 10.8; audio._pump();
   assert.equal(audio.context.sources.length, 1);
   assert.equal(audio.context.sources[0].destination.gain.value, 0.25);
-  assert.equal(audio.context.sources[0].destination.destination.pan.value, -0.5);
+  assert.equal(audio.context.sources[0].destination.destination.pan.value, -0.25);
   audio.stop();
 });
 
