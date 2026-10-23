@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {mkdtemp,mkdir,writeFile,readFile,readdir,rm,symlink} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,readdir,realpath,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
@@ -49,7 +49,7 @@ async function preview(t,root){
 
 test('static build contains only the closed runtime payload and a byte-exact SHA256 manifest',async t=>{
   const root=await fixture(t),result=await buildStatic(root),manifest=JSON.parse(await readFile(path.join(result.directory,'static-manifest.json'),'utf8'));
-  assert.equal(result.directory,path.join(root,'dist'));assert.equal(result.version,'3.2.1');assert.equal(result.files,Object.keys(publicEntries).length);
+  assert.equal(result.directory,path.join(await realpath(root),'dist'));assert.equal(result.version,'3.2.1');assert.equal(result.files,Object.keys(publicEntries).length);
   assert.equal(manifest.kind,'noteblockstudio-static');assert.equal(manifest.version,'3.2.1');
   assert.deepEqual(manifest.files.map(file=>file.path),Object.keys(publicEntries).sort());
   assert.deepEqual(await filesUnder(result.directory),[...Object.keys(publicEntries),'static-manifest.json'].sort());
