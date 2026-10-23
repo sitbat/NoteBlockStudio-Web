@@ -10,17 +10,17 @@
 
 ## 部署为网站
 
-在安装了 Docker Engine / Compose 的 Linux 服务器上使用独立域名，配置 DNS 并开放 TCP 80、443：
+在安装了 Docker Engine / Compose 的 Linux 服务器上启动应用：
 
 ```sh
 git clone https://github.com/sitbat/NoteBlockStudio-Web.git
 cd NoteBlockStudio-Web
 cp .env.example .env
-# 编辑 .env，将 DOMAIN 改成自己的域名（不含协议或路径）
+# 编辑 .env，将 PUBLIC_ORIGIN 改成网站的完整来源，例如 https://nbs.example.com
 docker compose up -d --build
 ```
 
-随后通过 `https://你的域名/` 使用，Caddy 负责申请和续期 HTTPS 证书。应用端口只在容器内部开放。也提供 Node + Nginx + systemd 模板，完整步骤、可选访问认证及验收命令见 [服务器部署](docs/DEPLOYMENT.md)。配置只支持域名根路径。
+应用默认监听服务器本机 `127.0.0.1:8765`。也提供直接 Node 启动和 systemd 入口；应用参数与验收命令见 [服务器部署](docs/DEPLOYMENT.md)。域名、HTTPS、反向代理及外部访问由部署者自行配置，仓库不包含这些配置。当前应用只支持网站根路径。
 
 网站版的 Rust/WASM 多核播放仍使用访问者电脑；曲谱与采样保存在访问者浏览器中。服务器负责网页及可关闭的 FFmpeg 编码：额外格式导出时会临时上传音频；直接 WAV 下载在浏览器完成。网站模式不会开放本机文件读取、URL 下载代理或 Discord 接口。
 

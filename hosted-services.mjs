@@ -100,7 +100,7 @@ function codecOptions(url){
 }
 
 /** Caller must first enforce the configured Host; this module never trusts proxy headers. */
-export async function createHostedServices({publicOrigin,projectRoot=path.dirname(fileURLToPath(import.meta.url)),ffmpegPath,env=process.env,clientAddress=req=>req.socket.remoteAddress,limits:overrides={},spawnImpl=spawn,now=Date.now}={}){
+export async function createHostedServices({publicOrigin,projectRoot=path.dirname(fileURLToPath(import.meta.url)),ffmpegPath,env=process.env,clientAddress=req=>req.socket.remoteAddress,limits:overrides={},spawnImpl=spawn,pipelineImpl=pipeline,now=Date.now}={}){
   let origin;try{origin=new URL(publicOrigin);}catch{throw new Error('PUBLIC_ORIGIN must be an absolute HTTP(S) origin.');}
   if(!['https:','http:'].includes(origin.protocol)||origin.username||origin.password||origin.pathname!=='/'||origin.search||origin.hash||origin.origin!==publicOrigin)throw new Error('PUBLIC_ORIGIN must be an exact HTTP(S) origin without a path or trailing slash.');
   const limits={...hostedLimits(env),...overrides};for(const [name,value] of Object.entries(limits))if(!Number.isSafeInteger(value)||value<1)throw new Error(`Invalid hosted limit: ${name}.`);
@@ -133,8 +133,15 @@ export async function createHostedServices({publicOrigin,projectRoot=path.dirnam
     const session=cookie(req);if(!session||!equal(req.headers['x-nbs-token'],csrf(session)))fail(403,'SESSION_REQUIRED','Refresh the page before requesting server audio encoding.');
     if(!enabled||!ffmpeg)fail(503,'TRANSCODE_UNAVAILABLE','Server audio encoding is unavailable. Browser WAV export remains available.');
     const options=codecOptions(url);if(!/^audio\/(?:wav|wave|x-wav)(?:;|$)/i.test(req.headers['content-type']||''))fail(415,'WAV_REQUIRED','Use Content-Type: audio/wav.');
-    rate(req,res,'transcodes');if(job)fail(409,'TRANSCODE_BUSY','Another server audio export is running. Try again later.');
-    let release;const done=new Promise(resolve=>release=resolve),controller=new AbortController(),current={controller,done,child:null};job=current;
+    rate(req,res,'transcodes');
+    // A client can receive the complete response before pipeline() settles.
+    // Wait only for an already-finished response; active transfers stay busy.
+    const previous=job;if(previous?.response.writableFinished)await previous.done;
+    if(closed)fail(503,'SERVICE_CLOSED','Hosted audio services are stopped.');
+    if(res.destroyed||req.aborted)fail(499,'CANCELLED','Audio request was cancelled.');
+    // All waiters recheck after the await. Only one can reserve the next slot.
+    if(job)fail(409,'TRANSCODE_BUSY','Another server audio export is running. Try again later.');
+    let release;const done=new Promise(resolve=>release=resolve),controller=new AbortController(),current={controller,done,child:null,response:res};job=current;
     const cancel=()=>{if(!res.writableEnded)controller.abort();};res.once('close',cancel);let folder;
     try{
       // Reserve the next slot while the preceding request removes its files.
@@ -146,7 +153,7 @@ export async function createHostedServices({publicOrigin,projectRoot=path.dirnam
       if(controller.signal.aborted)fail(499,'CANCELLED','Audio request was cancelled.');await encode(input,output,options,controller.signal);
       const info=await stat(output);if(!info.isFile()||!info.size)fail(502,'EMPTY_AUDIO','Audio encoder produced no usable output.');if(info.size>limits.maxOutputBytes)fail(413,'OUTPUT_TOO_LARGE','Encoded audio exceeds the configured output limit.');
       const filename='NoteBlockStudio.'+options.format;res.writeHead(200,{'Content-Type':FORMATS[options.format].mime,'Content-Length':info.size,'Content-Disposition':`attachment; filename="${filename}"`,'X-NBS-Filename':filename,'Cache-Control':'no-store'});
-      const delivery=setTimeout(()=>controller.abort(),limits.processTimeoutMs);delivery.unref();try{await pipeline(createReadStream(output),res,{signal:controller.signal});}finally{clearTimeout(delivery);}
+      const delivery=setTimeout(()=>controller.abort(),limits.processTimeoutMs);delivery.unref();try{await pipelineImpl(createReadStream(output),res,{signal:controller.signal});}finally{clearTimeout(delivery);}
     }finally{
       res.off('close',cancel);if(job===current)job=null;
       try{if(folder&&path.dirname(folder)===path.resolve(os.tmpdir())&&path.basename(folder).startsWith('nbs-hosted-codec-'))cleanup=rm(folder,{recursive:true,force:true});await cleanup;}finally{release();}

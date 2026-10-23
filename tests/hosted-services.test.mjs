@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import {EventEmitter} from 'node:events';
 import {PassThrough} from 'node:stream';
+import {pipeline} from 'node:stream/promises';
 import {writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {createHostedServices,hostedLimits,ClientRateLimiter} from '../hosted-services.mjs';
@@ -23,7 +24,7 @@ function fakeCodec({mode='success',wait,bytes=Buffer.from('encoded audio')}={}){
 }
 async function fixture(t,options={}){
   const fake=options.fake===null?null:options.fake||fakeCodec(),services=await createHostedServices({publicOrigin,projectRoot:root,env:{},...(fake?{ffmpegPath:'fake-codec',spawnImpl:fake.spawn}:{}),...options});
-  const server=http.createServer(async(req,res)=>{if(!await services.handle(req,res)){res.writeHead(404);res.end();}});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const url=`http://127.0.0.1:${server.address().port}`;
+  const server=http.createServer(async(req,res)=>{options.onRequest?.(req,res);if(!await services.handle(req,res)){res.writeHead(404);res.end();}});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const url=`http://127.0.0.1:${server.address().port}`;
   t.after(async()=>{server.closeAllConnections?.();await services.close();await new Promise(resolve=>server.close(resolve));});
   const response=await fetch(url+'/api/capabilities'),cap=await response.json(),cookie=response.headers.get('set-cookie')?.split(';')[0];
   const headers={Origin:publicOrigin,'X-NBS-Token':cap.token,Cookie:cookie,'Content-Type':'audio/wav'};
@@ -87,6 +88,29 @@ test('there is exactly one active upload/encode/delivery slot across clients',as
   let release;const wait=new Promise(resolve=>release=resolve),fake=fakeCodec({wait}),f=await fixture(t,{fake});const first=f.post();
   for(let i=0;i<100&&fake.calls.length<2;i++)await new Promise(resolve=>setTimeout(resolve,2));assert.equal(f.services.getStats().active,true);
   assert.equal((await f.post()).status,409);release();const response=await first;assert.equal(response.status,200);await response.arrayBuffer();for(let i=0;i<100&&f.services.getStats().active;i++)await new Promise(resolve=>setTimeout(resolve,2));assert.equal(f.services.getStats().active,false);
+});
+
+const deferred=()=>{let resolve;const promise=new Promise(done=>resolve=done);return {promise,resolve};};
+
+test('sequential successful encodes wait for a finished response pipeline to release its slot',async t=>{
+  const release=deferred(),delivered=deferred(),nextDelivered=deferred(),arrived=deferred();let deliveries=0;
+  t.after(()=>release.resolve());
+  const f=await fixture(t,{pipelineImpl:async(...args)=>{await pipeline(...args);if(++deliveries===1){delivered.resolve();await release.promise;}else nextDelivered.resolve();},onRequest:req=>{if(req.headers['x-test-waiter'])arrived.resolve();}});
+  const first=await f.post();assert.equal(first.status,200);await first.arrayBuffer();await delivered.promise;assert.equal(f.services.getStats().active,true);
+  const second=f.post(wav(),{'X-Test-Waiter':'1'});await arrived.promise;
+  // The second request has reached the service while the first pipeline is
+  // deliberately unsettled, despite its response being completely delivered.
+  release.resolve();const response=await second;assert.equal(response.status,200);await response.arrayBuffer();await nextDelivered.promise;assert.equal(deliveries,2);
+});
+
+test('competing waiters for one finished response admit only a single next encoder',async t=>{
+  const release=deferred(),delivered=deferred(),nextDelivered=deferred(),arrived=deferred();let deliveries=0,waiters=0;
+  t.after(()=>release.resolve());const fake=fakeCodec();
+  const f=await fixture(t,{fake,pipelineImpl:async(...args)=>{await pipeline(...args);if(++deliveries===1){delivered.resolve();await release.promise;}else nextDelivered.resolve();},onRequest:req=>{if(req.headers['x-test-waiter']&&++waiters===3)arrived.resolve();}});
+  const first=await f.post();assert.equal(first.status,200);await first.arrayBuffer();await delivered.promise;
+  const requests=Array.from({length:3},(_,i)=>f.post(wav(),{'X-Test-Waiter':String(i+1)}));await arrived.promise;release.resolve();
+  const responses=await Promise.all(requests);assert.deepEqual(responses.map(response=>response.status).sort(),[200,409,409]);for(const response of responses)await response.arrayBuffer();
+  await nextDelivered.promise;assert.equal(fake.calls.filter(call=>call.args[0]!=='-version').length,2);assert.equal(deliveries,2);
 });
 
 test('encoder failure, oversized output and process timeout do not leak paths and recover',async t=>{

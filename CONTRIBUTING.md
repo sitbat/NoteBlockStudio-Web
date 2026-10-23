@@ -12,7 +12,7 @@ node server.mjs --open
 
 请通过本地服务器检查界面和音频，让 COOP/COEP 响应头正常生效。浏览器音频需要一次用户操作。FFmpeg 仅用于额外音频编码格式；不修改该功能时，无需安装它。
 
-测试网站模式可以在本机设置 `PUBLIC_ORIGIN=http://localhost:8790`、`PORT=8790` 后运行 `npm run start:hosted`；公开来源必须使用 HTTPS 并通过反向代理访问。部署与验收命令见 [服务器部署](docs/DEPLOYMENT.md)。本机服务与网站服务分开维护；网站模式不应接入 Discord、本机路径或服务端 URL 代理。
+测试网站模式可以在本机设置 `PUBLIC_ORIGIN=http://localhost:8790`、`PORT=8790` 后运行 `npm run start:hosted`；公开来源必须使用 HTTPS，外部接入由部署者处理。部署与验收命令见 [服务器部署](docs/DEPLOYMENT.md)。本机服务与网站服务分开维护；网站模式不应接入 Discord、本机路径或服务端 URL 代理。
 
 运行完整 JavaScript 与随包 WASM 测试：
 
@@ -55,4 +55,4 @@ Rust crate 没有 registry 依赖；构建脚本使用离线 Cargo。首次安�
 
 界面、MIDI 硬件和实时音频修改需要另做手动检查。请记录浏览器、系统、采样率和音频配置；物理设备未测试时说明这一点。CI 的 DSP 功能测试不能代替真实声卡或特定机器的万轨实时性能验证，相关流程见 `docs/VERIFICATION.md`、`docs/PERFORMANCE.md` 和 `docs/MIDI.md`。
 
-工作流运行 Linux/Windows 的 Node.js 24、Linux 的 Node.js 18、Linux Rust/WASM 构建校验，以及 Docker/Caddy 网站模式测试。容器测试在镜像中安装 FFmpeg，用合成音频检查五种编码；它不会部署网站、创建 GitHub Pages 或自动发布 Release。不要提交令牌、`.env`、用户曲谱、个人采样或本地更新备份。
+工作流运行 Linux/Windows 的 Node.js 24、Linux 的 Node.js 18、Linux Rust/WASM 构建校验，以及应用 Docker 镜像测试。容器测试在镜像中安装 FFmpeg，用合成音频检查五种编码；它不会配置网络、部署网站、创建 GitHub Pages 或自动发布 Release。不要提交令牌、`.env`、用户曲谱、个人采样或本地更新备份。

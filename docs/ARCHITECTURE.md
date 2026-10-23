@@ -75,8 +75,8 @@ Linux 入口优先使用包内官方 Node，桌面安装作用于用户 XDG 路�
 
 ## 网站部署
 
-网站模式保留相同的浏览器 DSP 与 IndexedDB；不把曲谱或播放任务转移到服务器。静态服务只提供页面、浏览器脚本、WASM 与素材，禁止目录穿越、链接跳转和服务端文件读取。启动时固定 `PUBLIC_ORIGIN`；反向代理必须保留 Host，来源校验不信任 forwarded 字段。
+网站模式保留相同的浏览器 DSP 与 IndexedDB；不把曲谱或播放任务转移到服务器。静态服务只提供页面、浏览器脚本、WASM 与素材，禁止目录穿越、链接跳转和服务端文件读取。启动时固定 `PUBLIC_ORIGIN`；应用收到的 Host 必须与配置一致，来源校验不信任 forwarded 字段。
 
 服务器只开放健康、能力查询与编码接口。HTTPS 下使用 Secure/HttpOnly/SameSite=Strict 会话 Cookie 与绑定会话的 HMAC 请求令牌；它用于跨站防护，不是账号登录。转码在接收上传前占用全局单任务槽位，验证有界 WAV，使用固定参数与无 shell FFmpeg 子进程，限制输入、输出、处理时间及客户端速率，完成或断开连接后清理临时文件。网站 URL 导入直接由浏览器执行并受 CORS 限制。
 
-Compose 将应用放入内部网络，以非 root 用户运行，只读文件系统与有界临时盘；Caddy 单独处理公网 HTTPS。已有代理可使用 Nginx/systemd 模板。具体资源边界与操作步骤见 [服务器部署](DEPLOYMENT.md)。
+Compose 只启动应用，默认绑定服务器回环端口，以非 root 用户运行，使用只读文件系统与有界临时盘；也提供直接 Node / systemd 入口。域名、HTTPS、网络及反向代理由部署者自行配置，仓库不提供对应模板。应用资源边界与操作步骤见 [服务器部署](DEPLOYMENT.md)。

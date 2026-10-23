@@ -94,7 +94,7 @@ export function createHostedServer(root=projectRoot,{publicOrigin,services,reque
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   try{
     const options=parseHostedOptions(process.argv.slice(2));
-    if(options.help)console.log('Usage: node hosted-server.mjs --public-origin https://nbs.example.com [--host 127.0.0.1] [--port 8765] [--trust-proxy-headers]\nEnvironment: PUBLIC_ORIGIN, HOST, PORT, TRUST_PROXY_HEADERS. Remote HTTPS is terminated by a trusted reverse proxy; see docs/DEPLOYMENT.md.');
+    if(options.help)console.log('Usage: node hosted-server.mjs --public-origin https://nbs.example.com [--host 127.0.0.1] [--port 8765] [--trust-proxy-headers]\nEnvironment: PUBLIC_ORIGIN, HOST, PORT, TRUST_PROXY_HEADERS. Public HTTPS and external access are configured separately; see docs/DEPLOYMENT.md.');
     else{
       const {createHostedServices}=await import('./hosted-services.mjs');
       const services=await createHostedServices({publicOrigin:options.publicOrigin,projectRoot,clientAddress:req=>hostedClientAddress(req,options)});
@@ -104,7 +104,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
       server.once('close',()=>{clearTimeout(shutdownTimer);void services.close();process.off('SIGINT',stop);process.off('SIGTERM',stop);});
       server.once('error',error=>{console.error(`Website server failed: ${error.code||'START_FAILED'}`);process.exitCode=1;void services.close();process.off('SIGINT',stop);process.off('SIGTERM',stop);});
       process.once('SIGINT',stop);process.once('SIGTERM',stop);
-      server.listen(options.port,options.host,()=>console.log(`Note Block Studio website backend: http://${options.host}:${options.port}\nPublic origin: ${options.publicOrigin}\nTLS must be supplied by the reverse proxy for non-loopback origins.`));
+      server.listen(options.port,options.host,()=>console.log(`Note Block Studio website backend: http://${options.host}:${options.port}\nPublic origin: ${options.publicOrigin}\nPublic HTTPS and external access are configured separately.`));
     }
   }catch(error){console.error(error.message);process.exitCode=1;}
 }

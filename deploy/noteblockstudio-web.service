@@ -9,7 +9,6 @@ WorkingDirectory=/opt/noteblockstudio-web
 Environment=NODE_ENV=production
 Environment=HOST=127.0.0.1
 Environment=PORT=8765
-Environment=TRUST_PROXY_HEADERS=1
 EnvironmentFile=/etc/noteblockstudio-web.env
 ExecStart=/usr/bin/node /opt/noteblockstudio-web/hosted-server.mjs
 Restart=on-failure
