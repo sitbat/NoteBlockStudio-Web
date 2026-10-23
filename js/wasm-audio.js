@@ -1,4 +1,5 @@
 import {AudioEngine, INSTRUMENTS, sampleRateForNote} from './audio.js';
+import {assertRealtimeEnvironment} from './browser-environment.js';
 import {GLOBAL, HEADER, STOPPED, PREROLL, RUNNING, PARAM_STRIDE, TIMING_SLOTS, createRing, shardRanges, transportConfig, tickAtFrame, songLength} from './dsp-protocol.js';
 
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, Number(n) || 0));
@@ -165,8 +166,7 @@ export class WasmAudioEngine extends AudioEngine {
   }
 
   async _compile() {
-    if (!globalThis.isSecureContext || !globalThis.crossOriginIsolated || typeof SharedArrayBuffer !== 'function') throw new Error('Rust 音频需要本地安全上下文和跨源隔离。请用启动脚本打开；服务器须发送 COOP: same-origin 与 COEP: require-corp。');
-    if (!this.context.audioWorklet || typeof AudioWorkletNode !== 'function') throw new Error('当前浏览器缺少 AudioWorklet，无法启动 Rust 实时音频。请使用新版 Chrome 或 Edge。');
+    assertRealtimeEnvironment(this.context);
     if (!this._modulePromise) this._modulePromise = (async () => {
       const response = await fetch(this.wasmURL);
       if (!response.ok) throw new Error(`无法加载本地 Rust 核心 nbs_dsp.wasm（${response.status}）。`);

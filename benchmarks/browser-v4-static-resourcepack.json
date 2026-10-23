@@ -1,0 +1,53 @@
+[
+  {
+    "entry": "assets/minecraft/sounds/nbs/entity.experience_orb.pickup.ogg",
+    "bytes": 9949,
+    "sha256": "6a491018e7d462e08628bbbdfd284b4a33261df4bc456a5da8c8ba769cf6c66f",
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "vorbis",
+        "sample_rate": "48000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "0.747083"
+    }
+  },
+  {
+    "entry": "assets/minecraft/sounds/nbs/entity.experience_orb.pickup_-1.ogg",
+    "bytes": 27973,
+    "sha256": "6a36ea506a7b4fa328c747a13aedc771aac13d3d4a55547c81378d04fe426018",
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "vorbis",
+        "sample_rate": "48000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "2.988333"
+    }
+  },
+  {
+    "entry": "assets/minecraft/sounds/nbs/entity.experience_orb.pickup_1.ogg",
+    "bytes": 5948,
+    "sha256": "ae0afed3bbb00f3f61658a30639919b4c7cd4dc7340e9d14dec1c4e1bdbfb558",
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "vorbis",
+        "sample_rate": "48000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "0.186771"
+    }
+  }
+]

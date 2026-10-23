@@ -1,71 +1,50 @@
-# 从 Git 源码恢复可选运行时
+# 浏览器 WASM 依赖与来源
 
-Git 仓库保留运行时许可证、说明和校验信息，不提交超过100 MiB的 FFmpeg / Node 可执行文件。本地完整包及已下载的二进制不受影响。`scripts/setup-runtime.mjs` 可恢复固定版本，不需要 npm 依赖，不安装系统软件，也不修改 PATH、注册表或系统关联。
+v4 的运行时全部在浏览器中。部署目录不包含原生 Node / FFmpeg 可执行文件，服务器不启动应用程序，也不接收音频上传。Node.js 18+ 仅供构建、测试和开发预览使用，建议 24；构建无需 `npm install`。
 
-脚本本身需要已有 Node.js18+。从 Git 克隆后，Linux 用户也需要先提供一个 Node 才能运行这个 JavaScript 脚本；恢复的便携 Node 用于之后通过 `start.sh` 启动应用。若已经使用合适的系统 Node 和 FFmpeg，可以直接使用它们，无须重复下载。
+## Rust 音频核心
 
-## 命令
+[`wasm/nbs_dsp.wasm`](../wasm/nbs_dsp.wasm) 对应 [`rust/src/lib.rs`](../rust/src/lib.rs)，负责采样、声音池、混音和每轨独立 FDN 混响。由多个浏览器 Worker 执行，AudioWorklet 消费共享短音频队列。访问者不需要安装 Rust、Python 或 GameMaker。
 
-在项目根目录运行：
+重建才需要 Rust/Cargo 与 `wasm32-unknown-unknown`；入口为 `scripts/build-wasm.sh` / `scripts/build-wasm.ps1`。DSP 源码无外部 crates，采用离线 Cargo、SIMD128 和 release/LTO。核心代码适用项目 [MIT 许可证](../LICENSE)。
 
-```sh
-node scripts/setup-runtime.mjs --help
-node scripts/setup-runtime.mjs --list
-node scripts/setup-runtime.mjs
-```
+## FFmpeg WebAssembly
 
-`--help` 和 `--list` 不联网。无参数时，Windows x64 选择 FFmpeg9.0.2，Linux x64 选择便携 Node24.11.0。其他平台需自行提供兼容运行时，或显式选择下列已知目标供其他机器使用：
+随包目录 [`vendor/ffmpeg/`](../vendor/ffmpeg/) 包含：
 
-```sh
-node scripts/setup-runtime.mjs --runtime ffmpeg-win32-x64
-node scripts/setup-runtime.mjs --runtime node-linux-x64
-node scripts/setup-runtime.mjs --all
-```
-
-也可重复 `--runtime`。`--all` 与 `--runtime` 不能同时使用。下载结束后运行正常启动入口即可；脚本不会执行下载得到的 FFmpeg 或 Node。Windows 的便携 FFmpeg 在本地服务启动时自动发现，Linux 的便携 Node 由 `start.sh` 选择。
-
-| 目标 | 固定来源与版本 | 安装文件 |
+| 组件 | 版本与文件 | 许可 |
 | --- | --- | --- |
-| `ffmpeg-win32-x64` | Gyan 的 FFmpeg9.0.2 essentials Windows x64 构建，FFmpeg官网列出的发行方 | `runtime/win32-x64/ffmpeg.exe`、`LICENSE`、`README.txt` |
-| `node-linux-x64` | Node.js官方24.11.0 Linux x64 | `runtime/linux-x64/bin/node`、`LICENSE`、`README.md` |
+| `@ffmpeg/ffmpeg` 浏览器包装层 | 0.12.15，`esm/` 中的模块与 Worker；元数据见 [ffmpeg-package.json](../vendor/ffmpeg/ffmpeg-package.json) | [MIT](../vendor/ffmpeg/LICENSE-MIT) |
+| `@ffmpeg/core` 单线程核心 | 0.12.10，`core/ffmpeg-core.js`、`core/ffmpeg-core.wasm`；元数据见 [core-package.json](../vendor/ffmpeg/core-package.json) | 包元数据标为 GPL-2.0-or-later，保留 [GPLv2](../vendor/ffmpeg/COPYING.GPLv2) / [GPLv3](../vendor/ffmpeg/COPYING.GPLv3) 文本 |
 
-Linux ARM64、macOS、musl或不兼容的旧 glibc系统不使用这里的 Linux x64二进制；请提供适配的系统 Node18+。脚本不下载 Linux FFmpeg，使用系统 FFmpeg或显式 `NBS_FFMPEG`，详见 [runtime说明](../runtime/README.md)。
+来源为 [ffmpeg.wasm 上游项目](https://github.com/ffmpegwasm/ffmpeg.wasm) 对应 npm 发布包。使用随包的确定版本，不在访问者首次导出时向 npm/CDN 下载执行代码；静态构建完整复制本地 `vendor/`，保留包元数据、许可与来源记录。
 
-## 校验、下载与已有文件
+核心 WASM 为 32,232,419 字节，约 30.7 MiB；核心自身版本为 FFmpeg 5.1.4 / Emscripten 3.1.40，与 npm 包发布号不同。首次额外格式导出需要加载和初始化，浏览器内存占用高于压缩文件大小。当前 FFmpeg 核心为单线程；实时 Rust DSP 的多 Worker 与单线程编码器是不同路径，不能把前者的万轨性能当作编码速度。
 
-每个目标同时固定下载 URL、归档字节数、归档 SHA256和最终可执行文件 SHA256。下载仅使用 HTTPS，限制重定向；整包校验通过后才交给系统解压器，仅提取指定文件。最终二进制再次校验通过，才写入对应的项目目录。校验失败会报错并清理本次临时目录，不会启动未校验程序。
+`js/browser-codecs.js` 在浏览器 Worker 和虚拟文件系统中完成 MP3、FLAC、AIFF、OGG 及采样率/通道转换。直接 WAV 使用 Rust 渲染，无需调用 FFmpeg。自定义 Minecraft 资源包的采样先做有界 PCM 变速重采样，再生成 OGG。输入规模、输出内存和具体采样率/格式组合受实现与编码器限制；失败应明确报告，不能只改扩展名。
 
-默认最多16路 HTTP Range下载；服务器忽略 Range时使用该次完整响应。可调为单连接或增加每个归档的下载时间上限：
+当前网站默认限制如下：
 
-```sh
-node scripts/setup-runtime.mjs --runtime ffmpeg-win32-x64 --connections 1 --timeout 1200
-```
+| 项目 | 限制 |
+| --- | --- |
+| 单次输入 / 编码输出 | 各 128 MiB |
+| 在途任务与输入队列 | 最多 8 个任务，累计输入最多 256 MiB，串行执行 |
+| 加载 / 编码超时 | 加载 120 秒，编码 300 秒；失败或取消释放 Worker，后续任务重新初始化 |
+| PCM 时长 | 单次最多一小时，仍须满足文件与内存上限 |
+| MP3 | 8–48 kHz 的标准采样率，32–320 kbps，单/双声道 |
+| OGG Vorbis | 最高 192 kHz，单/双声道 |
+| FLAC / AIFF / WAV | 8–384 kHz，单/双声道，受具体编码器组合支持约束 |
 
-`--connections` 为1–16，默认16；`--timeout` 为10–3600秒，默认600秒。超时或失败后可重试。临时目录在项目 `runtime/.setup-*` 下，每次安装结束后清理；不保留未完成的网络下载，也不自动改代理。
+不支持的格式/采样率组合会明确报错，不静默更改采样率。队列上限包括正在执行的任务，虚拟文件清理结束后才交接下一项。上述限制针对额外编码，不是 Rust 直接 WAV 的同一项预算；实际浏览器占用还包括 PCM、WASM 堆、输出副本与工程数据。
 
-如果已经有完整归档，可离线恢复；仍会核对同一组固定校验值：
+包装层的 MIT 不会把 FFmpeg 核心或其链接依赖重新授权为 MIT。再分发静态包时保留相应许可、来源与对应源码/构建信息，详见 [THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md)。旧 Gyan Windows FFmpeg 和便携 Linux Node 的许可证、校验与下载命令不适用于这些浏览器组件。
 
-```sh
-node scripts/setup-runtime.mjs --runtime ffmpeg-win32-x64 --archive "/path/ffmpeg-9.0.2-essentials_build.zip"
-node scripts/setup-runtime.mjs --runtime node-linux-x64 --archive "/path/node-v24.11.0-linux-x64.tar.xz"
-```
+## 浏览器要求与隔离
 
-`--archive` 只能对应一个目标，不接受自定义 URL、版本或校验值。已有完整运行时且二进制 SHA匹配时，脚本直接复用，不再下载或提取。遇到不同的已有可执行文件，默认拒绝覆盖；需要替换时明确运行：
+实时播放需要 WebAssembly SIMD、Worker、SharedArrayBuffer 与 AudioWorklet。HTTPS / localhost 下由随包 Service Worker 为站点建立跨源隔离，首次可能自动重载一次。`file://`、普通远程 HTTP、禁止 Service Worker 或禁止跨源隔离的环境不能提供等价音频能力，不会自动改成另一套 DSP。
 
-```sh
-node scripts/setup-runtime.mjs --runtime ffmpeg-win32-x64 --force
-```
+Service Worker 透传网络，不缓存项目、音频或编码器，也不建立完整离线资源库。所有浏览器依赖须实际可从静态站点读取，不能假定首次断网启动可用。
 
-`--force` 仍要通过全部固定校验。实际发生替换时，原文件保存在 `runtime/.runtime-backups/<目标-时间-随机值>/`，按原目录结构保留；发生安装错误时会尝试恢复原文件。备份不会自动删除。安装不会删除现有完整包，也不会将下载器变成自动升级服务。
+## 更新依赖
 
-## 解压工具与许可证
-
-ZIP使用纯 Node标准库读取目录及解压，只接受指定的普通文件，检查大小和 CRC，不依赖 Windows工具或 GNU tar的 ZIP能力。`.tar.xz` 使用现有系统 `tar`，所有参数通过数组传递，关闭 shell。缺少支持该格式的 tar会报错，不会自动安装。POSIX系统安装可执行文件时设置用户可执行权限。
-
-Windows FFmpeg构建使用 GPLv3，保留[完整许可](../runtime/win32-x64/LICENSE)、[上游构建说明](../runtime/win32-x64/README.txt)及[来源和校验值](../runtime/win32-x64/PROVENANCE.md)。Linux Node保留[完整许可及第三方说明](../runtime/linux-x64/LICENSE)、[上游README](../runtime/linux-x64/README.md)和[来源校验值](../runtime/linux-x64/PROVENANCE.md)。这些许可与项目代码的 MIT许可证分别保留。
-
-## 这次验证
-
-测试仅使用受控本地 HTTP、小归档和已有官方归档，没有重新下载大型文件，也没有执行下载得到的程序。10项窄测试覆盖参数/帮助、SHA及大小失败、分段下载、Range回退、超时、校验前禁止提取、已有文件复用、强制替换备份、目录链接拒绝、纯 Node ZIP提取及真实 tar指定成员提取。
-
-另在 `work/` 的独立临时项目内，用已验证的官方 FFmpeg9.0.2 ZIP实际运行了 `--archive`：提取后二进制 SHA与固定值一致，第二次运行报告 `already-present`，原应用的本地二进制校验值保持不变。脚本下载的是固定版本；若将来更新版本，需要同时审查来源、归档校验值、二进制校验值和许可证记录。
+更新浏览器依赖时同时审查上游版本、包内容、WASM 有效性、Wrapper/Worker/Core 的配套关系、许可证与来源记录。运行实际浏览器编码并验证文件内容，不能用原生 FFmpeg 的成功记录替代 WASM 版本测试。重新构建 `dist/` 后按 [UPDATING](../UPDATING.md) 整体发布。

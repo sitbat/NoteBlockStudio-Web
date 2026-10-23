@@ -16,7 +16,7 @@ const menuDefinitions = [
   { name: 'settings', trigger: 'viewMenuBtn', label: '设置', items: [
     ['properties', '音符属性…', '', '41-properties'], ['engineSettings', '混音与混响设置…', '', '42-instruments'], null,
     ['performance', '播放性能…', '', '55-editmode-vel'], ['midi', 'MIDI 设备与录制…', '', '09-record'], ['instruments', '自定义乐器管理…', '', '42-instruments'],
-    ['tempoTap', '敲击测速…', '', '41-properties'], ['preferences', '偏好设置…', '', '41-properties'], ['system', '服务与系统集成…', '', '40-information']
+    ['tempoTap', '敲击测速…', '', '41-properties'], ['preferences', '偏好设置…', '', '41-properties'], ['system', '浏览器运行信息…', '', '40-information']
   ] },
   { name: 'help', trigger: 'helpMenuBtn', label: '帮助', items: [
     ['help', '操作指南…', 'F1', '44-help']

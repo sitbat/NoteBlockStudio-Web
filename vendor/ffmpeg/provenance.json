@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "verifiedAt": "2026-10-23T13:03:17.586Z",
+  "runtime": "browser module Worker, same-origin static assets only",
+  "ffmpegVersion": "5.1.4",
+  "emscriptenVersion": "3.1.40",
+  "threading": "single",
+  "simd": true,
+  "packages": [
+    {
+      "name": "@ffmpeg/ffmpeg",
+      "version": "0.12.15",
+      "license": "MIT",
+      "url": "https://registry.npmjs.org/@ffmpeg/ffmpeg/-/ffmpeg-0.12.15.tgz",
+      "registryIntegrity": "sha512-1C8Obr4GsN3xw+/1Ww6PFM84wSQAGsdoTuTWPOj2OizsRDLT4CXTaVjPhkw6ARyDus1B9X/L2LiXHqYYsGnRFw==",
+      "archiveBytes": 18455,
+      "archiveSha256": "c8a23365fb39b46d3d1d9baa2e74b522d00ce5d57e8b20471ad2665eaad38e3e",
+      "integrityVerifiedBeforeExtraction": true
+    },
+    {
+      "name": "@ffmpeg/core",
+      "version": "0.12.10",
+      "license": "GPL-2.0-or-later",
+      "url": "https://registry.npmjs.org/@ffmpeg/core/-/core-0.12.10.tgz",
+      "registryIntegrity": "sha512-dzNplnn2Nxle2c2i2rrDhqcB19q9cglCkWnoMTDN9Q9l3PvdjZWd1HfSPjCNWc/p8Q3CT+Es9fWOR0UhAeYQZA==",
+      "archiveBytes": 20634719,
+      "archiveSha256": "d00089ce82e1bdf637ddbe42e0c3d41a1ba8cf4c9e825e7fa4d0bb970e844bd4",
+      "integrityVerifiedBeforeExtraction": true
+    }
+  ],
+  "sources": {
+    "wrapper": "https://github.com/ffmpegwasm/ffmpeg.wasm",
+    "coreBuild": "https://github.com/ffmpegwasm/ffmpeg.wasm",
+    "ffmpeg": "https://ffmpeg.org/releases/ffmpeg-5.1.4.tar.xz",
+    "componentVersions": "https://ffmpegwasm.netlify.app/docs/overview/"
+  },
+  "files": [
+    {
+      "path": "COPYING.GPLv2",
+      "bytes": 18092,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "path": "COPYING.GPLv3",
+      "bytes": 35147,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    {
+      "path": "core-package.json",
+      "bytes": 943,
+      "sha256": "2d55b1f6df4c62955f286ae41b7ca6b27bb4165136ca7572d4101abe147695e0"
+    },
+    {
+      "path": "core/ffmpeg-core.js",
+      "bytes": 111804,
+      "sha256": "67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3"
+    },
+    {
+      "path": "core/ffmpeg-core.wasm",
+      "bytes": 32232419,
+      "sha256": "9f57947a5bd530d8f00c5b3f2cb2a3492faa7e5d823315342d6a8656d0a6b7b7"
+    },
+    {
+      "path": "esm/classes.d.ts",
+      "bytes": 5114,
+      "sha256": "e443acd5ebb476c19e1da0858570a9cbbd0077404b2dff4c078a4ffa448e090e"
+    },
+    {
+      "path": "esm/classes.js",
+      "bytes": 9747,
+      "sha256": "7a829c898bdbc3a8806652a5502d9101178ce4e988a2c50b3abc1306ce4fc919"
+    },
+    {
+      "path": "esm/const.d.ts",
+      "bytes": 649,
+      "sha256": "f6d1d4e90022949919c50949eb270f0b9e62ec3e4fecdfd81b35ce6ffd6b8a82"
+    },
+    {
+      "path": "esm/const.js",
+      "bytes": 1016,
+      "sha256": "9e3bc9dd84781c81daf459e2c46eeec815edac35089832681d9a9a0f383060d0"
+    },
+    {
+      "path": "esm/empty.d.mts",
+      "bytes": 51,
+      "sha256": "c01e3642ad0641ccdd73bac48fb7fdff3f86197ef0c8f8a97ed033d5d9a41234"
+    },
+    {
+      "path": "esm/empty.mjs",
+      "bytes": 157,
+      "sha256": "92f665ead7579ff7cd0f08d63e2eb6b27bce16be06991b2aa93510ba07741dbf"
+    },
+    {
+      "path": "esm/errors.d.ts",
+      "bytes": 198,
+      "sha256": "5294c974aef3d7442a39dc317fbc2308572e6cbbdb6a0e70336683d994c809be"
+    },
+    {
+      "path": "esm/errors.js",
+      "bytes": 332,
+      "sha256": "619310d7ef5fe5fefa0a31927db862b7c291713cfef4d71753fa8aafd18f4db6"
+    },
+    {
+      "path": "esm/index.d.ts",
+      "bytes": 58,
+      "sha256": "cad19572420f7ead17272082d9582ebaed7f2856e19875542f83daf8d25d3b5d"
+    },
+    {
+      "path": "esm/index.js",
+      "bytes": 58,
+      "sha256": "cad19572420f7ead17272082d9582ebaed7f2856e19875542f83daf8d25d3b5d"
+    },
+    {
+      "path": "esm/types.d.ts",
+      "bytes": 3740,
+      "sha256": "b6f91d557f8532d654af6a59116bf7f7c22f3039ba71510243f85f99fd9c5371"
+    },
+    {
+      "path": "esm/types.js",
+      "bytes": 295,
+      "sha256": "72f80e6fd44fcd18b55c9a0deb3bc70b9bb37480cf969045ca4521f5a11300f5"
+    },
+    {
+      "path": "esm/utils.d.ts",
+      "bytes": 91,
+      "sha256": "037067fa9584af7d4c2d134d1dd49f6636cb3c3f3c83fdb624d2cd3788bc3c92"
+    },
+    {
+      "path": "esm/utils.js",
+      "bytes": 138,
+      "sha256": "8c2e0e16445f8d3a0acbb812f2c60541a92c88ed0bf9ffe96c52e7fb6c8b1d72"
+    },
+    {
+      "path": "esm/worker.d.ts",
+      "bytes": 276,
+      "sha256": "e8623f15b69ec07e4bb15d6ac9f545f0063bcc45954f8314ad2476da849b4152"
+    },
+    {
+      "path": "esm/worker.js",
+      "bytes": 5085,
+      "sha256": "feff0ac937ea225e997e1fae997a74f8b8d572423a526da59eb56624b1f3cde7"
+    },
+    {
+      "path": "ffmpeg-package.json",
+      "bytes": 1615,
+      "sha256": "7683753da6b5362d8ed172bf404842d740e3c24f83c0a36e7d89ef0372ad6995"
+    },
+    {
+      "path": "LICENSE-MIT",
+      "bytes": 1066,
+      "sha256": "3e123e29517d76504ffce77b3f8e2ccffd4712493f27694b0aba3e376676459f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3148,
+      "sha256": "06465ea77e98226d9f0ee22b52a4a1651a7ec1608637da10ea246fb8a9368e50"
+    }
+  ]
+}

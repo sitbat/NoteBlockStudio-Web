@@ -39,8 +39,7 @@ jobs:
           package-manager-cache: false
       - name: Show runtime versions
         run: node --version
-      # This source tree has no npm dependencies. Optional FFmpeg tests use the
-      # runner's executable when present and skip themselves otherwise.
+      # Node is a development/test tool only. Deployment uses dist/ static files.
       - name: Run JavaScript and shipped-WASM tests
         run: npm test -- --test-concurrency=2
 
@@ -97,42 +96,30 @@ jobs:
           cp "$RUNNER_TEMP/nbs-dsp-simd/wasm32-unknown-unknown/release/nbs_dsp.wasm" wasm/nbs_dsp.wasm
           NBS_SCALAR_WASM="$RUNNER_TEMP/nbs-dsp-scalar/wasm32-unknown-unknown/release/nbs_dsp.wasm" node --test --test-concurrency=2 rust/tests/wasm-abi.test.mjs tests/dsp-pool.test.mjs
 
-  hosted-container:
-    name: Docker / website application
+  static-distribution:
+    name: Static website payload
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - name: Check out source
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Set up Node
+      - name: Set up development Node
         uses: actions/setup-node@v6
         with:
           node-version: '24'
           package-manager-cache: false
-      - name: Validate production Compose and build hosted image
-        env:
-          PUBLIC_ORIGIN: https://nbs.example.com
+      - name: Build the closed static payload
+        run: npm run build
+      - name: Verify every deployed byte on an ordinary file server
+        shell: bash
         run: |
-          docker compose config --quiet
-          docker build --tag nbs-hosted:ci .
-      - name: Test hosted services with the image FFmpeg
-        run: |
-          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp:rw,noexec,nosuid,size=384m,mode=1777 --memory 1536m --cpus 2 --pids-limit 64 -v "$PWD/tests:/app/tests:ro" nbs-hosted:ci node --test --test-concurrency=2 tests/hosted-server.test.mjs tests/hosted-services.test.mjs tests/audio-resample.test.mjs tests/service-capabilities.test.mjs
-      - name: Exercise the hosted application
-        run: |
-          docker run -d --name nbs-hosted-ci-app -p 127.0.0.1:18880:8765 --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp:rw,noexec,nosuid,size=384m,mode=1777 --memory 1536m --cpus 2 --pids-limit 64 -e PUBLIC_ORIGIN=http://localhost:18880 nbs-hosted:ci
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent http://localhost:18880/api/health >/dev/null; then break; fi
-            sleep 2
+          node scripts/preview-static.mjs --port 8792 >"$RUNNER_TEMP/nbs-static-preview.log" 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8792/static-manifest.json >/dev/null; then break; fi
+            sleep 1
           done
-          node scripts/smoke-hosted.mjs http://localhost:18880 --all-formats
-      - name: Show container diagnostics on failure
-        if: failure()
-        run: |
-          docker logs nbs-hosted-ci-app 2>&1 || true
-      - name: Remove the temporary container
-        if: always()
-        run: |
-          docker rm -f nbs-hosted-ci-app 2>/dev/null || true
+          node scripts/smoke-static.mjs http://127.0.0.1:8792/

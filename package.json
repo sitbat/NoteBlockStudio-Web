@@ -1,20 +1,18 @@
 {
-  "name": "noteblockstudio-web-local",
-  "version": "3.0.0",
+  "name": "noteblockstudio-web-static",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
-  "description": "Open Note Block Studio web port with a multicore Rust SIMD WASM audio engine and self-hosted deployment",
+  "description": "Static Note Block Studio with browser Rust SIMD audio and local FFmpeg WASM exports",
   "license": "MIT",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "start": "node server.mjs",
-    "start:hosted": "node hosted-server.mjs",
+    "build": "node scripts/build-static.mjs",
+    "start": "node scripts/preview-static.mjs",
     "test": "node scripts/run-tests.mjs",
-    "test:hosted": "node scripts/smoke-hosted.mjs",
-    "benchmark:dsp": "node scripts/benchmark-dsp.mjs",
-    "setup:runtime": "node scripts/setup-runtime.mjs"
+    "benchmark:dsp": "node scripts/benchmark-dsp.mjs"
   },
   "repository": {
     "type": "git",

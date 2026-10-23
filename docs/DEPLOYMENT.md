@@ -1,158 +1,71 @@
-# 应用部署
+# 纯静态部署
 
-仓库提供 Docker Compose 与 Node + systemd 两种应用启动方式。公网域名、HTTPS 和反向代理由部署者自行处理，项目不提供相应配置。本次仅提供部署方式，没有实际公开发布网站。
+当前应用只由 HTML、CSS、JavaScript、WASM、Service Worker 和素材组成。服务器不需要 Node.js、FFmpeg、应用容器、数据库或 API；编解码和工程存储都在浏览器中完成。本说明不包含网络或反向代理配置，也不代表已经公开发布网站。
 
-## 数据与计算位置
+## 构建静态包
 
-编辑、采样播放、Rust / WebAssembly 多线程混音、每轨混响和 WAV 渲染均在访问者的浏览器中完成。应用容器的 2 CPU / 1536 MiB 限制只针对服务器后端；仓库中的万轨实测对应记录中的客户端设备与浏览器，不保证其他设备具有相同性能。
-
-曲谱、自定义采样、偏好与自动备份保存在当前浏览器、当前网站来源的 IndexedDB / 本地存储中，没有云项目库或跨设备同步。清除站点数据、切换浏览器，或更换协议、域名、端口，都会影响可见的本地工程。重要作品应下载为包含音频的 `.nbpz` 完整工程包。
-
-原采样率立体声 WAV 直接在浏览器生成。MP3 / FLAC / AIFF / OGG、重采样或单声道导出，会在用户点击导出后，将渲染好的 WAV 临时上传到应用后端，由 FFmpeg 编码并返回；自定义音色资源包的 OGG 转换也使用此服务。处理结束后清理临时文件，后端不提供作品长期保存服务。
-
-URL 导入由浏览器直接读取目标地址，受目标站 CORS、混合内容和浏览器网络规则约束；失败时可先下载曲谱，再通过“打开文件”导入。网站应用不提供外部 URL 下载代理、本机文件启动或 Discord 活动连接。
-
-## Docker Compose
-
-需要 Git、Docker Engine 与 Compose 插件。应用镜像使用 Node.js 24 和系统 FFmpeg；启动时无需安装 Rust、GameMaker 或执行 `npm install`。
+构建机需要 Node.js 18+，建议 24。浏览器依赖与已编译 DSP 已随仓库提供，不需要 `npm install`。
 
 ```sh
 git clone https://github.com/sitbat/NoteBlockStudio-Web.git
 cd NoteBlockStudio-Web
-cp .env.example .env
+npm run build
 ```
 
-编辑 `.env`，将 `PUBLIC_ORIGIN` 设为使用者最终访问的完整来源，只含协议、主机名和可选端口，不包含路径、查询参数或结尾斜杠。`APP_PORT` 是本机应用监听端口：
+构建结果位于 `dist/`。**上传这个目录的全部内容**，保持文件之间的相对位置；不需要上传仓库的源码工具链、测试、历史性能报告或开发预览服务。不要只复制 `index.html`：浏览器还要加载 DSP Worker、AudioWorklet、WASM、编码器及原始素材。
 
-```dotenv
-PUBLIC_ORIGIN=https://nbs.example.com
-APP_PORT=8765
-```
+上传到支持 HTTPS 的静态托管目录，然后访问其中的 `index.html` / 目录首页。HTTPS 与静态托管由部署者提供，项目不附带网络配置。站点文件须按正确类型提供：JavaScript 为 JavaScript MIME，WASM 为 `application/wasm`，Service Worker 脚本不能被重写为 HTML。
 
-检查配置并启动：
+## 本机开发预览
 
 ```sh
-docker compose config --quiet
-docker compose up -d --build
-docker compose ps
-docker compose logs --tail=100 app
+npm start
 ```
 
-[`compose.yaml`](../compose.yaml) 只启动应用容器，将容器内 8765 映射到主机的 `127.0.0.1:${APP_PORT:-8765}`。应用使用非 root 用户、只读文件系统和 384 MiB 的 `/tmp` 临时盘，默认限制为 2 CPU / 1536 MiB 内存。后端全局同时只处理一个转码任务。
+这是开发用静态文件预览，访问终端输出的 localhost 地址；它不会成为生产站点的 Node 运行要求。不要通过 `file://` 双击打开页面，HTTP 的普通远程地址也不能代替安全上下文。
 
-只在本机测试时，可将 `.env` 改为 `PUBLIC_ORIGIN=http://127.0.0.1:8765`、`APP_PORT=8765`，再访问该地址；HTTP 来源仅允许回环地址。使用实际网站地址时，`PUBLIC_ORIGIN` 必须与浏览器所见来源一致。
+## 首次加载与跨源隔离
 
-停止应用使用 `docker compose stop`。应用容器不保存访问者的曲谱；停止或重建容器不替代浏览器工程备份。
+实时 Rust 音频需要 WebAssembly SIMD、Worker、AudioWorklet 和 SharedArrayBuffer。随站点提供的 Service Worker 在 HTTPS / localhost 下为应用响应补上 COOP / COEP，使页面获得跨源隔离。首次访问可能自动重载一次，之后再点击播放。整个过程在浏览器完成，不需要服务端生成这些响应头。
 
-## Node 与 systemd
+必须完整上传与 `index.html` 同目录的 `static-bootstrap.js`、`coi-serviceworker.js`，并允许脚本控制应用所在目录；也支持在网站子目录部署。若已有其他应用的 Service Worker、策略限制或文件被替换为错误页面，启动诊断会说明阻碍，不会直接覆盖其他控制器。跨源隔离不能使普通远程 HTTP 变成安全上下文。
 
-安装系统级 Node.js 24 和 FFmpeg，将仓库放在 `/opt/noteblockstudio-web`。应用无需额外 npm 依赖：
+保持 JS、Worker、WASM、编码器与采样在同一站点目录，不将部分依赖改为第三方 CDN。浏览器需要正常访问这些静态资源；不承诺首次断网访问或完整离线缓存。
 
-```sh
-sudo git clone https://github.com/sitbat/NoteBlockStudio-Web.git /opt/noteblockstudio-web
-cd /opt/noteblockstudio-web
-```
+## 数据与隐私边界
 
-先在前台运行可直接检查启动输出，按 Ctrl+C 停止：
+- 编辑、播放、混音、逐轨混响、WAV 渲染及 MP3 / FLAC / AIFF / OGG 编码全部在访问者设备完成，没有音频上传接口。
+- 当前工程、自定义 PCM、偏好和曲谱快照保存在该浏览器来源的 IndexedDB / 本地存储，不是云端工程库。不同浏览器或协议/主机名/端口不共享这些数据。
+- 重要作品下载为 `.nbpz` 完整工程包。清除站点数据会删除本地工程；更换来源前，应先在原地址导出工程。
+- URL 导入只在用户操作后从浏览器读取目标 HTTP(S) 地址，受目标 CORS 与混合内容规则约束。不能读取时，先下载文件再导入。
+- Web MIDI 权限仅在手动连接设备时请求；设备、驱动与浏览器支持仍是前提。
 
-```sh
-PUBLIC_ORIGIN=https://nbs.example.com node hosted-server.mjs
-```
+网站没有账号、云项目同步、Discord IPC、原生插件、桌面文件关联安装或本机路径读取服务。
 
-默认监听 `127.0.0.1:8765`；可通过 `HOST`、`PORT` 或 `--host`、`--port` 指定应用监听地址。`node hosted-server.mjs --help` 显示参数说明。
+额外编码默认输入/输出各 128 MiB，最多 8 个在途任务、累计输入 256 MiB，串行执行；加载超时 120 秒，编码超时 300 秒。MP3 使用 8–48 kHz 标准采样率，OGG 最高 192 kHz，FLAC / AIFF / WAV 至 384 kHz，不支持的组合明确报错。详细依赖与资源边界见 [RUNTIMES](RUNTIMES.md)。
 
-常驻运行使用 [`deploy/noteblockstudio-web.service`](../deploy/noteblockstudio-web.service)。模板使用 `/usr/bin/node`；若 Node 位于其他系统路径，修改 `ExecStart`。模板启用 `DynamicUser`、`PrivateTmp`、`ProtectHome` 与资源限制，因此代码和静态资源须可被动态服务用户读取，用户家目录中的 nvm 通常不适合直接用于该服务。
+## 验收
 
-创建环境文件：
+在实际 HTTPS 站点、现代桌面 Edge / Chrome 中检查：
 
-```sh
-sudo install -m 600 /dev/null /etc/noteblockstudio-web.env
-sudoedit /etc/noteblockstudio-web.env
-```
+1. 首次加载后页面正常显示，必要的一次自动重载结束，音频环境获得安全上下文与跨源隔离。
+2. 打开示例曲并播放，编辑一个音符，撤销/重做；刷新确认本浏览器工程恢复。
+3. 导入自定义采样，下载 `.nbpz`，再打开并确认曲谱和采样可恢复。
+4. 导出直接 WAV，以及 MP3 / FLAC / AIFF / OGG；编码器首次加载可能较慢，实际速度与内存取决于客户端。
+5. 生成一个 Minecraft 数据包及自定义音色资源包；游戏内兼容需另行验收。
+6. 浏览器网络面板中只有站点静态资源和用户发起的外部曲谱读取，没有 `/api/` 上传或后台编码请求。
 
-填入：
-
-```dotenv
-PUBLIC_ORIGIN=https://nbs.example.com
-HOSTED_ENABLE_TRANSCODE=1
-```
-
-安装并启动服务：
-
-```sh
-sudo cp deploy/noteblockstudio-web.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now noteblockstudio-web
-sudo systemctl status noteblockstudio-web
-sudo journalctl -u noteblockstudio-web -n 100 --no-pager
-```
-
-修改 `/etc/noteblockstudio-web.env` 后执行 `sudo systemctl restart noteblockstudio-web`。
-
-## 应用接入要求
-
-应用只支持来源根路径，例如 `https://nbs.example.com/`，不支持 `/music/` 等子路径。页面、脚本、Worker、AudioWorklet、WASM、采样及 `/api/` 应使用同一个来源。传给应用的原始 `Host` 必须与 `PUBLIC_ORIGIN` 的主机名和端口匹配。
-
-浏览器音频线程需要安全上下文、WebAssembly SIMD、SharedArrayBuffer 和跨源隔离。应用提供以下响应头，接入环境应保留它们，避免剥离或加入冲突值：
-
-```http
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-Cross-Origin-Resource-Policy: same-origin
-X-Content-Type-Options: nosniff
-```
-
-也不要通过 `Permissions-Policy` 禁止 `cross-origin-isolated`。建议使用现代桌面 Edge / Chrome；首次发声需要用户点击。
-
-应用只提供浏览器资源白名单，不公开 `.git`、文档、运行时二进制或服务端脚本。随机会话 Cookie 与 HMAC 请求令牌用于跨站请求校验，不是登录、账号或访问授权系统。
-
-## 编码设置与限制
-
-以下常用变量可直接写入 Docker 的 `.env`；修改后运行 `docker compose up -d`。systemd 则写入 `/etc/noteblockstudio-web.env` 后重启服务。
-
-| 变量 | 默认值 | 含义 |
-| --- | --- | --- |
-| `HOSTED_ENABLE_TRANSCODE` | `1` | `0` 关闭服务器编码 |
-| `HOSTED_MAX_INPUT_MIB` | `128` | 每次上传 WAV 上限，单位 MiB，允许 1–512 |
-| `HOSTED_MAX_OUTPUT_MIB` | `128` | 每次编码结果上限，单位 MiB，允许 1–512 |
-| `HOSTED_BODY_TIMEOUT_MS` | `20000` | 上传请求体超时，允许 1000–60000 ms |
-| `HOSTED_TRANSCODE_RATE` | `30` | 每连接来源地址在默认 60 秒窗口内允许的转码请求数 |
-
-`HOSTED_ENABLE_TRANSCODE=0` 时，原采样率立体声 WAV 仍可直接在浏览器下载；额外编码格式、重采样、单声道转换及需要 OGG 转换的自定义资源包不可用。
-
-应用还支持 `HOSTED_PROCESS_TIMEOUT_MS`（默认 120000，允许 1000–120000 ms）、`HOSTED_RATE_WINDOW_MS`、`HOSTED_CAPABILITY_RATE`、`HOSTED_RATE_CLIENTS` 和 `HOSTED_SESSION_TTL_SECONDS`。用于 Compose 时，须同时把需要的高级变量加入 `app.environment`，仅写入 `.env` 不会自动传入容器。
-
-输入与输出上限针对编码数据，不等同于工程文件大小。默认 `/tmp` 为 384 MiB，调大文件上限时须同时评估临时盘与内存，不能假定默认资源可同时容纳 512 MiB 输入和输出。经相同连接来源地址进入应用的访问者共享相应速率预算。资源包批处理会按限流提示等待并重试当前变体，达到等待上限后提示失败。
-
-## 应用验收
-
-[`scripts/smoke-hosted.mjs`](../scripts/smoke-hosted.mjs) 使用自行生成的 0.1 秒测试音，检查实际应用地址的资源、WASM、隔离响应头、非公开路径、会话及编码结果，不读取个人文件。用 Node.js 24 运行：
-
-```sh
-node scripts/smoke-hosted.mjs https://nbs.example.com --all-formats
-```
-
-`--all-formats` 要求编码服务可用，输出的 `encoded` 列表应包含 MP3、FLAC、AIFF、OGG、WAV。关闭编码时改用 `--no-transcode`。本机回环测试则使用与 `PUBLIC_ORIGIN` 完全一致的地址，例如 `http://127.0.0.1:8765`。
-
-健康接口 `/api/health` 返回包含 `"ok":true` 和 `"mode":"hosted"` 的 JSON，只表示应用可达。还应在目标浏览器中打开曲谱、点击播放、检查跨源隔离、刷新确认本浏览器工程恢复、下载完整工程包、导出直接 WAV，并在启用编码时导出一份 MP3 / OGG。仓库的自动测试不替代实际接入环境和客户端验收。
+静态服务器配置成功不代表客户端可稳定播放万轨。历史性能数据对应记录中的设备；服务器升级不会增加访问者电脑的 DSP 算力。
 
 ## 更新与排查
 
-更新前保存工程并备份 `.env` 等应用设置：
+重新构建并替换完整静态目录，随后重新加载页面。先让使用者保存工程，更新方法见 [UPDATING](../UPDATING.md)。
 
-```sh
-git pull --ff-only
-docker compose up -d --build
-docker compose logs --tail=100 app
-```
-
-本地修改过受版本控制文件时，应先检查并合并。Node + systemd 更新代码后执行 `sudo systemctl restart noteblockstudio-web`。更新后重新加载页面，再检查播放和导出。
-
-| 现象 | 应用检查项 |
+| 现象 | 检查项 |
 | --- | --- |
-| `Host is not the configured public origin` | `PUBLIC_ORIGIN` 是否与最终来源一致、应用收到的 Host 是否匹配 |
-| 页面能开但线程音频不可用 | 安全上下文、隔离响应头、浏览器支持与站点权限 |
-| 编码不可用 | `HOSTED_ENABLE_TRANSCODE`、系统 FFmpeg、应用日志 |
-| 编码返回 413 / 409 / 429 / 超时 | 文件上限、已有转码任务、速率预算、上传或处理时间限制 |
-| URL 导入失败 | 目标地址的 CORS 和混合内容限制；可下载后本地导入 |
-| 更换来源后看不到旧工程 | 从原来源导出完整工程包，再在新来源导入 |
+| 页面或 Worker 不能加载 | 是否上传完整 `dist/`、资源路径与 MIME 是否正确、是否误返回 HTML |
+| 提示安全上下文不足 | 是否通过 HTTPS / localhost 访问，是否位于不安全的嵌入页面 |
+| 未获得跨源隔离 | Service Worker 是否安装并控制本页、是否完成首次重载、是否有冲突的站点策略或旧控制器 |
+| 音频编码失败 | 随包编码器资源是否完整、浏览器可用内存和输入规模；先用短曲验证 |
+| URL 导入失败 | 来源是否允许 CORS、是否被混合内容规则阻止；下载后导入 |
+| 更换站点后看不到工程 | 浏览器存储按来源隔离；从旧来源导出完整工程包再迁移 |

@@ -1,0 +1,98 @@
+[
+  {
+    "file": "晨光练习 (1).mp3",
+    "bytes": 516223,
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      }
+    ],
+    "format": {
+      "duration": "12.850023"
+    }
+  },
+  {
+    "file": "晨光练习 (2).wav",
+    "bytes": 1133450,
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "pcm_s16le",
+        "sample_rate": "44100",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "12.850023"
+    }
+  },
+  {
+    "file": "晨光练习 (3).wav",
+    "bytes": 2467248,
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "pcm_s16le",
+        "sample_rate": "48000",
+        "channels": 2
+      }
+    ],
+    "format": {
+      "duration": "12.850021"
+    }
+  },
+  {
+    "file": "晨光练习.aiff",
+    "bytes": 1133426,
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "pcm_s16be",
+        "sample_rate": "44100",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "12.850023"
+    }
+  },
+  {
+    "file": "晨光练习.flac",
+    "bytes": 397208,
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "flac",
+        "sample_rate": "44100",
+        "channels": 2
+      }
+    ],
+    "format": {
+      "duration": "12.850023"
+    }
+  },
+  {
+    "file": "晨光练习.ogg",
+    "bytes": 94625,
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "vorbis",
+        "sample_rate": "44100",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "12.850023"
+    }
+  }
+]

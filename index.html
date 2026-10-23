@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/native-menus.css">
 </head>
 <body>
-  <div id="boot" class="boot"><strong>Note Block Studio</strong><p>正在打开本地编辑器…</p><p>请通过项目内的 <b>start.bat</b> 启动。</p></div>
+  <div id="boot" class="boot"><strong>Note Block Studio</strong><p>正在准备编辑器与 Rust 多线程音频环境…</p><p>请使用 HTTPS 网站或本机 localhost 地址打开。</p></div>
   <div id="app" class="app" hidden>
     <header class="menu-bar">
       <nav class="main-menu" aria-label="主菜单">
@@ -91,6 +91,6 @@
   <dialog id="modal"><div id="modalContent"></div></dialog>
   <div id="toast" class="toast" role="status" hidden></div>
   <div id="dropOverlay" class="drop-overlay" hidden><img src="assets/original/toolbar-light/01-open.png" alt=""><h2>将曲谱拖到这里</h2><p>NBS · MIDI · 项目 JSON</p></div>
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="static-bootstrap.js"></script>
 </body>
 </html>
