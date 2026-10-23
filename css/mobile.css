@@ -1,0 +1,220 @@
+/* Touch layouts keep the editor's 32 px virtual track geometry and native assets. */
+.touch-toolbar{display:none}
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+
+@media(max-width:1024px),(pointer:coarse){
+  :root{--layer-width:136px}
+  html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+  body{-webkit-text-size-adjust:100%}
+  .app{position:relative;min-width:0;min-height:0;height:100vh;height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  input,select,textarea{font-size:16px}
+  button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline-width:2px}
+  .menu-bar{height:44px;min-height:44px;padding:0 4px;gap:2px;border-bottom:1px solid var(--line,#d2d2d2)}
+  .main-menu{height:44px;min-width:176px}
+  .main-menu button{min-width:44px;min-height:44px;padding:0 8px;font-size:13px}
+  .document-tab{height:44px;max-width:calc(100% - 178px);font-size:12px;justify-content:flex-end;min-width:0;margin-left:auto;padding:0 5px}
+  .document-tab small,.local-label{display:none}
+  .main-toolbar{position:relative;height:48px;min-height:48px;padding:2px 4px;gap:4px;scrollbar-width:thin;scrollbar-color:#a9b6c1 transparent;overscroll-behavior-x:contain;scroll-padding-inline:8px;touch-action:pan-x}
+  .main-toolbar::-webkit-scrollbar{display:block;height:3px}
+  .main-toolbar::-webkit-scrollbar-thumb{background:#a9b6c1;border-radius:2px}
+  .toolbar-group{height:44px;min-height:44px;gap:0;border-right:1px solid var(--line,#d2d2d2);padding-right:4px}
+  .toolbar-group button,.main-toolbar .custom-instrument,.main-toolbar .instrument-card{width:44px;height:44px;min-width:44px;padding:0}
+  .toolbar-group button>img{width:25px;height:25px}
+  .toolbar-group button>img.layer-tool-image{width:20px;height:20px}
+  .toolbar-group .active::after{left:10px;right:10px;height:3px}
+  .main-toolbar>.toolbar-separator{display:none}
+  .playback-controls{order:-2}
+  .file-actions{order:-1}
+  .instrument-section,.instrument-rack{height:44px;min-height:44px}
+  .instrument-section{border-right:1px solid var(--line,#d2d2d2);padding-right:4px}
+  .instrument-card img,.custom-instrument img{width:22px;height:22px}
+  .instrument-card::before{width:22px;height:22px;background-size:22px 22px}
+  .master-volume{height:44px;font-size:12px;margin-left:4px;gap:8px}
+  .master-volume input{height:36px;width:100px}
+  .master-volume #volumeLabel{width:34px}
+  .compatibility-button{height:44px;min-width:64px;font-size:12px;padding:0 8px}
+  .touch-toolbar{display:flex;align-items:stretch;justify-content:space-around;min-height:48px;height:48px;flex-shrink:0;gap:2px;padding:2px 4px;background:var(--bg,#f3f3f3);border-bottom:1px solid var(--line,#d2d2d2);z-index:5}
+  .touch-toolbar button{height:44px;min-height:44px;min-width:44px;flex:1;max-width:130px;padding:0 4px;gap:5px;font-size:12px;border-radius:3px}
+  .touch-toolbar button>span:first-child{font-size:20px;line-height:1}
+  .touch-toolbar button.active,.touch-toolbar button[aria-expanded=true]{color:var(--accent,#0078d4);background:var(--accent-dim,#e4eff8);box-shadow:inset 0 -2px var(--accent,#0078d4)}
+  .touch-tools-expanded .main-toolbar{flex-wrap:wrap;height:auto;max-height:min(40dvh,240px);overflow-x:hidden;overflow-y:auto;align-content:flex-start;align-items:flex-start}
+  .touch-tools-expanded .main-toolbar .toolbar-group{height:auto;max-width:100%;flex-wrap:wrap}
+  .touch-tools-expanded .main-toolbar .editor-toolbar{max-width:100%}
+  .touch-tools-expanded .main-toolbar .instrument-section{width:100%;flex-basis:100%;overflow-x:auto;overscroll-behavior-x:contain;border-right:0;border-bottom:1px solid var(--line,#d2d2d2);padding:0}
+  .touch-tools-expanded .main-toolbar .settings-tools{border-right:0}
+  .workspace{min-height:0;padding-bottom:0}
+  .timeline-layout{min-height:0;grid-template-rows:44px minmax(0,1fr);border-top:0}
+  .grid-canvas{top:44px}
+  .ruler-container>canvas{height:44px!important}
+  .layer-heading{display:grid;grid-template-columns:minmax(0,1fr) 44px 32px;gap:0;padding:0 2px;overflow:hidden}
+  .time-display{min-width:0}
+  .time-display strong{font-size:12px}
+  .time-display small{font-size:8px;margin-left:0}
+  .tempo-control{position:relative;gap:0}
+  .tempo-control input{width:41px;height:40px;padding:0 1px 10px;font-size:16px;text-align:center;border-color:transparent}
+  .tempo-control small{position:absolute;bottom:3px;left:0;right:0;pointer-events:none;text-align:center;font-size:9px}
+  .layer-heading>.signature-control,.layer-heading>.layer-count{display:none}
+  .layer-heading>button{width:32px;min-width:32px;height:44px;margin-left:0}
+  .layer-heading>button img{width:20px;height:20px}
+  .grid-options{height:44px;top:0;right:0;padding:0;gap:0;border:0;border-left:1px solid var(--line,#d2d2d2);background:var(--bg,#f3f3f3)}
+  .grid-options label,.grid-options #zoomLabel,.grid-options #fitBtn{display:none}
+  .grid-options button{height:44px;width:44px;font-size:22px;padding:0}
+  .touch-tools-expanded .grid-options{max-width:100%;overflow-x:auto;justify-content:flex-end}
+  .touch-tools-expanded .grid-options label{display:flex;font-size:12px;flex-shrink:0}
+  .touch-tools-expanded .grid-options select{height:44px;font-size:16px;max-width:110px}
+  .touch-tools-expanded .grid-options #fitBtn{display:flex;width:auto;min-width:44px;font-size:13px;flex-shrink:0}
+  #contextPopup{top:auto!important;left:8px!important;right:8px!important;bottom:max(8px,env(safe-area-inset-bottom))!important;width:auto;min-width:0;max-width:none;max-height:80dvh;overflow:auto;padding:6px}
+  #contextPopup button{min-height:44px;font-size:14px;white-space:normal}
+  .grid-scroll{overscroll-behavior:contain;scrollbar-width:thin;-webkit-overflow-scrolling:touch;touch-action:none}
+  .layer-pane{touch-action:none}
+  .native-layer-row.layer-row{grid-template-columns:minmax(0,1fr);padding:0 2px;background-image:none;font-size:12px}
+  .native-layer-name-cell{height:32px}
+  .native-layer-name-cell .native-layer-name{height:32px;font-size:16px;padding:1px 3px;border-radius:0}
+  .native-layer-row .native-layer-mix{height:32px;width:44px;min-width:44px;font-size:22px;line-height:1;border-left:1px solid var(--line,#d2d2d2)}
+  .native-layer-row .native-layer-meter,.native-layer-row .native-layer-action{display:none}
+  .native-layer-popover{top:auto!important;left:max(8px,env(safe-area-inset-left))!important;right:max(8px,env(safe-area-inset-right))!important;bottom:max(8px,env(safe-area-inset-bottom));width:auto;max-width:540px;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin-inline:auto;overflow:auto;overscroll-behavior:contain;padding:12px 16px 16px;border-radius:9px;font-size:14px}
+  .native-layer-popover-heading{min-height:44px;margin-bottom:4px;font-size:16px}
+  .native-layer-popover-heading button{width:44px;height:44px;min-width:44px;font-size:26px}
+  .native-layer-popover>label:not(.native-layer-mute-label){font-size:14px;margin:10px 0;gap:2px;align-items:center}
+  .native-layer-popover output{font-size:14px}
+  .native-layer-popover input[type=range]{height:44px;margin:0}
+  .native-layer-mute-label{min-height:44px;gap:10px;margin:4px 0;font-size:14px}
+  .native-layer-mute-label input[type=checkbox]{width:22px;height:22px;min-width:22px;margin:0}
+  .native-layer-popover-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+  .native-layer-popover-actions button{min-height:44px;white-space:normal;padding:8px;font-size:14px}
+  .native-layer-popover [data-popup-settings]{min-height:44px;font-size:14px;padding:8px 0;white-space:normal;text-align:left;justify-content:flex-start}
+  .touch-layers-hidden{--layer-width:0px!important}
+  .touch-layers-hidden .layer-pane,.touch-layers-hidden .layer-heading{visibility:hidden;overflow:hidden}
+  .hide-layer-pane .layer-heading,.expanded-workspace .layer-heading,.drop-view .layer-heading{visibility:hidden}
+  .expand-grid-button{width:44px;height:44px;bottom:8px;right:8px;font-size:22px;background:var(--bg,#f3f3f3);border:1px solid var(--line,#d2d2d2);border-radius:4px;opacity:.88}
+  .keyboard-panel{height:172px;padding:0;min-height:0;border-top:1px solid var(--line,#d2d2d2)}
+  .keyboard-heading{position:relative;left:auto;right:auto;top:auto;height:44px;padding:0 4px;gap:4px;font-size:11px;z-index:3}
+  .keyboard-heading #activeInstrumentLabel{max-width:110px;min-width:0;flex:1;font-size:11px}
+  .demo-picker{min-width:0;flex:1;max-width:200px}
+  .demo-picker select{height:44px;width:100%;max-width:100%;font-size:16px;padding:0 3px;border-color:transparent;background:transparent}
+  .octave-controls{gap:2px;font-size:10px;flex-shrink:0;margin-left:auto}
+  .octave-controls button{height:44px;width:44px;font-size:14px;border:0}
+  .octave-controls #octaveLabel{display:none}
+  .piano{height:128px;touch-action:none}
+  .piano-white{min-width:39px}
+  .piano-key-label,.piano-key-label small{font-size:10px;line-height:1.1}
+  .status-bar{height:24px;min-height:24px;padding:0 5px;font-size:10px}
+  .status-bar #statusText{max-width:none;min-width:0;flex:1;font-size:10px}
+  .status-bar #engineStats{max-width:44%;font-size:9px}
+  .status-bar #cursorStatus,.status-bar #songStats,.status-bar #selectionStatus,.status-bar #saveState{display:none}
+  .inspector{top:auto!important;right:max(8px,env(safe-area-inset-right));left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));width:auto;max-width:540px;max-height:calc(100dvh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin-inline:auto;padding:12px 16px 16px;border-radius:9px;overscroll-behavior:contain;z-index:50}
+  .inspector-heading{font-size:16px;min-height:44px;padding-bottom:4px}
+  .inspector-heading #closePropertiesBtn{height:44px;width:44px;font-size:26px}
+  .inspector-hint{font-size:12px;margin:8px 0;line-height:1.5}
+  .pitch-stepper button{height:44px;width:44px;font-size:21px}
+  .pitch-stepper input{height:44px;width:48px;font-size:16px}
+  .inspector-field{font-size:14px;margin:10px 0}
+  .inspector-field>span{font-size:12px}
+  .inspector-field>select{height:44px;font-size:16px}
+  .inspector-field>input[type=range]{height:36px;margin-top:0}
+  .inline-field input{height:44px;width:75px;font-size:16px}
+  .outline-button,.selection-actions button{height:44px;font-size:14px}
+  dialog{width:min(620px,calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right)));max-width:100%;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:12px 16px;border-radius:9px;overscroll-behavior:contain;overflow:auto}
+  #modal{font-size:14px}
+  #modalContent{min-width:0}
+  .modal-heading{min-height:44px;margin-bottom:10px;gap:8px}
+  .modal-heading h2{font-size:19px;overflow-wrap:anywhere}
+  .modal-heading button{height:44px;width:44px;min-width:44px;padding:10px}
+  .modal-body{font-size:14px;overflow-wrap:anywhere;min-width:0}
+  .modal-body label{font-size:14px;line-height:1.5;margin:10px 0}
+  .modal-body input:not([type=checkbox]):not([type=color]):not([type=range]),.modal-body select{height:44px;min-height:44px;font-size:16px;padding:8px}
+  .modal-body textarea{font-size:16px;padding:8px;max-width:100%}
+  .modal-body input[type=range]{height:36px}
+  .modal-body input[type=checkbox],.inspector input[type=checkbox]{width:22px;height:22px;min-width:22px;flex-shrink:0;margin:0}
+  .modal-body input[type=color]{height:44px;min-width:64px}
+  .modal-body .inline-label{min-height:44px;gap:8px}
+  .modal-body .inline-label>input:not([type=checkbox]){width:100px;flex-shrink:0}
+  .modal-body button,.modal-footer button{min-height:44px;font-size:14px;white-space:normal}
+  .modal-footer{position:sticky;bottom:-12px;z-index:2;padding:12px 0;background:var(--bg,#f3f3f3);margin-top:10px;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line,#d2d2d2)}
+  .modal-footer button{flex:1;min-width:88px;padding:8px 12px}
+  .feature-actions{gap:8px;align-items:stretch}
+  .feature-actions>button{min-height:44px;flex:1 1 auto}
+  .feature-actions>label{max-width:100%;min-width:0;flex:1 1 130px}
+  .feature-actions>label>select{width:100%;max-width:100%}
+  .preferences-grid,.performance-grid,.help-grid{grid-template-columns:1fr}
+  .preference-tabs{overflow-x:auto;overscroll-behavior-x:contain;margin:0 -4px 12px;gap:0;padding-bottom:3px;scrollbar-width:thin}
+  .preference-tabs button{flex:1 0 auto;min-height:44px;padding:0 12px;font-size:14px}
+  [data-preference-page]{min-height:0}
+  .modal-body table{display:block;max-width:100%;overflow-x:auto;overscroll-behavior:contain;font-size:13px}
+  .modal-body th,.modal-body td{padding:8px;min-width:75px;overflow-wrap:normal}
+  .midi-device{padding:10px}
+  .midi-device>small{margin-left:4px}
+  .midi-device label{display:flex;width:100%;margin-right:0;justify-content:space-between}
+  .midi-device select{width:min(70%,240px);max-width:100%}
+  .modal-body details{margin:12px 0}
+  .modal-body summary{min-height:44px;align-content:center;font-size:14px;cursor:pointer}
+  .export-choice{min-height:64px;padding:10px}
+  .export-choice strong{font-size:15px}
+  .export-choice small{font-size:12px}
+  .help-grid>div{font-size:12px;padding:8px 0}
+  .backup-list{max-height:40dvh}
+  .backup-list>button{padding:10px;font-size:14px;white-space:normal}
+  .backup-list small{font-size:12px;overflow-wrap:anywhere}
+  .native-macro-strip{flex-wrap:wrap;gap:4px}
+  .native-macro-strip button{width:44px;height:44px;min-width:44px}
+  .instrument-popup{max-width:calc(100vw - 16px);max-height:60dvh;overflow:auto;grid-template-columns:repeat(6,44px);padding:6px;border-radius:6px}
+  .instrument-popup .instrument-card{width:44px;height:44px;min-width:44px}
+  .toast{bottom:calc(30px + env(safe-area-inset-bottom));font-size:13px;max-height:40dvh;overflow:auto;max-width:calc(100vw - 24px);padding:10px 12px}
+  .drop-overlay{inset:8px;padding:20px;text-align:center}
+  .drop-overlay h2{font-size:20px}
+  .drop-overlay p{font-size:14px}
+  .boot{padding:24px;font-size:14px;overflow-wrap:anywhere}
+  .expanded-workspace .touch-toolbar{height:44px;min-height:44px;padding-block:0}
+  .expanded-workspace .keyboard-panel{height:128px}
+  .expanded-workspace .grid-canvas{top:44px}
+  .player-mode .touch-toolbar{display:none}
+  .player-mode.drop-view .menu-bar{top:env(safe-area-inset-top);left:env(safe-area-inset-left);right:env(safe-area-inset-right);height:44px}
+  .player-mode.drop-view .main-toolbar{top:calc(44px + env(safe-area-inset-top));left:env(safe-area-inset-left);right:env(safe-area-inset-right);height:48px;margin:0;width:auto}
+  .theme-dark .touch-toolbar{border-color:#555}
+  .theme-dark .touch-toolbar button.active,.theme-dark .touch-toolbar button[aria-expanded=true]{background:#34495c}
+  .theme-dark .modal-footer{background:#262626}
+}
+
+@media(max-width:480px){
+  .touch-toolbar button{flex-direction:column;gap:1px;font-size:10px}
+  .touch-toolbar button>span:first-child{font-size:18px}
+}
+
+@media(max-width:360px){
+  .keyboard-heading #activeInstrumentLabel{max-width:75px;font-size:10px}
+  .demo-picker{max-width:130px}
+  .instrument-popup{grid-template-columns:repeat(5,44px)}
+}
+
+/* Share the first row in short landscape windows so the score retains space. */
+@media(max-height:540px) and (orientation:landscape) and (max-width:1024px),(max-height:540px) and (orientation:landscape) and (pointer:coarse){
+  .app{min-width:0;min-height:0;height:100vh;height:100dvh}
+  .menu-bar{width:176px;height:44px;min-height:44px;padding:0}
+  .main-menu{height:44px;width:176px;min-width:176px}
+  .main-menu button{width:44px;min-width:44px;min-height:44px;padding:0;font-size:12px}
+  .document-tab,.local-label{display:none}
+  .main-toolbar{margin-top:-44px;margin-left:176px;width:calc(100% - 176px);height:44px;min-height:44px;padding-block:0}
+  .touch-toolbar{height:44px;min-height:44px;padding-block:0}
+  .touch-toolbar button{flex-direction:row;gap:6px}
+  .touch-tools-expanded .main-toolbar{max-height:calc(100dvh - 132px)}
+  .workspace{min-height:0}
+  .keyboard-panel{height:108px;padding:0}
+  .keyboard-heading{height:44px}
+  .keyboard-heading #activeInstrumentLabel{max-width:180px}
+  .demo-picker{max-width:240px}
+  .octave-controls #octaveLabel{display:inline;font-size:10px}
+  .piano{height:64px}
+  .piano-inner{transform:scaleY(.5);transform-origin:top center}
+  .status-bar{height:20px;min-height:20px}
+  .inspector{max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+  .inspector-field{margin:5px 0}
+  .inspector-hint{margin:4px 0}
+  .expanded-workspace .keyboard-panel{height:64px}
+  .expanded-workspace .touch-toolbar{height:44px}
+  .player-mode.drop-view .keyboard-panel{height:64px!important}
+  .player-mode.drop-view .menu-bar{width:176px;right:auto}
+  .player-mode.drop-view .main-toolbar{top:env(safe-area-inset-top);left:calc(176px + env(safe-area-inset-left));right:env(safe-area-inset-right);height:44px;width:auto}
+}
+
+@media(prefers-reduced-motion:reduce){.touch-toolbar button{transition:none}}

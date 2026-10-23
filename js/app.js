@@ -17,6 +17,7 @@ import {createNativeLayerUI} from './native-layer-ui.js';
 import {createNativePlayerUI} from './native-player-ui.js';
 import {createNativeDialogs} from './native-dialogs.js';
 import {analyzeMinecraftCompatibility} from './minecraft-compatibility.js';
+import {createTouchGridController} from './touch-grid.js';
 
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -33,6 +34,7 @@ const projectStore = new ProjectStore();
 const history = new History(70);
 const sampleUndo = [], sampleRedo = [];
 const state = {editMode:'key',section:null,dropMode:false,player:playerMode,hover:null,tool:'draw', instrument:0, key:39, velocity:100, pan:0, pitch:0, layer:0, tick:0, cell:32, snap:1, selected:new Set(), clipboard:null, gesture:null, pianoStart:41, busy:false};
+let touchPan=true,touchTransaction=null;
 let cellIndex = new Map(), noteRows = new Map(), saveTimer, toastTimer, frame, dragDepth = 0;
 const playbackVisuals = new PlaybackVisuals(song, {playerMode});
 const heldPiano = new Map(), heldKeys = new Uint32Array(88);
@@ -86,6 +88,7 @@ function applyPlaybackPreferences(){engine.setMono?.(editorPreferences.mono);ren
 function resetPianoBindings(){pianoBindings={...PIANO_BINDINGS};localStorage.removeItem('nbs-piano-bindings');renderPiano();toast('已恢复原版默认琴键绑定');}
 function setPlayerMode(enabled){
   playerMode=!!enabled;state.player=playerMode;if(!playerMode)state.dropMode=false;
+  if(playerMode){$('app').classList.remove('touch-tools-expanded');$('touchToolsBtn')?.setAttribute('aria-expanded','false');}
   document.body.classList.toggle('player-mode',playerMode);document.body.classList.toggle('drop-view',state.dropMode);$('playerViewBtn').setAttribute('aria-pressed',String(playerMode));$('dropModeBtn').setAttribute('aria-pressed',String(state.dropMode));
   for(const id of ['songInfoBtn','tempoInput','signatureInput'])$(id).disabled=playerMode;playbackVisuals.rebuild(song,{playerMode});resize();
 }
@@ -95,11 +98,11 @@ function seekTo(tick,{preview=false,resume=engine.playing}={}){
 }
 function seekHold(direction,event){
   if(state.busy)return;event?.preventDefault();if(event?.pointerId!==undefined)event.currentTarget?.setPointerCapture?.(event.pointerId);
-  const resume=engine.playing;stopPlayback(false);seekGesture={direction,resume,last:performance.now(),frame:0};
+  const resume=engine.playing;stopPlayback(false);seekGesture={direction,resume,pointerId:event?.pointerId,last:performance.now(),frame:0};
   const move=()=>{if(!seekGesture)return;setTick(state.tick+direction*4,true);engine.previewNotes(columns.get(Math.floor(state.tick))||[],song.layers,Number($('masterVolume').value)/100).catch(errorMessage);};move();
   const advance=now=>{if(!seekGesture)return;if(now-seekGesture.last>=100){seekGesture.last=now;move();}seekGesture.frame=requestAnimationFrame(advance);};seekGesture.frame=requestAnimationFrame(advance);
 }
-function seekRelease(){if(!seekGesture)return;const resume=seekGesture.resume;cancelAnimationFrame(seekGesture.frame);seekGesture=null;if(resume)togglePlayback({resume:true});}
+function seekRelease(event){if(!seekGesture||event?.pointerId!==undefined&&seekGesture.pointerId!==undefined&&event.pointerId!==seekGesture.pointerId)return;const resume=seekGesture.resume;cancelAnimationFrame(seekGesture.frame);seekGesture=null;if(resume)togglePlayback({resume:true});}
 function showSectionMenu(event){
   event.preventDefault();const popup=$('contextPopup'),section=state.section,entries=[['clear','移除区间',!section],['start','跳到区间开始',!section],['end','跳到区间结束',!section],['select','选择区间内音符',!section],['from',`${editorPreferences.sectionStart?'✓ ':''}从区间开始播放`,false],['until',`${editorPreferences.sectionEnd?'✓ ':''}在区间后停止`,false]];
   popup.innerHTML=entries.map(([id,label,disabled])=>`<button data-section="${id}" ${disabled?'disabled':''}>${label}</button>`).join('');popup.style.left=`${clamp(event.clientX,0,innerWidth-230)}px`;popup.style.top=`${clamp(event.clientY,0,innerHeight-210)}px`;popup.showPopover();
@@ -130,9 +133,10 @@ function persist() {
   saveRevision++; saveTimer=setTimeout(flushSave,800);
 }
 function flushSave(){clearTimeout(saveTimer);saveQueue=saveQueue.then(async()=>{const revision=saveRevision,project=song;const snapshot=await features.sampleDataForSave();await projectStore.save(project,snapshot?.samples,{autoBackup:editorPreferences.autoBackup,backupMinutes:editorPreferences.backupMinutes});features.samplesSaved(snapshot);if(revision===saveRevision){dirty=false;$('saveState').textContent='已保存在此浏览器';}}).catch(error=>{$('saveState').textContent='自动保存失败，请导出完整工程包';console.warn(error);});return saveQueue;}
-function checkpoint(samples = engine.customSamples) {
+function checkpoint(samples = engine.customSamples,snapshot=song) {
+  if(touchTransaction&&snapshot===song){touchTransaction.checkpointed=true;return;}
   history.setLimit(clamp(Math.floor(1000000/Math.max(1,song.notes.length)),2,70));
-  history.push(song); sampleUndo.push(new Map(samples));
+  history.push(snapshot); sampleUndo.push(new Map(samples));
   sampleUndo.splice(0,Math.max(0,sampleUndo.length-history.undoDepth)); sampleRedo.length=0;
 }
 function refresh({layers=true, inspector=true, save=false}={}) {
@@ -159,6 +163,7 @@ function refresh({layers=true, inspector=true, save=false}={}) {
   $('tempoInput').value=editorPreferences.bpm?song.tempo*15:song.tempo;$('tempoInput').setAttribute('aria-label',editorPreferences.bpm?'速度 BPM':'速度 ticks 每秒');$('tempoInput').min=editorPreferences.bpm?.75:.05;$('tempoInput').max=editorPreferences.bpm?9830.25:655.35;$('tempoInput').parentElement.querySelector('small').textContent=editorPreferences.bpm?'BPM':'t/s'; $('signatureInput').value=song.timeSignature;
   $('loopBtn').querySelector('img').src=`assets/original/toolbar-light/${song.loop?'50-loop':'49-loop-inactive'}.png`;$('loopBtn').classList.toggle('active',song.loop); $('loopBtn').setAttribute('aria-pressed',String(song.loop));
   $('undoBtn').disabled=!history.canUndo; $('redoBtn').disabled=!history.canRedo;
+  if($('touchUndoBtn'))$('touchUndoBtn').disabled=!history.canUndo;
   $('gridSpacer').style.width=`${Math.min(30000000,totalTicks()*state.cell)}px`;
   $('gridSpacer').style.height=`${song.layers.length*ROW}px`;
   renderCompatibility();if(layers) renderLayers(); if(inspector) renderInspector(); scheduleDraw(); if(save){persist();restartIfPlaying();}
@@ -199,7 +204,7 @@ function renderInspector() {
   updatePianoFeedback();
 }
 function renderPiano() {
-  const whites=[],whiteCount=state.dropMode?52:clamp(Math.floor((document.documentElement.clientWidth-32)/39),3,Number(editorPreferences.keysmax)||30);
+  const whites=[],whiteCount=state.dropMode?52:clamp(Math.floor((($('piano').clientWidth||document.documentElement.clientWidth)-32)/39),3,Number(editorPreferences.keysmax)||30);
   const allWhites=Array.from({length:88},(_,i)=>i+21).filter(m=>![1,3,6,8,10].includes(m%12));if(whiteCount!==pianoWindowCount&&!state.dropMode)state.pianoStart=allWhites[clamp(27-Math.floor(whiteCount/2),0,52-whiteCount)];pianoWindowCount=whiteCount;
   const start=state.dropMode?21:clamp(state.pianoStart,21,allWhites[52-whiteCount]);let end=start;
   while(end<109&&whites.length<whiteCount){if(![1,3,6,8,10].includes(end%12))whites.push(end);end++;}
@@ -214,8 +219,9 @@ function renderPiano() {
 }
 function retina(canvas,ctx,w,h) { const dpr=Math.min(devicePixelRatio||1,2); const pw=Math.round(w*dpr),ph=Math.round(h*dpr); if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;canvas.style.width=`${w}px`;canvas.style.height=`${h}px`;}ctx.setTransform(dpr,0,0,dpr,0,0); }
 function resize() {
+  if(canvasWidth!==$('gridScroll').clientWidth||canvasHeight!==$('gridScroll').clientHeight)touchGrid.reset();
   canvasWidth=$('gridScroll').clientWidth; canvasHeight=$('gridScroll').clientHeight; rulerWidth=$('ruler').parentElement.clientWidth;
-  retina($('grid'),g,canvasWidth,canvasHeight); retina($('ruler'),ruler,rulerWidth,32); retina($('overviewCanvas'),overview,$('overview').clientWidth,29);
+  retina($('grid'),g,canvasWidth,canvasHeight); retina($('ruler'),ruler,rulerWidth,$('ruler').parentElement.clientHeight); retina($('overviewCanvas'),overview,$('overview').clientWidth,29);
   overviewDirty=true;
   renderLayers();renderPiano();renderRack();scheduleDraw();
 }
@@ -297,40 +303,58 @@ function endGesture() {
   if(gesture.changed){if(gesture.type==='move'){const chosen=new Set(gesture.originals.map(n=>n.id)),occupied=new Set(song.notes.filter(n=>chosen.has(n.id)).map(n=>`${n.tick}:${n.layer}`));song.notes=song.notes.filter(n=>chosen.has(n.id)||!occupied.has(`${n.tick}:${n.layer}`));}refresh({save:true});}
   else refresh({layers:false});
 }
-$('gridScroll').addEventListener('pointerdown',event=>{
+function beginGridEdit(event){
   if(playerMode||state.busy)return;
   if(event.button===1){event.preventDefault();const p=point(event),note=cellIndex.get(`${p.tick}:${p.layer}`);if(note){state.selected.clear();Object.assign(state,{instrument:note.instrument,key:note.key,velocity:note.velocity,pan:note.pan,pitch:note.pitch});chooseInstrument(note.instrument,false);renderInspector();updateCursorStatus(note);audition(note);}return;}
   if(event.button!==0&&event.button!==2)return;
   song.metadata||={};const clickKey=event.button===2?'rightClicks':'leftClicks';song.metadata[clickKey]=Math.min(0xffffffff,(Number(song.metadata[clickKey])||0)+1);
   const rect=$('gridScroll').getBoundingClientRect();if(event.clientX-rect.left>=canvasWidth||event.clientY-rect.top>=canvasHeight)return;
-  const p=point(event);if(p.layer>=song.layers.length)return;event.preventDefault();$('gridScroll').focus();$('gridScroll').setPointerCapture(event.pointerId);
+  const p=point(event);if(p.layer<0||p.layer>=song.layers.length)return;event.preventDefault();$('gridScroll').focus({preventScroll:true});
   state.layer=p.layer;const n=cellIndex.get(`${p.tick}:${p.layer}`);
   if(event.button===2||state.tool==='erase'){if(song.layers[p.layer].locked){toast('此音轨已锁定，双击音轨名称可解锁');return;}checkpoint();const changed=eraseNote(p);state.gesture={type:'erase',changed};refresh();return;}
   if(n){if(event.ctrlKey||event.metaKey){if(state.selected.has(n.id))state.selected.delete(n.id);else state.selected.add(n.id);}else if(!state.selected.has(n.id))state.selected=new Set([n.id]);
     state.gesture={type:'move',startTick:p.tick,startLayer:p.layer,originals:editableNotes().map(n=>({...n})),changed:false};audition(n);refresh();
   }else if(state.tool==='select'){const previous=event.ctrlKey||event.metaKey?new Set(state.selected):new Set();state.selected=previous;state.gesture={type:'select',startX:p.x,startY:p.y,x:p.x,y:p.y,previous:new Set(previous),changed:false};refresh();
   }else{if(song.layers[p.layer].locked){toast('此音轨已锁定，双击音轨名称可解锁');return;}checkpoint();const added=addNote(p);state.selected=new Set(added?[added.id]:[]);state.gesture={type:'paint',changed:!!added};if(added)audition(added);refresh();}
-});
-$('gridScroll').addEventListener('pointermove',event=>{
+}
+function moveGridEdit(event){
   const p=point(event),hover=cellIndex.get(`${p.tick}:${p.layer}`);state.hover=hover||null;updateCursorStatus(hover);
   const gesture=state.gesture;if(!gesture)return;
   if(gesture.type==='paint'){const added=addNote(p);if(added){gesture.changed=true;state.selected=new Set([added.id]);audition(added);refresh();}}
   if(gesture.type==='erase'){if(eraseNote(p)){gesture.changed=true;refresh();}}
   if(gesture.type==='select'){gesture.x=p.x;gesture.y=p.y;const minX=Math.min(gesture.startX,p.x),maxX=Math.max(gesture.startX,p.x),minY=Math.min(gesture.startY,p.y),maxY=Math.max(gesture.startY,p.y);state.selected=new Set([...gesture.previous,...song.notes.filter(n=>n.tick*state.cell+state.cell>minX&&n.tick*state.cell<maxX&&n.layer*ROW+ROW>minY&&n.layer*ROW<maxY).map(n=>n.id)]);renderInspector();scheduleDraw();}
   if(gesture.type==='move'&&gesture.originals.length){let dt=Math.round((p.tick-gesture.startTick)/state.snap)*state.snap,dl=p.layer-gesture.startLayer;const original=gesture.originals,area=bounds(original);dt=clamp(dt,-area.minTick,999999-area.maxTick);dl=clamp(dl,-area.minLayer,song.layers.length-1-area.maxLayer);if(original.some(n=>song.layers[n.layer+dl].locked))return;if(!gesture.changed&&(dt||dl)){checkpoint();gesture.changed=true;}if(gesture.changed){const origins=new Map(original.map(n=>[n.id,n]));song.notes.forEach(n=>{const o=origins.get(n.id);if(o){n.tick=o.tick+dt;n.layer=o.layer+dl;}});refresh({layers:false,inspector:false});}}
+}
+// Touch strokes are staged: a second finger cancels the edit and starts navigation.
+// Only the completed stroke enters history; cancellation preserves the redo stack.
+const touchGrid=createTouchGridController({
+  getMode:()=>touchPan?'pan':'edit',
+  getViewport:()=>{const scroll=$('gridScroll'),rect=scroll.getBoundingClientRect();return {left:rect.left,top:rect.top,scrollLeft:scroll.scrollLeft,scrollTop:scroll.scrollTop,cell:state.cell};},
+  transform:({cell,scrollLeft,scrollTop})=>{const scroll=$('gridScroll');if(state.cell!==cell){state.cell=cell;$('zoomLabel').textContent=`${Math.round(cell/32*100)}%`;$('gridSpacer').style.width=`${Math.min(30000000,totalTicks()*cell)}px`;}scroll.scrollLeft=scrollLeft;scroll.scrollTop=scrollTop;renderLayers();scheduleDraw();},
+  beginEdit:event=>{touchTransaction={song:structuredClone(song),selected:new Set(state.selected),layer:state.layer,checkpointed:false};beginGridEdit(event);},
+  moveEdit:moveGridEdit,
+  endEdit:()=>{const transaction=touchTransaction;touchTransaction=null;if(transaction?.checkpointed&&state.gesture?.changed)checkpoint(engine.customSamples,transaction.song);endGesture();},
+  cancelEdit:()=>{const transaction=touchTransaction;touchTransaction=null;state.gesture=null;if(transaction){song=transaction.song;state.selected=transaction.selected;state.layer=transaction.layer;refresh({save:true});}}
 });
+$('gridScroll').addEventListener('pointerdown',event=>{
+  if(playerMode||state.busy)return;
+  if(event.pointerType==='touch'){event.preventDefault();$('gridScroll').setPointerCapture(event.pointerId);touchGrid.down(event);return;}
+  touchGrid.reset();if([0,1,2].includes(event.button))$('gridScroll').setPointerCapture(event.pointerId);beginGridEdit(event);
+});
+$('gridScroll').addEventListener('pointermove',event=>{if(touchGrid.move(event))return;if(event.pointerType!=='touch')moveGridEdit(event);});
 $('gridScroll').addEventListener('pointerleave',()=>{state.hover=null;updateCursorStatus();});
-$('gridScroll').addEventListener('pointerup',endGesture);$('gridScroll').addEventListener('pointercancel',endGesture);
+for(const type of ['pointerup','pointercancel','lostpointercapture'])$('gridScroll').addEventListener(type,event=>{if(event.pointerType==='touch'){if(type==='pointerup')touchGrid.up(event);else touchGrid.cancel(event);return;}endGesture();});
+document.addEventListener('pointerdown',event=>{if(event.pointerType==='touch'&&!$('gridScroll').contains(event.target))touchGrid.reset();},true);
 $('gridScroll').addEventListener('contextmenu',e=>e.preventDefault());
 $('gridScroll').addEventListener('scroll',()=>{renderLayers();scheduleDraw();},{passive:true});
 $('gridScroll').addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();setZoom(state.cell*(e.deltaY>0?.9:1.1));return;}if(playerMode||state.busy)return;const p=point(e),note=cellIndex.get(`${p.tick}:${p.layer}`),direction=e.deltaY<0?1:-1;if(editorPreferences.wheelProperties&&note&&!song.layers[note.layer]?.locked){e.preventDefault();adjustMode(direction,state.editMode==='key'?e.shiftKey:!e.shiftKey,[note]);}else if(editorPreferences.wheelMode==='instrument'){e.preventDefault();state.selected.clear();chooseInstrument((state.instrument+direction+instruments().length)%instruments().length);renderInspector();}else if(editorPreferences.wheelMode==='key'){e.preventDefault();state.key=clamp(state.key+direction,0,87);renderInspector();audition();}else if(e.shiftKey){e.preventDefault();$('gridScroll').scrollLeft+=e.deltaY;}},{passive:false});
 $('layerPane').addEventListener('wheel',e=>{$('gridScroll').scrollTop+=e.deltaY;e.preventDefault();},{passive:false});
 let rulerGesture=null;
 const rulerTick=event=>clamp(Math.round((event.clientX-$('ruler').getBoundingClientRect().left+$('gridScroll').scrollLeft)/state.cell),0,song.length);
-$('ruler').addEventListener('pointerdown',event=>{if(event.button!==0||state.busy)return;event.preventDefault();$('ruler').setPointerCapture(event.pointerId);const tick=rulerTick(event),resume=engine.playing;stopPlayback(false);const start=state.section?.start,end=state.section?.end,mode=start!==undefined&&Math.abs(event.clientX-$('ruler').getBoundingClientRect().left+$('gridScroll').scrollLeft-start*state.cell)<8?'start':end!==undefined&&Math.abs(event.clientX-$('ruler').getBoundingClientRect().left+$('gridScroll').scrollLeft-end*state.cell)<8?'end':'new';rulerGesture={anchor:tick,mode,resume,moved:false};setTick(tick);engine.previewNotes(columns.get(Math.floor(tick))||[],song.layers,Number($('masterVolume').value)/100).catch(errorMessage);});
-$('ruler').addEventListener('pointermove',event=>{if(!rulerGesture)return;const tick=rulerTick(event),gesture=rulerGesture;if(tick!==gesture.anchor)gesture.moved=true;if(gesture.mode==='start')state.section={start:tick,end:state.section.end};else if(gesture.mode==='end')state.section={start:state.section.start,end:tick};else if(gesture.moved)state.section={start:gesture.anchor,end:tick};setTick(tick);if(!gesture.moved)engine.previewNotes(columns.get(tick)||[],song.layers,Number($('masterVolume').value)/100).catch(errorMessage);});
-const endRulerGesture=()=>{if(!rulerGesture)return;const resume=rulerGesture.resume;rulerGesture=null;if(state.section){const{start,end}=state.section;state.section=start===end?null:{start:Math.min(start,end),end:Math.max(start,end)};}scheduleDraw();if(resume)togglePlayback({resume:true});};
-$('ruler').addEventListener('pointerup',endRulerGesture);$('ruler').addEventListener('pointercancel',endRulerGesture);$('ruler').addEventListener('contextmenu',showSectionMenu);
+$('ruler').addEventListener('pointerdown',event=>{if(event.button!==0||state.busy||rulerGesture)return;event.preventDefault();$('ruler').setPointerCapture(event.pointerId);const tick=rulerTick(event),resume=engine.playing,previousSection=state.section&&{...state.section};stopPlayback(false);const start=state.section?.start,end=state.section?.end,edge=event.pointerType==='touch'?18:8,mode=start!==undefined&&Math.abs(event.clientX-$('ruler').getBoundingClientRect().left+$('gridScroll').scrollLeft-start*state.cell)<edge?'start':end!==undefined&&Math.abs(event.clientX-$('ruler').getBoundingClientRect().left+$('gridScroll').scrollLeft-end*state.cell)<edge?'end':'new';rulerGesture={pointerId:event.pointerId,anchor:tick,mode,resume,moved:false,previousSection};setTick(tick);engine.previewNotes(columns.get(Math.floor(tick))||[],song.layers,Number($('masterVolume').value)/100).catch(errorMessage);});
+$('ruler').addEventListener('pointermove',event=>{if(!rulerGesture||rulerGesture.pointerId!==event.pointerId)return;const tick=rulerTick(event),gesture=rulerGesture;if(tick!==gesture.anchor)gesture.moved=true;if(gesture.mode==='start')state.section={start:tick,end:state.section.end};else if(gesture.mode==='end')state.section={start:state.section.start,end:tick};else if(gesture.moved)state.section={start:gesture.anchor,end:tick};setTick(tick);if(!gesture.moved)engine.previewNotes(columns.get(tick)||[],song.layers,Number($('masterVolume').value)/100).catch(errorMessage);});
+const endRulerGesture=event=>{if(!rulerGesture||event?.pointerId!==undefined&&event.pointerId!==rulerGesture.pointerId)return;const gesture=rulerGesture;rulerGesture=null;if(event?.type==='pointercancel')state.section=gesture.previousSection;else if(state.section){const{start,end}=state.section;state.section=start===end?null:{start:Math.min(start,end),end:Math.max(start,end)};}scheduleDraw();if(gesture.resume)togglePlayback({resume:true});};
+for(const type of ['pointerup','pointercancel','lostpointercapture'])$('ruler').addEventListener(type,endRulerGesture);$('ruler').addEventListener('contextmenu',showSectionMenu);
 
 $('overview').addEventListener('pointerdown',event=>{const rect=$('overview').getBoundingClientRect();$('gridScroll').scrollLeft=(event.clientX-rect.left)/rect.width*totalTicks()*state.cell-canvasWidth/2;});
 
@@ -367,7 +391,7 @@ function showLayer(index){
   $('applyLayer').onclick=()=>{checkpoint();layer.name=$('layerName').value.trim()||`音轨 ${index+1}`;layer.volume=clamp(Number($('layerVolume').value),0,100);layer.pan=clamp(Number($('layerPan').value),-100,100);layer.locked=$('layerLock').checked;$('modal').close();refresh({save:true});};
   $('removeLayer').onclick=()=>{checkpoint();song.layers.splice(index,1);song.layers.forEach((l,i)=>l.id=i);song.notes=song.notes.filter(n=>n.layer!==index);song.notes.forEach(n=>{if(n.layer>index)n.layer--;});$('modal').close();refresh({save:true});};
 }
-function showHelp(){modal('使用说明',`<p>文件解析、编辑、Rust 音频渲染和所有导出均在浏览器本机完成。</p><div class="help-grid">${[['播放 / 暂停','Space'],['停止并回到开头','Enter'],['撤销 / 重做','Ctrl Z / Ctrl Shift Z'],['复制 / 剪切 / 粘贴','Ctrl C / X / V'],['全选 / 反选','Ctrl A / I'],['删除音符','Delete'],['当前属性增减（粗调）','Ctrl E / D'],['当前属性增减（微调）','Ctrl R / F'],['设置 / 重置属性','Ctrl T / G'],['宏 / 图案 / 测速器','编辑菜单'],['切换内置音色','Ctrl 1–9 / Ctrl Shift 1–7'],['扩展 / 返回工作区','F11 / Esc'],['循环播放','L'],['打开 / 保存 NBS','Ctrl O / S'],['缩放网格','Ctrl + 滚轮']].map(([a,b])=>`<div><span>${a}</span><kbd>${b}</kbd></div>`).join('')}</div><p>点击网格添加音符，右键擦除，中键吸取音符属性。使用工具栏选择工具框选、拖动音符；Shift / Alt + ↑↓ 调整音高或八度。音符上滚轮编辑当前模式属性，Shift 切换粗调/微调。</p><p>拖动时间标尺建立区间，右键可设置区间播放。快进和倒带按钮可按住连续定位。图层名称可直接编辑；音量、声像可拖动或打开滑条，另有锁定、独奏、插入、删除及上下移动。</p><p>默认启用原版电脑琴键映射（1 Q 2 W…），右键琴键后可重绑。启用电脑琴键时，重叠的单字母工具快捷键优先演奏。点击录制按钮后，第一个琴键或 MIDI 音符开始录制；右键按钮打开 MIDI 设备。</p><p>自定义音色与曲谱自动保存在此浏览器。完整工程包保存所有音频；NBS/JSON 只保存引用。建议下载工程包备份。</p>`);}
+function showHelp(){modal('使用说明',`<p>文件解析、编辑、Rust 音频渲染和所有导出均在浏览器本机完成。</p><div class="help-grid">${[['播放 / 暂停','Space'],['停止并回到开头','Enter'],['撤销 / 重做','Ctrl Z / Ctrl Shift Z'],['复制 / 剪切 / 粘贴','Ctrl C / X / V'],['全选 / 反选','Ctrl A / I'],['删除音符','Delete'],['当前属性增减（粗调）','Ctrl E / D'],['当前属性增减（微调）','Ctrl R / F'],['设置 / 重置属性','Ctrl T / G'],['宏 / 图案 / 测速器','编辑菜单'],['切换内置音色','Ctrl 1–9 / Ctrl Shift 1–7'],['扩展 / 返回工作区','F11 / Esc'],['循环播放','L'],['打开 / 保存 NBS','Ctrl O / S'],['缩放网格','Ctrl + 滚轮']].map(([a,b])=>`<div><span>${a}</span><kbd>${b}</kbd></div>`).join('')}</div><p>触控操作：默认单指移动画布；点击“移动”切换音符编辑，双指平移缩放。第二根手指加入会取消未完成笔画；一整笔可一次撤销。使用“音轨”展开每轨混音、“工具”展开完整工具和网格吸附、“区间”打开标尺区间操作。底部钢琴支持多指弹奏和滑奏，八度按钮切换音域。</p><p>点击网格添加音符，右键擦除，中键吸取音符属性。使用工具栏选择工具框选、拖动音符；Shift / Alt + ↑↓ 调整音高或八度。音符上滚轮编辑当前模式属性，Shift 切换粗调/微调。</p><p>拖动时间标尺建立区间，右键可设置区间播放。快进和倒带按钮可按住连续定位。图层名称可直接编辑；音量、声像可拖动或打开滑条，另有锁定、独奏、插入、删除及上下移动。</p><p>默认启用原版电脑琴键映射（1 Q 2 W…），右键琴键后可重绑。启用电脑琴键时，重叠的单字母工具快捷键优先演奏。点击录制按钮后，第一个琴键或 MIDI 音符开始录制；右键按钮打开 MIDI 设备。</p><p>自定义音色与曲谱自动保存在此浏览器。完整工程包保存所有音频；NBS/JSON 只保存引用。建议下载工程包备份。</p>`);}
 function addCustomSample(targetIndex=null){$('sampleInput').dataset.target=targetIndex??'';$('sampleInput').click();}
 $('sampleInput').onchange=async()=>{
   const file=$('sampleInput').files[0],target=$('sampleInput').dataset.target;$('sampleInput').value='';if(!file)return;
@@ -405,7 +429,7 @@ function stopPianoEdge(){pianoEdge=null;cancelAnimationFrame(pianoEdgeFrame);pia
 function setPianoEdge(direction){if(playerMode||!direction){stopPianoEdge();return;}if(pianoEdge?.direction===direction)return;stopPianoEdge();pianoEdge={direction,last:performance.now()+250};const step=now=>{if(!pianoEdge)return;if(now-pianoEdge.last>=100){pianoEdge.last=now;const whites=Array.from({length:88},(_,i)=>i+21).filter(m=>![1,3,6,8,10].includes(m%12)),index=whites.findIndex(m=>m>=state.pianoStart);state.pianoStart=whites[clamp(index+direction,0,52-pianoWindowCount)];renderPiano();}pianoEdgeFrame=requestAnimationFrame(step);};pianoEdgeFrame=requestAnimationFrame(step);}
 function showNoteChart(key,event){const chart=$('noteChart');if(!editorPreferences.noteChart||playerMode||engine.playing){chart.hidden=true;return;}const midi=key+21;if(midi<28||midi>96){chart.hidden=true;return;}chart.hidden=false;chart.style.left=`${clamp(event.clientX-140,4,innerWidth-296)}px`;chart.style.top=`${Math.max(6,$('piano').getBoundingClientRect().top-244)}px`;const c=chart.querySelector('canvas').getContext('2d');c.clearRect(0,0,280,230);c.fillStyle='#fff';c.fillRect(0,0,280,230);c.strokeStyle='#999';for(let i=0;i<11;i++)if(i!==5){c.beginPath();c.moveTo(20,48+i*12);c.lineTo(260,48+i*12);c.stroke();}c.strokeStyle='#555';for(const y of [48,120]){c.beginPath();c.moveTo(20,y);c.lineTo(20,y+48);c.stroke();}for(const [i,image]of chartClefs.entries())if(image.complete&&image.naturalWidth)c.drawImage(image,31,i?123:40,28,i?28:59);const natural=[0,2,4,5,7,9,11],pitch=midi%12,accidental=!natural.includes(pitch),diatonic=Math.floor(midi/12)*7+natural.findIndex(n=>n>=pitch),y=108-(diatonic-35)*6;c.strokeStyle='#777';for(let line=108;line>=y-1;line-=12)if(line===108||line<48){c.beginPath();c.moveTo(126,line);c.lineTo(157,line);c.stroke();}for(let line=180;line<=y+1;line+=12){c.beginPath();c.moveTo(126,line);c.lineTo(157,line);c.stroke();}c.fillStyle='#111';c.beginPath();c.ellipse(141,y,7,4,-.3,0,Math.PI*2);c.fill();c.fillRect(147,y-28,1.5,28);if(accidental){c.font='20px serif';c.fillText(editorPreferences.flat?'♭':'♯',119,y+5);}c.font='12px Segoe UI';c.fillText(noteName(key),126,219);}
 $('piano').addEventListener('contextmenu',event=>{const key=event.target.closest('[data-key]');if(!key||!editorPreferences.keyBindings||playerMode)return;event.preventDefault();pendingBinding=Number(key.dataset.key);toast(`为 ${noteName(pendingBinding)} 按一个新键；Delete 清除，Esc 取消`);});
-$('piano').addEventListener('pointermove',event=>{const element=document.elementFromPoint(event.clientX,event.clientY)?.closest('#piano [data-key]');if(!element){setPianoEdge(0);$('noteChart').hidden=true;return;}const key=Number(element.dataset.key),whiteKeys=pianoKeys.filter(k=>k.element.classList.contains('piano-white'));setPianoEdge(key===whiteKeys[0]?.key?-1:key===whiteKeys.at(-1)?.key?1:0);showNoteChart(key,event);});
+$('piano').addEventListener('pointermove',event=>{if(event.pointerType==='touch'){stopPianoEdge();$('noteChart').hidden=true;return;}const element=document.elementFromPoint(event.clientX,event.clientY)?.closest('#piano [data-key]');if(!element){setPianoEdge(0);$('noteChart').hidden=true;return;}const key=Number(element.dataset.key),whiteKeys=pianoKeys.filter(k=>k.element.classList.contains('piano-white'));setPianoEdge(key===whiteKeys[0]?.key?-1:key===whiteKeys.at(-1)?.key?1:0);showNoteChart(key,event);});
 $('piano').addEventListener('pointerleave',()=>{stopPianoEdge();$('noteChart').hidden=true;});
 $('octaveDownBtn').onclick=()=>{state.pianoStart=Math.max(21,state.pianoStart-12);renderPiano();};$('octaveUpBtn').onclick=()=>{state.pianoStart=Math.min(72,state.pianoStart+12);renderPiano();};
 $('noteInstrument').onchange=()=>{const id=Number($('noteInstrument').value);applyProperty('instrument',id);chooseInstrument(id);};
@@ -461,8 +485,8 @@ document.addEventListener('keydown',event=>{
   else if(!playerMode){if(key==='b')setTool('draw');else if(key==='v')setTool('select');else if(key==='e')setTool('erase');else if(key==='delete'||key==='backspace'){event.preventDefault();deleteSelection();}else if(key.startsWith('arrow')){event.preventDefault();if(!state.selected.size&&(key==='arrowleft'||key==='arrowright'))seekTo(state.tick+(key==='arrowleft'?-4:4),{preview:true});else if(event.shiftKey||event.altKey){if(key==='arrowup'||key==='arrowdown')moveSelection(0,0,(key==='arrowup'?1:-1)*(event.altKey?12:1));}else moveSelection(key==='arrowleft'?-state.snap:key==='arrowright'?state.snap:0,key==='arrowup'?-1:key==='arrowdown'?1:0);}}
 });
 document.addEventListener('keyup',event=>{releasePiano(`keyboard:${event.code}`);releasePiano(`button:${event.code}`);});
-window.addEventListener('blur',()=>{clearPianoInput();seekRelease();stopPianoEdge();$('noteChart').hidden=true;});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)clearPianoInput();else scheduleDraw();});
+window.addEventListener('blur',()=>{touchGrid.reset();clearPianoInput();seekRelease();stopPianoEdge();$('noteChart').hidden=true;});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){touchGrid.reset();clearPianoInput();seekRelease();}else scheduleDraw();});
 reducedMotion.addEventListener('change',()=>{updatePianoFeedback();scheduleDraw();});
 document.addEventListener('dragenter',event=>{if(event.dataTransfer?.types.includes('Files')){event.preventDefault();dragDepth++;$('dropOverlay').hidden=false;}});
 document.addEventListener('dragover',event=>{if(event.dataTransfer?.types.includes('Files'))event.preventDefault();});
@@ -471,8 +495,21 @@ document.addEventListener('drop',event=>{event.preventDefault();dragDepth=0;$('d
 window.addEventListener('pagehide',()=>{if(dirty)flushSave();});
 window.addEventListener('beforeunload',event=>{if(dirty){flushSave();event.preventDefault();event.returnValue='';}});
 new ResizeObserver(resize).observe($('gridScroll'));
-function toggleProperties(){const panel=$('propertiesPanel'),hidden=panel.classList.toggle('is-hidden');$('propertiesBtn').setAttribute('aria-expanded',String(!hidden));}
+function toggleProperties(){const panel=$('propertiesPanel'),hidden=panel.classList.toggle('is-hidden');$('propertiesBtn').setAttribute('aria-expanded',String(!hidden));$('touchPropertiesBtn')?.setAttribute('aria-expanded',String(!hidden));}
 $('propertiesBtn').onclick=toggleProperties;$('closePropertiesBtn').onclick=()=>{$('propertiesPanel').classList.add('is-hidden');$('propertiesBtn').setAttribute('aria-expanded','false');};
+function updateTouchMode(){const button=$('touchPanBtn');if(!button)return;button.setAttribute('aria-pressed',String(touchPan));button.classList.toggle('active',touchPan);button.querySelector('span:last-child').textContent=touchPan?'移动':'编辑';$('gridScroll').dataset.touchMode=touchPan?'pan':'edit';$('gridScroll').setAttribute('aria-label',`音符时间网格。触控${touchPan?'单指拖动平移':'单指点击或拖动编辑'}，双指平移缩放`);}
+if($('touchPanBtn')){
+  $('touchPanBtn').onclick=()=>{touchGrid.reset();touchPan=!touchPan;updateTouchMode();};
+  $('app').classList.toggle('touch-layers-hidden',innerWidth<=480);
+  const updateLayersButton=()=>$('touchLayersBtn').setAttribute('aria-expanded',String(!$('app').classList.contains('touch-layers-hidden')));
+  $('touchLayersBtn').onclick=()=>{if(document.body.classList.contains('expanded-workspace')){toggleWorkspace();$('app').classList.remove('touch-layers-hidden');}else $('app').classList.toggle('touch-layers-hidden');updateLayersButton();resize();};updateLayersButton();
+  $('touchPropertiesBtn').onclick=toggleProperties;
+  $('touchSectionBtn').onclick=()=>{const rect=$('touchSectionBtn').getBoundingClientRect();showSectionMenu({preventDefault(){},clientX:rect.left,clientY:rect.bottom});};
+  $('touchUndoBtn').onclick=()=>undo();
+  $('touchToolsBtn').onclick=()=>{if(document.body.classList.contains('expanded-workspace'))toggleWorkspace();const expanded=$('app').classList.toggle('touch-tools-expanded');$('touchToolsBtn').setAttribute('aria-expanded',String(expanded));resize();};
+  document.querySelectorAll('[data-tool]').forEach(button=>button.addEventListener('click',()=>{touchPan=false;updateTouchMode();}));
+  updateTouchMode();
+}
 $('engineSettingsBtn').onclick=showEngineSettings;$('performanceBtn').onclick=showPerformance;
 const layerUI=createNativeLayerUI({getSong:()=>song,getState:()=>state,checkpoint,refresh,persist,scheduleDraw,engine,showLayer,toast,error:errorMessage,isBusy:()=>state.busy||playerMode||!!benchmarkTask});
 const nativeDialogs=createNativeDialogs({getSong:()=>song,checkpoint,refresh,modal,toast,error:errorMessage,showProperties:showSongProperties,engine,isBusy:()=>state.busy||!!benchmarkTask});

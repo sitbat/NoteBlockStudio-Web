@@ -195,7 +195,7 @@ export function installFeatureUI(h){
   }
   function showSystem(){
     const state=getBrowserCodecState(),labels={idle:'首次导出时加载',loading:'正在加载',ready:'已就绪',encoding:'正在编码',error:'上次编码失败，可重新尝试'};
-    h.modal('浏览器运行信息',`<p>Web 版 4.2.0 · 纯静态网站</p><p>编辑、Rust/WASM 多核播放、每轨混响、音频编码和自动保存都在当前浏览器中运行。工程和音频不会上传到服务器。</p><p>浏览器编码器：${esc(labels[state.state]||state.state||'按需加载')}。支持 MP3、FLAC、AIFF、OGG 和 WAV。</p><p>MIDI 设备在您主动授权后连接。浏览器不直接安装系统文件关联、连接 Discord 桌面活动、读取命令行指定路径或替换本机程序文件。</p><p>重要作品请下载包含自定义采样的完整工程包。</p>`,`<button class="primary-button" id="systemClose">关闭</button>`);$('systemClose').onclick=close;
+    h.modal('浏览器运行信息',`<p>Web 版 4.3.0 · 纯静态网站</p><p>编辑、Rust/WASM 多核播放、每轨混响、音频编码和自动保存都在当前浏览器中运行。工程和音频不会上传到服务器。</p><p>浏览器编码器：${esc(labels[state.state]||state.state||'按需加载')}。支持 MP3、FLAC、AIFF、OGG 和 WAV。</p><p>MIDI 设备在您主动授权后连接。浏览器不直接安装系统文件关联、连接 Discord 桌面活动、读取命令行指定路径或替换本机程序文件。</p><p>重要作品请下载包含自定义采样的完整工程包。</p>`,`<button class="primary-button" id="systemClose">关闭</button>`);$('systemClose').onclick=close;
   }
 
 
@@ -210,7 +210,7 @@ export function installFeatureUI(h){
     document.querySelectorAll('[data-recent]').forEach(button=>button.onclick=run(async()=>{const row=await h.store.loadRecent(button.dataset.recent),bank=restoreSampleBank(row.samples,{maxIndex:row.project.customInstruments.length});close();h.confirmReplace(()=>{h.replaceSong(row.project);engine.customSamples=bank;h.persist();notify('已打开最近歌曲');});}));
     $('clearRecent').onclick=run(async()=>{await h.store.clearRecent();close();notify('最近列表已清除，当前工程仍保留');});
   }
-  function showAbout(){h.modal('关于 Note Block Studio Web',`<p>Web 版 4.2.0，基于 Open Note Block Studio v3.11.0 的源码与素材移植。原项目与本项目使用 MIT 许可；随包 FFmpeg 核心遵循其独立 GPL 许可。</p><p>纯静态网站；Rust/WASM 多核音频和逐轨混响均在浏览器运行。</p><p><a href="https://github.com/OpenNBS/OpenNoteBlockStudio" target="_blank" rel="noopener">原项目源码</a> · <a href="https://github.com/sitbat/NoteBlockStudio-Web" target="_blank" rel="noopener">Web 项目源码</a></p><p>非官方 Minecraft 项目，与 Mojang / Microsoft 没有关联。</p>`);}
+  function showAbout(){h.modal('关于 Note Block Studio Web',`<p>Web 版 4.3.0，基于 Open Note Block Studio v3.11.0 的源码与素材移植。原项目与本项目使用 MIT 许可；随包 FFmpeg 核心遵循其独立 GPL 许可。</p><p>纯静态网站；Rust/WASM 多核音频和逐轨混响均在浏览器运行。</p><p><a href="https://github.com/OpenNBS/OpenNoteBlockStudio" target="_blank" rel="noopener">原项目源码</a> · <a href="https://github.com/sitbat/NoteBlockStudio-Web" target="_blank" rel="noopener">Web 项目源码</a></p><p>非官方 Minecraft 项目，与 Mojang / Microsoft 没有关联。</p>`);}
   function showChangelog(){h.modal('更新历史',`<p><strong>4.2</strong>：补齐原版属性编辑、图层行内控制、区间播放、节拍器、变速控制、播放器下落模式和显示偏好；修复导入导出兼容性。</p><p><strong>4.1</strong>：还原琴键与音符播放动画。</p><p><strong>4.0</strong>：纯静态部署，编码与实时音频全部在浏览器完成。</p>`);}
   function selectMode(mode){h.setSelected(selectNotes(h.getSong(),selected(),{mode,instrument:h.getState().instrument}));h.refresh();}
   function editorOperation(id){commit(song=>applyEditorTool(song,selected(),id));}

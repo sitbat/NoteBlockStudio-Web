@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#f3f3f3">
   <meta name="description" content="Note Block Studio 本地音乐编辑器">
   <title>Note Block Studio</title>
@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/native-layers.css">
   <link rel="stylesheet" href="css/native-parity.css">
   <link rel="stylesheet" href="css/native-player.css">
+  <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
   <div id="boot" class="boot"><strong>Note Block Studio</strong><p>正在准备编辑器与 Rust 多线程音频环境…</p><p>请使用 HTTPS 网站或本机 localhost 地址打开。</p></div>
@@ -27,7 +28,7 @@
       <button id="songInfoBtn" class="document-tab" title="编辑歌曲信息"><span id="projectTitle">晨光练习</span><small>— Note Block Studio</small></button>
       <span class="local-label">本地文件</span>
     </header>
-    <section class="main-toolbar" aria-label="文件、播放与编辑工具">
+    <section id="appTools" class="main-toolbar" aria-label="文件、播放与编辑工具">
       <div class="toolbar-group file-actions">
         <button id="newBtn" title="新文件（Ctrl+N）" aria-label="新文件"><img src="assets/original/toolbar-light/00-new.png" alt=""></button>
         <button id="openBtn" title="打开歌曲（Ctrl+O）" aria-label="打开歌曲"><img src="assets/original/toolbar-light/01-open.png" alt=""></button>
@@ -74,6 +75,15 @@
       <label class="master-volume" title="主音量"><span aria-hidden="true">♪</span><input id="masterVolume" type="range" min="0" max="100" value="75" aria-label="主音量"><span id="volumeLabel">75%</span></label>
       <button id="compatibilityBtn" class="compatibility-button" title="Minecraft 兼容性"><span></span><img alt=""><img alt=""></button>
     </section>
+    <nav id="touchToolbar" class="touch-toolbar" aria-label="触控导航">
+      <button id="touchPanBtn" class="active" aria-pressed="true" aria-describedby="touchInstructions" title="切换移动画布或编辑音符"><span aria-hidden="true">✥</span><span>移动</span></button>
+      <button id="touchLayersBtn" aria-expanded="true" aria-controls="layerPane" title="显示或收起音轨"><span aria-hidden="true">☷</span><span>音轨</span></button>
+      <button id="touchPropertiesBtn" aria-expanded="false" aria-controls="propertiesPanel" title="音符属性"><span aria-hidden="true">♫</span><span>属性</span></button>
+      <button id="touchSectionBtn" aria-haspopup="menu" title="区间操作"><span aria-hidden="true">↔</span><span>区间</span></button>
+      <button id="touchUndoBtn" title="撤销"><span aria-hidden="true">↶</span><span>撤销</span></button>
+      <button id="touchToolsBtn" aria-expanded="false" aria-controls="appTools" title="展开或收起所有工具"><span aria-hidden="true">▦</span><span>工具</span></button>
+    </nav>
+    <p id="touchInstructions" class="visually-hidden">移动模式下，单指拖动曲谱；双指移动和缩放。点击移动切换编辑模式，可点按或拖动编辑音符。音轨右侧的更多按钮可调节每轨混响。</p>
     <main class="workspace"><div class="editor-panel"><div class="timeline-layout">
       <div class="layer-heading">
         <div class="time-display"><strong id="timeDisplay">00:00.00</strong><small><span id="durationDisplay">00:00.00</span> / <span id="positionDisplay">001 : 01</span></small></div>

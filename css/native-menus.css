@@ -11,9 +11,23 @@
 .native-menu-arrow{font-size:18px;line-height:16px;text-align:right;pointer-events:none}
 .native-menu-separator{height:6px;position:relative;margin:0 6px 0 31px}
 .native-menu-separator::before{content:"";position:absolute;left:0;right:0;top:2px;border-top:1px solid #d7d7d7}
+.native-menu[hidden],.native-menu-sheet-heading{display:none!important}
+.native-menu.native-menu-sheet{left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));top:max(8px,env(safe-area-inset-top));bottom:max(8px,env(safe-area-inset-bottom));width:auto;min-width:0;max-width:none;max-height:none;padding:0 0 8px;border-radius:10px;touch-action:pan-y;font-size:14px;scroll-padding-top:52px}
+.native-menu-sheet .native-menu-sheet-heading{display:flex!important;position:sticky;top:0;z-index:1;align-items:center;gap:8px;min-height:52px;padding:0 8px;border-bottom:1px solid #d7d7d7;background:inherit}
+.native-menu-sheet-heading strong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.native-menu-sheet-heading button{flex:none;min-width:44px;min-height:44px;padding:0 8px;border:0;background:transparent;color:inherit;font:inherit;touch-action:manipulation}
+.native-menu-sheet-heading .native-menu-sheet-close{font-size:26px;line-height:1}
+.native-menu-sheet-heading button[hidden]{display:none!important}
+.native-menu-sheet .native-menu-item{height:auto;min-height:44px;padding:8px 10px 8px 1px;grid-template-columns:30px minmax(0,1fr) 16px;gap:8px;white-space:normal;line-height:1.4;touch-action:manipulation}
+.native-menu-sheet .native-menu-glyph{width:30px}
+.native-menu-sheet .native-menu-label{overflow:visible;overflow-wrap:anywhere;text-overflow:clip;font-size:14px}
+.native-menu-sheet .native-menu-shortcut{display:none}
+.native-menu-sheet .native-menu-separator{margin-top:3px;margin-bottom:3px}
+.native-menu-sheet .native-menu-arrow{font-size:24px}
 .theme-dark .native-menu{background:#292929;color:#eee;border-color:#666}
 .theme-dark .native-menu-item:hover:not(:disabled),.theme-dark .native-menu-item:focus:not(:disabled),.theme-dark .native-menu-item[aria-expanded=true]{background:#3d3d3d}
 .theme-dark .native-menu-shortcut{color:#bbb}
 .theme-dark .native-menu-separator::before{border-color:#555}
+.theme-dark .native-menu-sheet-heading{border-color:#555}
 @keyframes nbs-menu-in{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.native-menu{animation:none}}

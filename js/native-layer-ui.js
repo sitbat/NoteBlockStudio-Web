@@ -85,10 +85,11 @@ function rowMarkup(index) {
 /** Dense original-style rows; the caller supplies the editor's one history/save pipeline. */
 export function createNativeLayerUI(h) {
   const document=h.document||globalThis.document;
-  const pane=document.getElementById('layerPane'),stack=document.getElementById('layerStack');
+  const pane=document.getElementById('layerPane'),stack=document.getElementById('layerStack'),gridScroll=document.getElementById('gridScroll');
   if(!pane||!stack)throw new Error('找不到音轨面板。');
   const view=document.defaultView||globalThis,rows=new Map(),removers=[];
-  let lastRender={start:0,end:0,scrollTop:0,counts:new Map()},popup=null,popupContext=null,drag=null,brush=null,nameSession=null,suppressClick=0,destroyed=false;
+  let lastRender={start:0,end:0,scrollTop:0,counts:new Map()},popup=null,popupContext=null,drag=null,brush=null,nameSession=null,suppressClick=0,destroyed=false,touchPan=null;
+  const touchContacts=new Set();
   const listen=(target,type,callback,options)=>{target.addEventListener(type,callback,options);removers.push(()=>target.removeEventListener(type,callback,options));};
   const report=error=>h.error?.(error);
   const safe=fn=>(...args)=>{try{return fn(...args);}catch(error){report(error);}};
@@ -194,6 +195,15 @@ export function createNativeLayerUI(h) {
     }
   }));
   listen(pane,'pointerdown',safe(event=>{
+    if(event.pointerType==='touch'){
+      // Text selection stays native once the name field is already focused.
+      const input=event.target.closest?.('input');if(input&&document.activeElement===input)return;
+      event.preventDefault();touchContacts.add(event.pointerId);
+      if(touchContacts.size===1)touchPan={pointerId:event.pointerId,x:event.clientX,y:event.clientY,scrollTop:gridScroll?.scrollTop||0,input,moved:false};
+      else {touchPan=null;suppressClick=performance.now()+350;}
+      // Capture only after a pan starts, so a tap keeps its button click target.
+      return;
+    }
     const button=event.target.closest('[data-layer-action]'),property=button?.dataset.layerAction;if(event.button!==0||!button||button.disabled)return;
     if(actions.some(([action])=>action===property)){
       editable();closePopup();event.preventDefault();const index=Number(rowOf(button).dataset.layer);
@@ -205,6 +215,14 @@ export function createNativeLayerUI(h) {
     drag={...sessionFor(index),pointerId:event.pointerId,property,startY:event.clientY,startX:event.clientX,startValue:Number(h.getSong().layers[index][property]??(property==='volume'?100:0)),moved:false};pane.setPointerCapture(event.pointerId);
   }));
   listen(pane,'pointermove',safe(event=>{
+    if(touchContacts.has(event.pointerId)){
+      event.preventDefault();if(!touchPan||touchPan.pointerId!==event.pointerId)return;
+      if(!touchPan.moved&&Math.hypot(event.clientX-touchPan.x,event.clientY-touchPan.y)<=8)return;
+      if(!touchPan.moved){touchPan.moved=true;pane.setPointerCapture(event.pointerId);}
+      suppressClick=performance.now()+350;
+      if(gridScroll)gridScroll.scrollTop=Math.max(0,touchPan.scrollTop+touchPan.y-event.clientY);
+      return;
+    }
     if(brush&&event.pointerId===brush.pointerId){
       const button=document.elementFromPoint(event.clientX,event.clientY)?.closest?.('[data-layer-action]'),row=rowOf(button);
       if(!row||!pane.contains(row)||button.dataset.layerAction!==brush.operation)return;
@@ -218,9 +236,21 @@ export function createNativeLayerUI(h) {
   }));
   const endDrag=safe(event=>{if(!drag||event.pointerId!==drag.pointerId)return;const session=drag;drag=null;suppressClick=performance.now()+350;finishLive(session);if(event.type==='pointerup'&&!session.moved&&current(session)){const anchor=rows.get(session.index)?.element.querySelector(`[data-layer-action="${session.property}"]`);if(anchor)openPopup(session.index,anchor,session.property);}});
   const endBrush=event=>{if(!brush||event.pointerId!==brush.pointerId)return;brush=null;suppressClick=performance.now()+350;};
-  for(const type of ['pointerup','pointercancel','lostpointercapture']){listen(pane,type,endDrag);listen(pane,type,endBrush);}
+  const endTouch=safe(event=>{
+    // Moving implicit capture from a row child to the pane emits a child loss.
+    if(event.type==='lostpointercapture'&&pane.hasPointerCapture?.(event.pointerId))return;
+    if(!touchContacts.delete(event.pointerId))return;
+    if(!touchPan)suppressClick=performance.now()+350;
+    if(touchPan?.pointerId===event.pointerId){
+      if(touchPan.moved||event.type!=='pointerup')suppressClick=performance.now()+350;
+      else touchPan.input?.focus({preventScroll:true});
+      touchPan=null;
+    }
+    if(!touchContacts.size)touchPan=null;
+  });
+  for(const type of ['pointerup','pointercancel','lostpointercapture']){listen(pane,type,endDrag);listen(pane,type,endBrush);listen(pane,type,endTouch);}
   listen(document,'pointerdown',safe(event=>{if(popup&&!popup.contains(event.target)&&!event.target.closest?.('.native-layer-row'))closePopup();}),true);
   listen(document,'keydown',safe(event=>{if(event.key==='Escape'&&popup){event.stopPropagation();closePopup();}}),true);
-  listen(view,'blur',safe(()=>{if(drag){const session=drag;drag=null;finishLive(session);}if(brush){brush=null;suppressClick=performance.now()+350;}closePopup();}));
-  return {render,destroy(){if(destroyed)return;closePopup();if(nameSession)finishLive(nameSession);if(drag)finishLive(drag);brush=null;destroyed=true;for(const remove of removers)remove();for(const {element}of rows.values())element.remove();rows.clear();}};
+  listen(view,'blur',safe(()=>{if(drag){const session=drag;drag=null;finishLive(session);}if(brush){brush=null;suppressClick=performance.now()+350;}if(touchContacts.size)suppressClick=performance.now()+350;touchContacts.clear();touchPan=null;closePopup();}));
+  return {render,destroy(){if(destroyed)return;closePopup();if(nameSession)finishLive(nameSession);if(drag)finishLive(drag);brush=null;touchContacts.clear();touchPan=null;destroyed=true;for(const remove of removers)remove();for(const {element}of rows.values())element.remove();rows.clear();}};
 }

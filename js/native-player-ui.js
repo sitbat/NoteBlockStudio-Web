@@ -11,13 +11,14 @@ export function hasOpenPlayerOverlay(doc) {
 export function createPlayerSeekGesture(h,onPreview=()=>{}) {
   let gesture=null;
   return {
-    begin({playing=false,tick=0}={}){
+    begin({playing=false,tick=0,pointerId=null}={}){
       if(gesture)return;
-      gesture={song:h.getSong(),resume:!!playing,tick:clamp(Number(tick)||0,0,lengthOf(h.getSong()))};
+      gesture={song:h.getSong(),resume:!!playing,tick:clamp(Number(tick)||0,0,lengthOf(h.getSong())),pointerId};
       try{h.stopPlayback(false);}catch(error){gesture=null;throw error;}
     },
     set(value){if(!gesture)return false;if(h.getSong()!==gesture.song){gesture=null;return false;}const number=Number(value);if(!Number.isFinite(number))return false;gesture.tick=clamp(number,0,lengthOf(gesture.song));onPreview(gesture.tick);return true;},
-    finish(){if(!gesture)return false;const completed=gesture;gesture=null;if(h.getSong()!==completed.song)return false;h.seekTo(completed.tick,{preview:false,resume:completed.resume});return true;},
+    ownsPointer(pointerId){return !!gesture&&(pointerId===undefined||gesture.pointerId===null||gesture.pointerId===pointerId);},
+    finish({pointerId}={}){if(!gesture||(pointerId!==undefined&&gesture.pointerId!==null&&gesture.pointerId!==pointerId))return false;const completed=gesture;gesture=null;if(h.getSong()!==completed.song)return false;h.seekTo(completed.tick,{preview:false,resume:completed.resume});return true;},
     cancel(){gesture=null;},
     get dragging(){return !!gesture;}
   };
@@ -32,7 +33,8 @@ export function createNativePlayerUI(h) {
   workspace.append(card);
   const $=selector=>card.querySelector(selector),range=$('.native-player-position'),currentTime=$('[data-player-current]'),totalTime=$('[data-player-total]');
   const transport=$('.native-player-transport'),buttons=new Map(),returnButton=doc.getElementById('playerViewBtn'),returnText=returnButton?.textContent||'♫';
-  let state={player:false,dropMode:false,tick:0,playing:false,loop:false},lastSong=null,pointerDragging=false,keyboardDragging=false,holding=null,idleTimer=null,inChrome=false,destroyed=false;
+  let state={player:false,dropMode:false,tick:0,playing:false,loop:false},lastSong=null,pointerDragging=false,keyboardDragging=false,holding=null,idleTimer=null,inChrome=false,destroyed=false,touchUsed=false;
+  const coarse=view.matchMedia?.('(pointer: coarse)'),keepChrome=()=>touchUsed||!!coarse?.matches||view.innerWidth<=799;
   const listen=(node,type,fn,options)=>{node.addEventListener(type,fn,options);removers.push(()=>node.removeEventListener(type,fn,options));};
   const call=(fn,...args)=>{try{const result=fn?.(...args);if(result?.catch)result.catch(error=>h.error?h.error(error):console.error(error));return result;}catch(error){if(h.error)h.error(error);else console.error(error);}};
   const reduced=()=>!!h.isReducedMotion?.();
@@ -44,17 +46,18 @@ export function createNativePlayerUI(h) {
   for(const [action,label,image]of [['back','倒带（按住）','07-back'],['stop','停止','06-stop'],['play','播放','04-play'],['forward','快进（按住）','08-forward'],['loop','循环播放','50-loop']]){
     const button=doc.createElement('button');button.type='button';button.dataset.playerAction=action;button.title=label;button.setAttribute('aria-label',label);button.innerHTML=`<img src="${asset(image)}" alt="">`;if(action==='loop')button.setAttribute('aria-pressed','false');transport.append(button);buttons.set(action,button);
   }
-  function finishSeek(){if(!seek.dragging)return;seek.set(range.value);pointerDragging=false;keyboardDragging=false;call(()=>seek.finish());}
-  listen(range,'pointerdown',()=>{pointerDragging=true;call(()=>seek.begin(state));});
+  function finishSeek(event){if(!seek.ownsPointer(event?.pointerId))return;seek.set(range.value);pointerDragging=false;keyboardDragging=false;call(()=>seek.finish(event));}
+  listen(range,'pointerdown',event=>{if(event.button!==0||pointerDragging)return;if(keyboardDragging)finishSeek();pointerDragging=true;call(()=>seek.begin({...state,pointerId:event.pointerId}));range.setPointerCapture?.(event.pointerId);});
   listen(range,'input',()=>{if(!seek.dragging)call(()=>seek.begin(state));seek.set(range.value);});
   listen(range,'change',()=>{if(!pointerDragging&&!keyboardDragging)finishSeek();});
   listen(range,'keydown',event=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown'].includes(event.key)){event.stopPropagation();keyboardDragging=true;call(()=>seek.begin(state));}});
   listen(range,'keyup',event=>{if(keyboardDragging){event.stopPropagation();finishSeek();}});
-  for(const type of ['pointerup','pointercancel'])listen(doc,type,()=>{if(pointerDragging)finishSeek();},true);
+  for(const type of ['pointerup','pointercancel'])listen(doc,type,event=>{if(pointerDragging)finishSeek(event);},true);
+  listen(range,'lostpointercapture',event=>{if(pointerDragging)finishSeek(event);});
   function releaseHold(event){if(!holding)return;if(event?.pointerId!==undefined&&holding.pointerId!==undefined&&event.pointerId!==holding.pointerId)return;if(event?.type==='keyup'&&holding.code&&event.code!==holding.code)return;holding=null;call(h.seekRelease);}
   for(const [action,direction]of [['back',-1],['forward',1]]){
     const button=buttons.get(action);
-    listen(button,'pointerdown',event=>{if(event.button!==0)return;event.preventDefault();holding={pointerId:event.pointerId};call(h.seekHold,direction,event);});
+    listen(button,'pointerdown',event=>{if(event.button!==0||holding)return;event.preventDefault();holding={pointerId:event.pointerId};call(h.seekHold,direction,event);});
     listen(button,'keydown',event=>{if(!['Space','Enter'].includes(event.code))return;event.preventDefault();event.stopPropagation();if(!event.repeat){holding={code:event.code};call(h.seekHold,direction,event);}});
     listen(button,'lostpointercapture',releaseHold);
   }
@@ -63,13 +66,14 @@ export function createNativePlayerUI(h) {
   listen(transport,'keydown',event=>{if(event.code==='Space'||event.key==='Enter')event.stopPropagation();});
   function showChrome(){doc.body.classList.remove('native-player-idle');}
   function resetIdle(){
-    clearTimeout(idleTimer);idleTimer=null;showChrome();if(!state.player||!state.dropMode||reduced())return;
-    idleTimer=setTimeout(()=>{idleTimer=null;if(!state.player||!state.dropMode||reduced())return;if(inChrome||hasOpenPlayerOverlay(doc)){resetIdle();return;}doc.body.classList.add('native-player-idle');},1500);
+    clearTimeout(idleTimer);idleTimer=null;showChrome();if(!state.player||!state.dropMode||reduced()||keepChrome())return;
+    idleTimer=setTimeout(()=>{idleTimer=null;if(!state.player||!state.dropMode||reduced()||keepChrome())return;if(inChrome||hasOpenPlayerOverlay(doc)){resetIdle();return;}doc.body.classList.add('native-player-idle');},1500);
   }
-  listen(doc,'pointermove',event=>{inChrome=event.clientX>=0&&event.clientX<530&&event.clientY>=0&&event.clientY<90;resetIdle();},{passive:true});
-  listen(doc,'pointerdown',resetIdle,{passive:true});listen(doc,'keydown',resetIdle,true);
+  listen(doc,'pointermove',event=>{if(event.pointerType==='touch')touchUsed=true;inChrome=event.clientX>=0&&event.clientX<530&&event.clientY>=0&&event.clientY<90;resetIdle();},{passive:true});
+  listen(doc,'pointerdown',event=>{if(event.pointerType==='touch')touchUsed=true;resetIdle();},{passive:true});listen(doc,'keydown',resetIdle,true);
   listen(view,'blur',()=>{if(pointerDragging||keyboardDragging)finishSeek();releaseHold();});
   const motion=view.matchMedia?.('(prefers-reduced-motion: reduce)');if(motion?.addEventListener)listen(motion,'change',resetIdle);
+  if(coarse?.addEventListener)listen(coarse,'change',resetIdle);listen(view,'resize',resetIdle);
   function update(next={}){
     if(destroyed)return;const merged={...state,...next},modeChanged=state.player!==!!merged.player||state.dropMode!==!!merged.dropMode;state=merged;
     const song=h.getSong();if(lastSong!==song){lastSong=song;seek.cancel();pointerDragging=false;keyboardDragging=false;releaseHold();}

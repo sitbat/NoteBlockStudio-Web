@@ -54,24 +54,32 @@ export function createNativeMenus(actions,options={}) {
   const doc=options.document||globalThis.document,view=doc.defaultView||globalThis;
   const triggers=[['file','fileMenuBtn'],['edit','editMenuBtn'],['settings','viewMenuBtn'],['help','helpMenuBtn']].map(([name,id])=>({name,button:doc.getElementById(id)})).filter(m=>m.button);
   const removers=[],panels=[];let current=null,model=[],sequence=0,typeAhead='',typeAt=0;
+  const coarse=view.matchMedia?.('(pointer: coarse)'),sheet=()=>view.innerWidth<=799||!!coarse?.matches;
   const listen=(node,type,fn,opts)=>{node.addEventListener(type,fn,opts);removers.push(()=>node.removeEventListener(type,fn,opts));};
   const handler=item=>item.kind==='instrument'?(options.onChooseInstrument||actions.chooseInstrument):item.kind==='macro'?(actions.macro||actions.macros):item.kind==='tutorial'?actions.tutorials:actions[item.action];
   const enabled=item=>!item.disabled&&(item.children?.length?item.children.some(child=>child&&enabled(child)):typeof handler(item)==='function');
   const snapshot=()=>buildNativeMenuModel(options.getState?.()||{},options.getInstruments?.()||[]);
-  function truncate(depth){while(panels.length>depth){const panel=panels.pop();panel.parentButton?.setAttribute('aria-expanded','false');panel.element.remove();}}
+  function syncPanels(){const compact=sheet();for(const [index,panel] of panels.entries()){panel.element.classList.toggle('native-menu-sheet',compact);panel.element.hidden=compact&&index!==panels.length-1;}}
+  function truncate(depth){while(panels.length>depth){const panel=panels.pop();panel.parentButton?.setAttribute('aria-expanded','false');panel.element.remove();}syncPanels();}
   function close({restoreFocus=false}={}){const previous=current;truncate(0);current=null;typeAhead='';for(const menu of triggers){menu.button.setAttribute('aria-expanded','false');menu.button.classList.remove('native-menu-trigger-open');}if(restoreFocus)previous?.button.focus({preventScroll:true});}
   function position(panel){
+    if(sheet()){for(const key of ['left','top','maxHeight'])panel.element.style[key]='';return;}
     const anchor=panel.parentButton||current?.button;if(!anchor)return;const rect=anchor.getBoundingClientRect(),box=panel.element.getBoundingClientRect();
     let left=panel.parentButton?rect.right-2:rect.left;if(left+box.width>view.innerWidth-3)left=panel.parentButton?rect.left-box.width+2:view.innerWidth-box.width-3;
     const top=Math.max(3,Math.min(panel.parentButton?rect.top-4:rect.bottom,view.innerHeight-Math.min(box.height,view.innerHeight-6)-3));
     panel.element.style.left=`${Math.max(3,left)}px`;panel.element.style.top=`${top}px`;panel.element.style.maxHeight=`${Math.max(60,view.innerHeight-top-3)}px`;
   }
+  function back(panel){if(!panel.parent)return;truncate(panel.depth);panel.parentButton.focus({preventScroll:true});}
   function focusEntry(panel,index){if(!panel?.entries.length)return;truncate(panel.depth+1);panel.index=(index+panel.entries.length)%panel.entries.length;const entry=panel.entries[panel.index];entry.button.focus({preventScroll:true});entry.button.scrollIntoView?.({block:'nearest',inline:'nearest'});}
   function invoke(item){if(!enabled(item))return;const callback=handler(item);close({restoreFocus:true});if(item.kind==='instrument')return callback(item.value,{applyToSelection:item.applyToSelection});if(item.kind==='macro'||item.kind==='tutorial')return callback(item.value);return callback();}
   function openChild(panel,entry,{focus=false}={}){if(!entry.item.children?.length||!enabled(entry.item))return;truncate(panel.depth+1);const child=createPanel(entry.item.children,{parentButton:entry.button,parent:panel});entry.button.setAttribute('aria-expanded','true');if(focus)focusEntry(child,0);}
   function createPanel(items,{parentButton=null,parent=null}={}){
     const element=doc.createElement('div'),panel={element,parentButton,parent,depth:panels.length,entries:[],index:-1};
     element.className=`native-menu${parent?' native-submenu':''}`;element.id=`native-menu-${++sequence}`;element.setAttribute('role','menu');element.setAttribute('aria-labelledby',parentButton?.id||current.button.id);
+    const heading=doc.createElement('div');heading.className='native-menu-sheet-heading';
+    const backButton=doc.createElement('button');backButton.type='button';backButton.className='native-menu-sheet-back';backButton.textContent='‹ 返回';backButton.hidden=!parent;backButton.setAttribute('aria-label','返回上一级菜单');backButton.addEventListener('click',()=>back(panel));
+    const title=doc.createElement('strong');title.textContent=parentButton?parentButton.querySelector('.native-menu-label')?.textContent||'菜单':model.find(menu=>menu.name===current.name)?.label||'菜单';
+    const closeButton=doc.createElement('button');closeButton.type='button';closeButton.className='native-menu-sheet-close';closeButton.textContent='×';closeButton.setAttribute('aria-label','关闭菜单');closeButton.addEventListener('click',()=>close({restoreFocus:true}));heading.append(backButton,title,closeButton);element.append(heading);
     for(const item of items){
       if(!item){const separator=doc.createElement('div');separator.className='native-menu-separator';separator.setAttribute('role','separator');element.append(separator);continue;}
       const button=doc.createElement('button');button.type='button';button.id=`native-menu-entry-${++sequence}`;button.className='native-menu-item';button.tabIndex=-1;button.dataset.action=item.action;button.disabled=!enabled(item);
@@ -83,15 +91,15 @@ export function createNativeMenus(actions,options={}) {
       const shortcut=doc.createElement('span');shortcut.className='native-menu-shortcut';shortcut.textContent=item.shortcut||'';shortcut.setAttribute('aria-hidden','true');
       const arrow=doc.createElement('span');arrow.className='native-menu-arrow';arrow.textContent=item.children?.length?'›':'';arrow.setAttribute('aria-hidden','true');button.append(glyph,label,shortcut,arrow);element.append(button);
       const entry={button,item};if(!button.disabled)panel.entries.push(entry);
-      button.addEventListener('pointerenter',()=>{truncate(panel.depth+1);if(button.disabled)return;panel.index=panel.entries.indexOf(entry);button.focus({preventScroll:true});if(item.children?.length)openChild(panel,entry);});
+      button.addEventListener('pointerenter',event=>{if(event.pointerType==='touch'||sheet())return;truncate(panel.depth+1);if(button.disabled)return;panel.index=panel.entries.indexOf(entry);button.focus({preventScroll:true});if(item.children?.length)openChild(panel,entry);});
       button.addEventListener('click',()=>{if(item.children?.length)openChild(panel,entry,{focus:true});else invoke(item);});
     }
-    element.addEventListener('scroll',()=>truncate(panel.depth+1),{passive:true});panels.push(panel);doc.body.append(element);position(panel);return panel;
+    element.addEventListener('scroll',()=>{if(!sheet())truncate(panel.depth+1);},{passive:true});panels.push(panel);doc.body.append(element);syncPanels();position(panel);return panel;
   }
   function open(name,{focus=false,last=false}={}){const menu=typeof name==='string'?triggers.find(menu=>menu.name===name):name;if(!menu)return;const next=snapshot(),definition=next.find(item=>item.name===menu.name);if(!definition||definition.disabled)return;close();model=next;current=menu;const panel=createPanel(definition.items);menu.button.setAttribute('aria-expanded','true');menu.button.setAttribute('aria-controls',panel.element.id);menu.button.classList.add('native-menu-trigger-open');if(focus)focusEntry(panel,last?panel.entries.length-1:0);}
   function adjacent(direction){const index=triggers.indexOf(current);for(let step=1;step<=triggers.length;step++){const next=triggers[(index+direction*step+triggers.length*2)%triggers.length];if(!snapshot().find(menu=>menu.name===next.name)?.disabled){open(next,{focus:true});return;}}}
   function findAction(action,definitions=model){for(const menu of definitions)for(const item of menu.items||[]){if(!item)continue;if(item.action===action)return item;if(item.children){const found=findAction(action,[{items:item.children}]);if(found)return found;}}return null;}
-  for(const menu of triggers){menu.button.setAttribute('aria-haspopup','menu');menu.button.setAttribute('aria-expanded','false');listen(menu.button,'click',()=>current===menu?close({restoreFocus:true}):open(menu));listen(menu.button,'pointerenter',()=>{if(current&&current!==menu)open(menu);});}
+  for(const menu of triggers){menu.button.setAttribute('aria-haspopup','menu');menu.button.setAttribute('aria-expanded','false');listen(menu.button,'click',()=>current===menu?close({restoreFocus:true}):open(menu));listen(menu.button,'pointerenter',event=>{if(event.pointerType!=='touch'&&!sheet()&&current&&current!==menu)open(menu);});}
   listen(doc,'pointerdown',event=>{if(current&&!panels.some(p=>p.element.contains(event.target))&&!triggers.some(m=>m.button.contains(event.target)))close();},true);
   listen(doc,'keydown',event=>{
     if(event.isComposing)return;
@@ -101,14 +109,17 @@ export function createNativeMenus(actions,options={}) {
       if(trigger&&['ArrowDown','ArrowUp','Enter',' '].includes(event.key)){event.preventDefault();event.stopPropagation();open(trigger,{focus:true,last:event.key==='ArrowUp'});}
       else if(trigger&&['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();event.stopPropagation();const dir=event.key==='ArrowRight'?1:-1;triggers[(triggers.indexOf(trigger)+dir+triggers.length)%triggers.length].button.focus({preventScroll:true});}return;
     }
-    event.stopPropagation();const panel=[...panels].reverse().find(p=>p.element.contains(doc.activeElement))||panels.at(-1),entry=panel?.entries[panel.index];
-    if(event.key==='Escape'){event.preventDefault();if(panel?.parent){truncate(panel.depth);panel.parentButton.focus({preventScroll:true});}else close({restoreFocus:true});}
+    event.stopPropagation();
+    // Sheet navigation buttons keep their native keyboard click behavior.
+    if((event.key==='Enter'||event.key===' ')&&(event.target.classList?.contains('native-menu-sheet-back')||event.target.classList?.contains('native-menu-sheet-close')))return;
+    const panel=[...panels].reverse().find(p=>p.element.contains(doc.activeElement))||panels.at(-1),entry=panel?.entries[panel.index];
+    if(event.key==='Escape'){event.preventDefault();if(panel?.parent)back(panel);else close({restoreFocus:true});}
     else if(event.key==='ArrowDown'){event.preventDefault();focusEntry(panel,panel.index+1);}
     else if(event.key==='ArrowUp'){event.preventDefault();focusEntry(panel,panel.index<0?panel.entries.length-1:panel.index-1);}
     else if(event.key==='Home'){event.preventDefault();focusEntry(panel,0);}
     else if(event.key==='End'){event.preventDefault();focusEntry(panel,panel.entries.length-1);}
     else if(event.key==='ArrowRight'){event.preventDefault();if(entry?.item.children?.length)openChild(panel,entry,{focus:true});else adjacent(1);}
-    else if(event.key==='ArrowLeft'){event.preventDefault();if(panel.parent){truncate(panel.depth);panel.parentButton.focus({preventScroll:true});}else adjacent(-1);}
+    else if(event.key==='ArrowLeft'){event.preventDefault();if(panel.parent)back(panel);else adjacent(-1);}
     else if(event.key==='Enter'||event.key===' '){event.preventDefault();if(!entry)focusEntry(panel,0);else if(entry.item.children?.length)openChild(panel,entry,{focus:true});else invoke(entry.item);}
     else if(event.key==='Tab')close({restoreFocus:true});
     else if(event.key==='F1'){event.preventDefault();const help=findAction('help');if(help)invoke(help);}
@@ -121,6 +132,6 @@ export function createNativeMenus(actions,options={}) {
     }
     else if(event.key.length===1){const now=performance.now();typeAhead=now-typeAt>700?event.key:typeAhead+event.key;typeAt=now;const index=panel.entries.findIndex(({item})=>item.label.toLocaleLowerCase().startsWith(typeAhead.toLocaleLowerCase()));if(index>=0){event.preventDefault();focusEntry(panel,index);}}
   },true);
-  listen(view,'resize',()=>panels.forEach(position));listen(view,'blur',()=>close());
+  const resize=()=>{syncPanels();const leaf=panels.at(-1);if(sheet()&&leaf&&!leaf.element.contains(doc.activeElement))focusEntry(leaf,Math.max(0,leaf.index));panels.forEach(position);};listen(view,'resize',resize);if(coarse?.addEventListener)listen(coarse,'change',resize);listen(view,'blur',()=>close());
   return {open:name=>open(name,{focus:true}),close,get isOpen(){return !!current;},refresh(){if(current)open(current,{focus:true});},destroy(){close();for(const remove of removers)remove();}};
 }

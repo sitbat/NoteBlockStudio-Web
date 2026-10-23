@@ -6,6 +6,12 @@ test('an initially playing drag pauses once, previews locally and resumes once a
 test('paused seeking stays paused and clamps values to the current song bounds',()=>{const f=setup();f.gesture.begin({playing:false,tick:2});assert.equal(f.gesture.set(NaN),false);f.gesture.set(-3);f.gesture.set(900);assert.deepEqual(f.previews,[0,64]);f.gesture.finish();assert.deepEqual(f.seeks,[{tick:64,options:{preview:false,resume:false}}]);});
 test('replacing the song or cancelling a range gesture never resumes a different project',()=>{const f=setup();f.gesture.begin({playing:true,tick:3});f.gesture.set(20);f.replace();assert.equal(f.gesture.finish(),false);assert.deepEqual(f.seeks,[]);f.gesture.begin({playing:true,tick:1});f.gesture.cancel();assert.equal(f.gesture.finish(),false);assert.deepEqual(f.seeks,[]);});
 
+test('another finger cannot end a player seek or resume playback early',()=>{
+  const f=setup();f.gesture.begin({playing:true,tick:4,pointerId:7});f.gesture.set(23);
+  assert.equal(f.gesture.ownsPointer(8),false);assert.equal(f.gesture.finish({pointerId:8}),false);assert.equal(f.gesture.dragging,true);assert.deepEqual(f.seeks,[]);
+  assert.equal(f.gesture.ownsPointer(7),true);assert.equal(f.gesture.finish({pointerId:7}),true);assert.deepEqual(f.seeks,[{tick:23,options:{preview:false,resume:true}}]);
+});
+
 test('a permanent closed context popover does not block fading; open menus, dialogs and popovers do',()=>{
   // Small document fixture implements the selector forms used here independently of menu classes.
   const elements=[{tag:'div',attrs:{id:'contextPopup',class:'native-menu',popover:''},popoverOpen:false}];
