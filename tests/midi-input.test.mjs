@@ -133,3 +133,74 @@ test('stop recording flushes once and later monitoring notes do not enter the ol
   midi.receive('a',[0x90,60,100]);midi.receive('a',[0xb0,64,127]);midi.receive('a',[0x80,60,0]);midi.stopRecording();assert.equal(records.length,1);assert.equal(midi.recording,null);
   midi.receive('a',[0xb0,64,0]);midi.receive('a',[0x80,60,0]);midi.receive('a',[0x90,64,100]);midi.receive('a',[0x80,64,0]);assert.equal(records.length,1);
 });
+
+test('release callback uses the original onset snapshot and keeps identical keys on separate devices/channels independent',()=>{
+  const heard=[],released=[],visual=new Map(),source=n=>JSON.stringify([n.device,n.channel,n.key]);
+  const midi=new MidiInputController({onNote:n=>{heard.push(n);visual.set(source(n),n);},onRelease:n=>{
+    assert.equal(midi.held.has(`${n.device}/${n.channel}/${n.midiKey}`),false,'remove held before notifying');
+    released.push(n);visual.delete(source(n));
+  }});
+  midi.receive('a',[0xe0,0,0]);midi.receive('a',[0x90,60,100]);midi.receive('b',[0x90,60,80]);midi.receive('a',[0x91,60,60]);
+  assert.equal(visual.size,3);midi.receive('a',[0x80,60,0]);
+  assert.strictEqual(released[0],heard[0]);assert.equal(released[0].device,'a');assert.equal(released[0].channel,0);assert.equal(released[0].key,39);assert.equal(released[0].pitch,-200);
+  assert.equal(visual.size,2);midi.receive('a',[0x80,60,0]);assert.equal(released.length,1,'duplicate noteoff does not release twice');
+  midi.receive('b',[0x90,60,0]);assert.strictEqual(released[1],heard[1]);assert.equal(visual.size,1);
+  midi.receive('a',[0x81,60,0]);assert.strictEqual(released[2],heard[2]);assert.equal(visual.size,0);
+});
+
+test('release callback follows sustain, controller reset and panic without releasing physically held keys too early',()=>{
+  const released=[],midi=new MidiInputController({onRelease:n=>released.push(n.midiKey)});
+  midi.receive('a',[0xb0,64,127]);midi.receive('a',[0x90,60,100]);midi.receive('a',[0x90,64,100]);
+  midi.receive('a',[0x80,60,0]);assert.deepEqual(released,[]);assert.equal(midi.held.size,2);
+  midi.receive('b',[0xb0,64,0]);assert.deepEqual(released,[],'another device pedal does not release this source');
+  midi.receive('a',[0xb0,64,0]);assert.deepEqual(released,[60]);assert.equal(midi.held.size,1);
+  midi.receive('a',[0xb0,64,127]);midi.receive('a',[0x80,64,0]);midi.receive('a',[0xb0,121,0]);assert.deepEqual(released,[60,64]);
+  midi.receive('a',[0x90,67,100]);midi.receive('a',[0x91,69,100]);midi.receive('a',[0xb0,120,0]);assert.deepEqual(released,[60,64,67]);assert.equal(midi.held.size,1);
+  midi.receive('a',[0xb1,123,0]);assert.deepEqual(released,[60,64,67,69]);assert.equal(midi.held.size,0);
+});
+
+test('repeated note-on releases the previous visual source before its replacement onset',()=>{
+  const events=[],onsets=[],steps=[];
+  const midi=new MidiInputController({onNote:n=>{onsets.push(n);events.push(['down',n]);},onRelease:n=>events.push(['up',n]),onStep:tick=>steps.push(tick),now:()=>0});
+  midi.startRecording({mode:'step',tick:8,snap:2});
+  midi.receive('a',[0x90,60,100]);midi.receive('a',[0xb0,64,127]);midi.receive('a',[0x80,60,0]);midi.receive('a',[0x90,60,80]);
+  assert.deepEqual(events.map(([kind])=>kind),['down','up','down']);assert.strictEqual(events[1][1],onsets[0]);assert.notStrictEqual(onsets[0],onsets[1]);
+  assert.equal(midi.held.size,1);assert.deepEqual(steps,[],'replacement note does not advance step recording');
+  midi.receive('a',[0x80,60,0]);assert.equal(events.length,3,'replacement remains sustained');
+  midi.receive('a',[0xb0,64,0]);assert.deepEqual(events.map(([kind])=>kind),['down','up','down','up']);assert.strictEqual(events[3][1],onsets[1]);assert.deepEqual(steps,[10]);
+});
+
+test('device filtering, disabling and ignore-instrument configuration release excluded visual sources exactly once',()=>{
+  const released=[],midi=new MidiInputController({onRelease:n=>released.push([n.device,n.channel,n.midiKey])});
+  midi.configure('a',{instrument:-1,channel:-1,enabled:true});midi.configure('b',{instrument:-1,channel:-1,enabled:true});
+  midi.receive('a',[0x90,60,100]);midi.receive('a',[0x91,64,100]);midi.receive('b',[0x90,67,100]);
+  midi.configure('a',{channel:1});assert.deepEqual(released,[['a',0,60]]);assert.equal(midi.held.size,2);
+  midi.receive('a',[0x80,60,0]);assert.equal(released.length,1);
+  midi.configure('a',{enabled:false});assert.deepEqual(released,[['a',0,60],['a',1,64]]);assert.equal(midi.held.size,1);
+  midi.configure('b',{instrument:-2});assert.deepEqual(released,[['a',0,60],['a',1,64],['b',0,67]]);assert.equal(midi.held.size,0);
+  midi.receive('b',[0x90,69,100]);midi.receive('b',[0x80,67,0]);assert.equal(midi.held.size,0);assert.equal(released.length,3);
+});
+
+test('re-enabling a device or channel cannot retain a pedal-up that was filtered out',()=>{
+  for(const excluded of [{enabled:false},{channel:1},{instrument:-2}]){
+    const released=[],midi=new MidiInputController({onRelease:n=>released.push(n)});
+    midi.configure('a',{instrument:-1,channel:-1,enabled:true});
+    midi.receive('a',[0xb0,64,127]);midi.receive('a',[0x90,60,100]);midi.receive('a',[0x80,60,0]);
+    assert.equal(midi.held.size,1);midi.configure('a',excluded);assert.equal(midi.held.size,0);assert.equal(released.length,1);
+    midi.receive('a',[0xb0,64,0]);midi.configure('a',{instrument:-1,channel:-1,enabled:true});
+    midi.receive('a',[0x90,64,100]);midi.receive('a',[0x80,64,0]);
+    assert.equal(midi.held.size,0);assert.equal(released.length,2,'new note releases without another pedal transition');
+  }
+});
+
+test('stopRecording, hot unplug and disconnect flush monitoring and sustained visual sources without stuck keys',async()=>{
+  const visual=new Set(),released=[],source=n=>JSON.stringify([n.device,n.channel,n.key]);
+  const port={id:'a',state:'connected'},access={inputs:new Map([['a',port]])};
+  const midi=new MidiInputController({requestAccess:async()=>access,onNote:n=>visual.add(source(n)),onRelease:n=>{released.push(n);visual.delete(source(n));},now:()=>0});
+  await midi.connect();midi.startRecording({mode:'step'});midi.receive('a',[0x90,60,100]);midi.receive('a',[0xb0,64,127]);midi.receive('a',[0x80,60,0]);
+  midi.stopRecording();assert.equal(visual.size,0);assert.equal(released.length,1);midi.stopRecording();assert.equal(released.length,1);
+  midi.receive('a',[0x90,64,100]);port.state='disconnected';access.onstatechange();assert.equal(visual.size,0);assert.equal(released.length,2);
+  port.state='connected';access.onstatechange();midi.receive('a',[0x90,67,100]);assert.equal(visual.size,1);
+  await midi.disconnect();assert.equal(visual.size,0);assert.equal(midi.held.size,0);assert.equal(released.length,3);assert.equal(port.onmidimessage,null);
+  await midi.disconnect();assert.equal(released.length,3,'repeated disconnect does not synthesize releases');
+});

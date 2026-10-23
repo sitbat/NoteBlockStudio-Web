@@ -27,12 +27,12 @@ export function midiProgramInstrument(program) {
 }
 
 export class MidiInputController {
-  constructor({requestAccess, onNote = () => {}, onRecord = () => {}, onDevices = () => {}, onControl = () => {}, onStep = () => {}, onError = () => {}, now = () => performance.now()} = {}) {
+  constructor({requestAccess, onNote = () => {}, onRelease = () => {}, onRecord = () => {}, onDevices = () => {}, onControl = () => {}, onStep = () => {}, onError = () => {}, now = () => performance.now()} = {}) {
     this.requestAccess = requestAccess || (() => {
       if (!navigator.requestMIDIAccess) throw new Error('此浏览器没有 Web MIDI，请使用桌面版 Chrome / Edge。');
       return navigator.requestMIDIAccess({sysex: false});
     });
-    Object.assign(this, {onNote, onRecord, onDevices, onControl, onStep, onError, now});
+    Object.assign(this, {onNote, onRelease, onRecord, onDevices, onControl, onStep, onError, now});
     this.devices = new Map(); this.held = new Map(); this.deviceChannels = new Map();
     // Compatibility view of the most recently addressed device; MIDI state itself is per input port.
     this.channels = freshChannels();
@@ -60,7 +60,10 @@ export class MidiInputController {
     if (!Number.isInteger(config.instrument) || config.instrument < -2 || config.instrument > 270) throw new Error('MIDI 音色无效。');
     if (!Number.isInteger(config.channel) || config.channel < -1 || config.channel > 15) throw new Error('MIDI 通道无效。');
     this.devices.set(device, config);
-    for (const [id, note] of this.held) if (note.device === device && (config.enabled === false || config.channel >= 0 && config.channel !== note.channel)) this.release(id);
+    for (const [id, note] of this.held) if (note.device === device && (config.enabled === false || config.instrument === -2 || config.channel >= 0 && config.channel !== note.channel)) this.release(id);
+    // A pedal-up received while disabled/filtered is ignored. Forget sustain for
+    // those channels now so re-enabling cannot retain an unreachable old pedal.
+    for (const [index, channel] of this.deviceChannels.get(device)?.entries() || []) if (config.enabled === false || config.instrument === -2 || config.channel >= 0 && config.channel !== index) channel.sustain = false;
   }
   startRecording({mode = 'realtime', tick = 0, tempo = 10, snap = 1, instrument = 0, layer = 0, clockTick} = {}) {
     if (!['realtime', 'step'].includes(mode)) throw new Error('录制模式无效。');
@@ -113,6 +116,9 @@ export class MidiInputController {
   release(id, advance = true) {
     const note = this.held.get(id); if (!note) return;
     this.held.delete(id);
+    // The same onset snapshot lets visual keys release by device/channel/key.
+    // Pedal-held notes reach this point only when their sustain is released.
+    this.onRelease(note);
     if (note.recording && note.recording === this.recording) {
       const r = this.recording, duration = r.mode === 'step' ? r.snap : Math.max(r.snap, Math.round((this.now() - note.started) / 1000 * r.tempo / r.snap) * r.snap);
       this.onRecord({...note, duration});

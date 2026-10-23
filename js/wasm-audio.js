@@ -385,6 +385,12 @@ export class WasmAudioEngine extends AudioEngine {
 
   getTick() { return this.playing && this._transport ? tickAtFrame(this._playedFrames(), this._transport) : this._pausedTick; }
 
+  /** AudioWorklet consumption clock for visuals; transport is a read-only snapshot. */
+  getPlaybackPosition() {
+    return {playing: this.playing, benchmarking: this._benchmarking, frame: this._playedFrames(), sampleRate: this.context?.sampleRate || 48000,
+      transport: this._transport ? {...this._transport} : null};
+  }
+
   _monitor() {
     if (!this._pool || !this._transport) return;
     const frame = this._playedFrames();

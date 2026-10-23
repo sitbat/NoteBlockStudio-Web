@@ -1,0 +1,24 @@
+/* The original 300 ms yellow pulse and stepped 7 px key travel are driven by
+   consumed audio frames. Black keys keep their rear plate stationary. */
+.piano-white,.piano-black{isolation:isolate;--key-tint:rgb(255 255 255);--key-depth:0px}
+.piano{--white-face:url("../assets/original/piano-normal/06-frame-6.png");--black-face:url("../assets/original/piano-normal/07-frame-7.png");--black-rear:url("../assets/original/piano-normal/08-frame-8.png")}
+.theme-dark .piano{--white-face:url("../assets/original/piano-normal/12-frame-12.png");--black-face:url("../assets/original/piano-normal/13-frame-13.png");--black-rear:url("../assets/original/piano-normal/14-frame-14.png")}
+.piano-white,.piano-white:hover:not(:disabled),.piano-white.active{background:none;color:#333;background-blend-mode:normal}
+.piano-white{height:128px;padding-bottom:26px}
+.piano-key-face::after{content:"";position:absolute;inset:0;background:var(--key-tint);mix-blend-mode:multiply;pointer-events:none;mask-repeat:no-repeat;mask-size:40px 121px}
+.piano-white .piano-key-face{height:121px;background-image:var(--white-face);background-position:left top}
+.piano-white .piano-key-face::after{mask-image:var(--white-face);mask-position:left top}
+.theme-dark .piano-white{color:var(--key-tint)}
+.piano-key-label{position:relative;z-index:1;pointer-events:none;transform:translateY(var(--key-depth))}
+.piano-black,.piano-black:hover:not(:disabled),.piano-black.active{background:none;overflow:visible}
+.piano-black::before{content:"";position:absolute;inset:0;background:var(--key-tint) var(--black-rear) center top/40px 121px no-repeat;background-blend-mode:multiply;mask:var(--black-rear) center top/40px 121px no-repeat;pointer-events:none}
+.piano-key-face{position:absolute;inset:0;transform:translateY(var(--key-depth));background:transparent var(--black-face) center top/40px 121px no-repeat;pointer-events:none;isolation:isolate}
+.piano-key-face::after{mask-image:var(--black-face);mask-position:center top}
+.piano-white:focus-visible,.piano-black:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.instrument-card:active::before{transform:translate(2.5px,2.3px) scale(.8);transform-origin:left top}
+dialog{opacity:0;transform:translateY(-12px);transition:opacity 250ms ease-in,transform 250ms ease-in,overlay 250ms allow-discrete,display 250ms allow-discrete}
+dialog[open]{opacity:1;transform:translateY(0);transition-timing-function:ease-out}
+dialog::backdrop{opacity:0;transition:opacity 250ms,overlay 250ms allow-discrete,display 250ms allow-discrete}
+dialog[open]::backdrop{opacity:1}
+@starting-style{dialog[open]{opacity:0;transform:translateY(12px)}dialog[open]::backdrop{opacity:0}}
+@media(prefers-reduced-motion:reduce){.piano-key-face,.piano-key-label{transform:none}dialog,dialog::backdrop{transition:none}.instrument-card:active::before{transform:none}}
