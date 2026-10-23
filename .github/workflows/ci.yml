@@ -96,3 +96,50 @@ jobs:
         run: |
           cp "$RUNNER_TEMP/nbs-dsp-simd/wasm32-unknown-unknown/release/nbs_dsp.wasm" wasm/nbs_dsp.wasm
           NBS_SCALAR_WASM="$RUNNER_TEMP/nbs-dsp-scalar/wasm32-unknown-unknown/release/nbs_dsp.wasm" node --test --test-concurrency=2 rust/tests/wasm-abi.test.mjs tests/dsp-pool.test.mjs
+
+  hosted-container:
+    name: Docker / website and Caddy reverse proxy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Validate production Compose and build hosted image
+        env:
+          DOMAIN: nbs.example.com
+        run: |
+          docker compose config --quiet
+          docker build --tag nbs-hosted:ci .
+      - name: Validate Caddy configuration
+        run: |
+          docker run --rm -e DOMAIN=nbs.example.com -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Exercise Caddy to the isolated hosted backend
+        run: |
+          docker network create --internal nbs-hosted-ci
+          docker network create nbs-hosted-ci-edge
+          docker run -d --name nbs-hosted-ci-app --network nbs-hosted-ci --network-alias app --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp:rw,noexec,nosuid,size=384m,mode=1777 --memory 1536m --cpus 2 --pids-limit 64 -e PUBLIC_ORIGIN=http://localhost:18880 -e TRUST_PROXY_HEADERS=1 nbs-hosted:ci
+          docker create --name nbs-hosted-ci-caddy --network nbs-hosted-ci-edge --read-only --cap-drop ALL --cap-add NET_BIND_SERVICE --security-opt no-new-privileges --tmpfs /tmp:rw,noexec,nosuid,size=16m,mode=1777 -p 127.0.0.1:18880:18880 -e DOMAIN=http://localhost:18880 -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine
+          docker network connect nbs-hosted-ci nbs-hosted-ci-caddy
+          docker start nbs-hosted-ci-caddy
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://localhost:18880/api/health >/dev/null; then break; fi
+            sleep 2
+          done
+          node scripts/smoke-hosted.mjs http://localhost:18880 --all-formats
+      - name: Show container diagnostics on failure
+        if: failure()
+        run: |
+          docker logs nbs-hosted-ci-app 2>&1 || true
+          docker logs nbs-hosted-ci-caddy 2>&1 || true
+      - name: Remove temporary containers and network
+        if: always()
+        run: |
+          docker rm -f nbs-hosted-ci-caddy nbs-hosted-ci-app 2>/dev/null || true
+          docker network rm nbs-hosted-ci nbs-hosted-ci-edge 2>/dev/null || true

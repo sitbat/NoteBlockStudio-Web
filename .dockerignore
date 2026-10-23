@@ -1,0 +1,20 @@
+# Only the browser payload and hosted entry point enter the image context.
+**
+!Dockerfile
+!package.json
+!hosted-server.mjs
+!hosted-services.mjs
+!index.html
+!styles.css
+!LICENSE
+!THIRD_PARTY_NOTICES.md
+!licenses/
+!licenses/**
+!js/
+!js/**
+!css/
+!css/**
+!wasm/
+!wasm/nbs_dsp.wasm
+!assets/
+!assets/**

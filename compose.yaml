@@ -1,0 +1,71 @@
+name: noteblockstudio-web
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    init: true
+    environment:
+      PUBLIC_ORIGIN: https://${DOMAIN:?Set DOMAIN in .env to your real hostname}
+      HOST: 0.0.0.0
+      PORT: '8765'
+      TRUST_PROXY_HEADERS: '1'
+      HOSTED_ENABLE_TRANSCODE: ${HOSTED_ENABLE_TRANSCODE:-1}
+      HOSTED_MAX_INPUT_MIB: ${HOSTED_MAX_INPUT_MIB:-128}
+      HOSTED_MAX_OUTPUT_MIB: ${HOSTED_MAX_OUTPUT_MIB:-128}
+      HOSTED_BODY_TIMEOUT_MS: ${HOSTED_BODY_TIMEOUT_MS:-20000}
+      HOSTED_TRANSCODE_RATE: ${HOSTED_TRANSCODE_RATE:-30}
+    expose:
+      - '8765'
+    networks:
+      - backend
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=384m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: 2.0
+    mem_limit: 1536m
+    pids_limit: 64
+    stop_grace_period: 15s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env to your real hostname}
+      NBS_AUTH_USER: ${NBS_AUTH_USER:-}
+      NBS_AUTH_HASH: ${NBS_AUTH_HASH:-}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - edge
+      - backend
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,mode=1777
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  edge: {}
+  backend:
+    internal: true
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

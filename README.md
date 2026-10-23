@@ -4,9 +4,25 @@
 
 非官方 Minecraft 项目，未经 Mojang 或 Microsoft 批准，与其没有关联。
 
-基于 Open Note Block Studio v3.11.0 源码与素材的本地 Web 移植，使用 Rust / WebAssembly SIMD 音频核心。保留原版菜单、工具栏、音符网格、图层面板和钢琴布局；采样、变调、混音及每轨独立混响由真实 Rust / WebAssembly SIMD 内核和多个 Worker 计算。应用通过本机回环服务运行，不依赖在线托管或云端曲谱服务。
+基于 Open Note Block Studio v3.11.0 源码与素材的 Web 移植，使用 Rust / WebAssembly SIMD 音频核心。保留原版菜单、工具栏、音符网格、图层面板和钢琴布局；采样、变调、混音及每轨独立混响由真实 Rust / WebAssembly SIMD 内核和多个 Worker 计算。支持本机运行和自建服务器网站，编辑与音频计算都在访问者浏览器中完成。
 
 ![编辑器界面](docs/images/editor-v3.png)
+
+## 部署为网站
+
+在安装了 Docker Engine / Compose 的 Linux 服务器上使用独立域名，配置 DNS 并开放 TCP 80、443：
+
+```sh
+git clone https://github.com/sitbat/NoteBlockStudio-Web.git
+cd NoteBlockStudio-Web
+cp .env.example .env
+# 编辑 .env，将 DOMAIN 改成自己的域名（不含协议或路径）
+docker compose up -d --build
+```
+
+随后通过 `https://你的域名/` 使用，Caddy 负责申请和续期 HTTPS 证书。应用端口只在容器内部开放。也提供 Node + Nginx + systemd 模板，完整步骤、可选访问认证及验收命令见 [服务器部署](docs/DEPLOYMENT.md)。配置只支持域名根路径。
+
+网站版的 Rust/WASM 多核播放仍使用访问者电脑；曲谱与采样保存在访问者浏览器中。服务器负责网页及可关闭的 FFmpeg 编码：额外格式导出时会临时上传音频；直接 WAV 下载在浏览器完成。网站模式不会开放本机文件读取、URL 下载代理或 Discord 接口。
 
 ## 从源码启动
 
@@ -62,7 +78,7 @@ Linux 编码使用本机 FFmpeg；可选的便携 Node 下载、许可证、校�
 
 网格点击添加音符，右键删除；B / V / E 切换画笔/选择/橡皮；Space 播放暂停；Esc 停止；Home 回到开头。Ctrl+Z / Ctrl+Shift+Z 撤销重做，Ctrl+C/X/V 复制剪切粘贴，Ctrl+D 复制选区，方向键移动，Shift+上下移调，Alt+上下升降八度。启用电脑键盘弹奏后，Z–M / Q–U 区域用于琴键，覆盖相应编辑快捷键。
 
-双击图层设置名称、音量、声像、锁定和混响；M / S 为静音/独奏。当前曲目、采样和偏好存于当前浏览器、当前端口；不同浏览器/端口不共享，清除站点数据会删除本地缓存。重要作品保存为完整工程包。
+双击图层设置名称、音量、声像、锁定和混响；M / S 为静音/独奏。当前曲目、采样和偏好存于当前浏览器、当前网站来源；不同浏览器、域名或端口不共享，清除站点数据会删除本地缓存。重要作品保存为完整工程包。
 
 NBS 可读取经典格式与 v1–v5，写出 v5；标准长度最多 65535 ticks、自定义乐器最多 240 个。私有 `ONBSWFX1` 尾部保存本版额外轨道状态，第三方编辑器可能忽略或丢弃；原生桌面实机兼容未验证。NBS / JSON 不内嵌自定义音频，NBP 不包含所有项目属性。音频导出为一轮播放加采样/混响尾音，不将无限循环展开。
 

@@ -3,14 +3,16 @@
   "version": "3.0.0",
   "private": true,
   "type": "module",
-  "description": "Local Open Note Block Studio port with a multicore Rust SIMD WASM audio engine",
+  "description": "Open Note Block Studio web port with a multicore Rust SIMD WASM audio engine and self-hosted deployment",
   "license": "MIT",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "start": "node server.mjs",
+    "start:hosted": "node hosted-server.mjs",
     "test": "node scripts/run-tests.mjs",
+    "test:hosted": "node scripts/smoke-hosted.mjs",
     "benchmark:dsp": "node scripts/benchmark-dsp.mjs",
     "setup:runtime": "node scripts/setup-runtime.mjs"
   },

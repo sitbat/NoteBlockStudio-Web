@@ -46,3 +46,5 @@ Web 版本没有复用归档中的原生 DLL 或 Python 模块。采样播放、
 本地完整包可另行附带官方 Linux x86_64 Node24.11.0，保留 [完整 Node 及第三方许可证](runtime/linux-x64/LICENSE) 与 [来源记录](runtime/linux-x64/PROVENANCE.md)。Git 源码不包含 Node 可执行文件。
 
 Windows 本地完整包可附带 Gyan 分发的 FFmpeg9.0.2 essentials（FFmpeg 官方下载页链接的分发方），执行前已验证官方归档 SHA256。其 **GPLv3 许可证独立于本编辑器 MIT 许可证**；保留 [完整许可证](runtime/win32-x64/LICENSE)、[上游构建说明](runtime/win32-x64/README.txt) 和 [来源/源码版本及校验值](runtime/win32-x64/PROVENANCE.md)。Git 源码不包含 FFmpeg 可执行文件，Linux 使用系统或用户提供的 FFmpeg。
+
+网站 Docker 镜像基于官方 `node:24-bookworm-slim`，通过 Debian 软件仓库安装 FFmpeg 与 CA 证书，不打包 Windows 本地运行时。镜像保留本项目 `LICENSE`、本说明及 `licenses/`；Debian 软件包的许可证与版权说明位于镜像的 `/usr/share/doc/`，Node 的许可随官方基础镜像保留。第三方组件的许可独立于本编辑器。

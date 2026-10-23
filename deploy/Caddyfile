@@ -1,0 +1,15 @@
+{$DOMAIN} {
+    # Optional private access: uncomment after setting NBS_AUTH_USER/HASH in .env.
+    # basic_auth {
+    #     {$NBS_AUTH_USER} {$NBS_AUTH_HASH}
+    # }
+
+    encode zstd gzip
+    request_body {
+        max_size 512MiB
+    }
+    reverse_proxy app:8765 {
+        # Overwrite any value supplied by the internet client.
+        header_up X-NBS-Client-IP {remote_host}
+    }
+}

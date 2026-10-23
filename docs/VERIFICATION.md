@@ -52,4 +52,14 @@ Windows随包FFmpeg9.0.2下载归档SHA与官方值一致，执行前验证；�
 
 ## 尚未实机覆盖
 
+另见下方网站模式回归；通用模板并不代表已在实际域名部署。
+
 Linux图形浏览器/声卡和Linux万轨实时播放、物理MIDI设备、真实Discord客户端显示、Minecraft客户端/服务器内执行、原GameMaker听感与所有桌面格式的交互均未实机验收。没有原生DLL/Python任意插件ABI兼容承诺。数据与实现边界见 [迁移说明](MIGRATION.md) 和 [功能对照](FEATURE-PARITY.md)。
+
+## 网站模式回归
+
+2026-10-23，Windows Node24.19.0，提供独立 scalar WASM 后运行 `node scripts/run-tests.mjs --test-concurrency=2`：**248 项，247 通过、0 失败、1 项 POSIX 平台跳过**。这包括原有功能、网站静态白名单/Host/来源/会话/资源边界，以及资源包重采样和批次限流回归。测试用合成 PCM 检查实际音高、时长与抗混叠，并验证最低/最高根音的变体可通过严格 WAV 校验和真实 FFmpeg OGG 编码；240 音色的限流流程使用受控时钟，不声称进行了 24 分钟网络压测。
+
+通过临时回环网站实际运行 `node scripts/smoke-hosted.mjs http://localhost:8790 --all-formats`：页面/Worker/WASM/采样、隔离响应头、私有路径拒绝、本机集成功能关闭、会话校验及 MP3/FLAC/AIFF/OGG/WAV 五种真实编码通过。Edge 中确认网站服务提示、Rust 多线程播放与非零输出，并从初始练习曲实际导出 MP3；FFprobe 确认为 48kHz、双声道、12.850021 秒。
+
+CI 新增独立 Docker/Caddy 检查：构建生产镜像、解析 Compose、验证 Caddy 配置，并在内部后端网络与只读容器限制下通过反向代理运行五格式 smoke。具体运行结果以 [GitHub Actions](https://github.com/sitbat/NoteBlockStudio-Web/actions/workflows/ci.yml) 为准。测试代理使用回环 HTTP，不替代实际域名的 DNS、HTTPS 证书签发/续期及访问者设备验收；部署步骤见 [服务器部署](DEPLOYMENT.md)。音频 DSP 内核未变，本轮没有重做万轨性能测量。

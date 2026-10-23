@@ -28,6 +28,8 @@ flowchart LR
 | `js/output-worklet.js` | 只消费已就绪 PCM，合并各分片、限幅并统计欠载 |
 | `rust/src/lib.rs`、`wasm/nbs_dsp.wasm` | Rust 源码与已编译 SIMD 音频内核 |
 | `server.mjs`、`native-services.mjs` | 本机静态服务、跨源隔离、受令牌和同源保护的 FFmpeg / Discord / 显式启动文件与 URL 服务 |
+| `hosted-server.mjs`、`hosted-services.mjs` | 网站静态白名单、固定公开来源、会话校验、限额与临时 FFmpeg 编码，不接入本机能力 |
+| `js/service-capabilities.js` | 区分本机/网站能力、网站会话过期后单次重试与受限浏览器 URL 读取 |
 
 ## DSP 内存与独立性
 
@@ -70,3 +72,11 @@ IndexedDB v2 将当前项目、PCM 采样、历史元数据及曲谱快照分开
 本地服务只接受本机 Host；修改接口还要求精确 Origin 和每次启动随机令牌。编码使用参数白名单、无 shell 子进程、单任务并发、超时和体积限制。Discord 默认不连接；启用后仅使用本机 IPC。启动文件只读取 CLI 明确授予的路径，不接受任意 HTTP 查询路径。URL 导入仅由用户点击触发，不自动爬取外部来源。
 
 Linux 入口优先使用包内官方 Node，桌面安装作用于用户 XDG 路径；测试在独立临时 XDG 环境进行。更新器验证完整发布清单与 SHA-256，暂存后替换并保留回滚备份，不在浏览器中下载或自动应用更新。
+
+## 网站部署
+
+网站模式保留相同的浏览器 DSP 与 IndexedDB；不把曲谱或播放任务转移到服务器。静态服务只提供页面、浏览器脚本、WASM 与素材，禁止目录穿越、链接跳转和服务端文件读取。启动时固定 `PUBLIC_ORIGIN`；反向代理必须保留 Host，来源校验不信任 forwarded 字段。
+
+服务器只开放健康、能力查询与编码接口。HTTPS 下使用 Secure/HttpOnly/SameSite=Strict 会话 Cookie 与绑定会话的 HMAC 请求令牌；它用于跨站防护，不是账号登录。转码在接收上传前占用全局单任务槽位，验证有界 WAV，使用固定参数与无 shell FFmpeg 子进程，限制输入、输出、处理时间及客户端速率，完成或断开连接后清理临时文件。网站 URL 导入直接由浏览器执行并受 CORS 限制。
+
+Compose 将应用放入内部网络，以非 root 用户运行，只读文件系统与有界临时盘；Caddy 单独处理公网 HTTPS。已有代理可使用 Nginx/systemd 模板。具体资源边界与操作步骤见 [服务器部署](DEPLOYMENT.md)。
