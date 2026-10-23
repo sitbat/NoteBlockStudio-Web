@@ -1,9 +1,14 @@
-import test from 'node:test';
+import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
-import {createHash} from 'node:crypto';
+import {createHash,webcrypto} from 'node:crypto';
 import {builtinForSound,resolveSoundImport,stageSoundImport,createInstrumentManager} from '../js/instrument-ui.js';
 import {INSTRUMENTS} from '../js/audio.js';
 import {createBlankSong} from '../js/model.js';
+
+// Node 18 exposes Web Crypto through node:crypto; browsers provide the global.
+const originalCrypto=Object.getOwnPropertyDescriptor(globalThis,'crypto');
+before(()=>{if(!globalThis.crypto?.subtle)Object.defineProperty(globalThis,'crypto',{value:webcrypto,configurable:true});});
+after(()=>{if(originalCrypto)Object.defineProperty(globalThis,'crypto',originalCrypto);else delete globalThis.crypto;});
 
 function file(path,data='OggS-fixture'){const bytes=typeof data==='string'?new TextEncoder().encode(data):new Uint8Array(data);return{name:path.split('/').at(-1),webkitRelativePath:path.includes('/')?path:'',size:bytes.length,arrayBuffer:async()=>bytes.slice().buffer,text:async()=>new TextDecoder().decode(bytes)};}
 const hash=bytes=>createHash('sha1').update(bytes).digest('hex');
