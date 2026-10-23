@@ -1,0 +1,1090 @@
+TAP version 13
+# Subtest: real WASM exposes the documented ABI and SIMD build
+ok 1 - real WASM exposes the documented ABI and SIMD build
+  ---
+  duration_ms: 1.4639
+  type: 'test'
+  ...
+# Subtest: dry sample onset, track gain, note gain and stereo pan are exact
+ok 2 - dry sample onset, track gain, note gain and stereo pan are exact
+  ---
+  duration_ms: 0.7619
+  type: 'test'
+  ...
+# Subtest: pitch interpolation and looping retain the expected sample phase
+ok 3 - pitch interpolation and looping retain the expected sample phase
+  ---
+  duration_ms: 0.2752
+  type: 'test'
+  ...
+# Subtest: zero reverb is dry while full reverb produces a delayed stereo tail
+ok 4 - zero reverb is dry while full reverb produces a delayed stereo tail
+  ---
+  duration_ms: 1.0677
+  type: 'test'
+  ...
+# Subtest: track reverb lanes cannot leak a muted source tail into other enabled tracks
+ok 5 - track reverb lanes cannot leak a muted source tail into other enabled tracks
+  ---
+  duration_ms: 0.4031
+  type: 'test'
+  ...
+# Subtest: fixed voice capacity is reported honestly and reset restores the pool
+ok 6 - fixed voice capacity is reported honestly and reset restores the pool
+  ---
+  duration_ms: 0.7533
+  type: 'test'
+  ...
+# Subtest: muting, invalid parameters and nonfinite PCM never output invalid numbers
+ok 7 - muting, invalid parameters and nonfinite PCM never output invalid numbers
+  ---
+  duration_ms: 0.3769
+  type: 'test'
+  ...
+# Subtest: gain changes finish smoothly in 32 samples including partial render blocks
+ok 8 - gain changes finish smoothly in 32 samples including partial render blocks
+  ---
+  duration_ms: 0.2651
+  type: 'test'
+  ...
+# Subtest: SIMD matches the independently compiled scalar reverb across lanes, groups and gain ramps
+ok 9 - SIMD matches the independently compiled scalar reverb across lanes, groups and gain ramps
+  ---
+  duration_ms: 5.8718
+  type: 'test'
+  ...
+# Subtest: CRC32 matches the published standard check value
+ok 10 - CRC32 matches the published standard check value
+  ---
+  duration_ms: 0.4519
+  type: 'test'
+  ...
+# Subtest: stored ZIP writes Unicode names and binary content
+ok 11 - stored ZIP writes Unicode names and binary content
+  ---
+  duration_ms: 0.8415
+  type: 'test'
+  ...
+# Subtest: reads independently generated raw-DEFLATE and stored entries
+ok 12 - reads independently generated raw-DEFLATE and stored entries
+  ---
+  duration_ms: 7.0327
+  type: 'test'
+  ...
+# Subtest: rejects traversal, absolute paths, duplicate entries and corrupt checksums
+ok 13 - rejects traversal, absolute paths, duplicate entries and corrupt checksums
+  ---
+  duration_ms: 2.0158
+  type: 'test'
+  ...
+# Subtest: enforces expanded size, entry count, truncation and central directory boundaries
+ok 14 - enforces expanded size, entry count, truncation and central directory boundaries
+  ---
+  duration_ms: 0.5177
+  type: 'test'
+  ...
+# Subtest: gzip interoperates with Node zlib and bounded decompression rejects bombs
+ok 15 - gzip interoperates with Node zlib and bounded decompression rejects bombs
+  ---
+  duration_ms: 13.2879
+  type: 'test'
+  ...
+# Subtest: Node18 fallback reads raw DEFLATE when the web stream format is unavailable
+ok 16 - Node18 fallback reads raw DEFLATE when the web stream format is unavailable
+  ---
+  duration_ms: 0.4773
+  type: 'test'
+  ...
+# Subtest: the original 16 sample files ship with unchanged instrument IDs
+ok 17 - the original 16 sample files ship with unchanged instrument IDs
+  ---
+  duration_ms: 3.2535
+  type: 'test'
+  ...
+# Subtest: init fetches only the 20 fixed local samples once and resolves bundled custom references
+ok 18 - init fetches only the 20 fixed local samples once and resolves bundled custom references
+  ---
+  duration_ms: 0.8183
+  type: 'test'
+  ...
+# Subtest: native, octave, fine pitch and custom sample pitch match play_sound.gml
+ok 19 - native, octave, fine pitch and custom sample pitch match play_sound.gml
+  ---
+  duration_ms: 0.0792
+  type: 'test'
+  ...
+# Subtest: WAV has correct RIFF lengths, stereo interleaving and PCM clipping
+ok 20 - WAV has correct RIFF lengths, stereo interleaving and PCM clipping
+  ---
+  duration_ms: 0.7113
+  type: 'test'
+  ...
+# Subtest: audio graph multiplies velocity/layer volume and combines stereo pan
+ok 21 - audio graph multiplies velocity/layer volume and combines stereo pan
+  ---
+  duration_ms: 0.2163
+  type: 'test'
+  ...
+# Subtest: mute and solo silence excluded layers
+ok 22 - mute and solo silence excluded layers
+  ---
+  duration_ms: 0.0866
+  type: 'test'
+  ...
+# Subtest: lookahead schedules exact audio-clock times, pause captures tick and cancels voices
+ok 23 - lookahead schedules exact audio-clock times, pause captures tick and cancels voices
+  ---
+  duration_ms: 0.3999
+  type: 'test'
+  ...
+# Subtest: loop transport wraps to loopStart and schedules the new cycle ahead
+ok 24 - loop transport wraps to loopStart and schedules the new cycle ahead
+  ---
+  duration_ms: 0.1264
+  type: 'test'
+  ...
+# Subtest: finite NBS loopCount repeats only the requested number of times and ends once
+ok 25 - finite NBS loopCount repeats only the requested number of times and ends once
+  ---
+  duration_ms: 0.1686
+  type: 'test'
+  ...
+# Subtest: future voices honor in-place mute, solo, volume and pan changes during playback
+ok 26 - future voices honor in-place mute, solo, volume and pan changes during playback
+  ---
+  duration_ms: 0.2042
+  type: 'test'
+  ...
+# Subtest: WAV rejects a memory-heavy render before allocating an OfflineAudioContext
+ok 27 - WAV rejects a memory-heavy render before allocating an OfflineAudioContext
+  ---
+  duration_ms: 0.3532
+  type: 'test'
+  ...
+# Subtest: missing custom samples warn once and reuse a local harp placeholder
+ok 28 - missing custom samples warn once and reuse a local harp placeholder
+  ---
+  duration_ms: 0.0855
+  type: 'test'
+  ...
+# Subtest: audition uses current custom definitions after replacing a previously played song
+ok 29 - audition uses current custom definitions after replacing a previously played song
+  ---
+  duration_ms: 0.1823
+  type: 'test'
+  ...
+# Subtest: 10,000 tracks partition into non-overlapping four-lane shards across 14 workers
+ok 30 - 10,000 tracks partition into non-overlapping four-lane shards across 14 workers
+  ---
+  duration_ms: 0.5737
+  type: 'test'
+  ...
+# Subtest: sample-clock transport and event offsets handle seeks and finite loop boundaries
+ok 31 - sample-clock transport and event offsets handle seeks and finite loop boundaries
+  ---
+  duration_ms: 0.579
+  type: 'test'
+  ...
+# Subtest: event list updates affect only future audio without repeating old events
+ok 32 - event list updates affect only future audio without repeating old events
+  ---
+  duration_ms: 0.1128
+  type: 'test'
+  ...
+# Subtest: worklet never waits, reports missing blocks and rejects stale slot sequences
+ok 33 - worklet never waits, reports missing blocks and rejects stale slot sequences
+  ---
+  duration_ms: 1.0574
+  type: 'test'
+  ...
+# Subtest: worker/Wasm/shared-ring/worklet integration sustains all voices and responds to parameters
+ok 34 - worker/Wasm/shared-ring/worklet integration sustains all voices and responds to parameters
+  ---
+  duration_ms: 348.6945
+  type: 'test'
+  ...
+# Subtest: Wasm engine configuration validates supported blocks without creating an AudioContext
+ok 35 - Wasm engine configuration validates supported blocks without creating an AudioContext
+  ---
+  duration_ms: 0.557
+  type: 'test'
+  ...
+# Subtest: full WasmAudioEngine reuses workers across pause/seek, exposes PCM and parameter telemetry, and renders reverb WAV
+ok 36 - full WasmAudioEngine reuses workers across pause/seek, exposes PCM and parameter telemetry, and renders reverb WAV
+  ---
+  duration_ms: 2006.7858
+  type: 'test'
+  ...
+# Subtest: late custom-sample decode is aborted before mutating a replacement project
+ok 37 - late custom-sample decode is aborted before mutating a replacement project
+  ---
+  duration_ms: 0.4819
+  type: 'test'
+  ...
+# Subtest: a project changed during PCM upload is not restored or committed by the stale operation
+ok 38 - a project changed during PCM upload is not restored or committed by the stale operation
+  ---
+  duration_ms: 0.4865
+  type: 'test'
+  ...
+# Subtest: benchmark control API updates only a valid independent track and counts actual changes
+ok 39 - benchmark control API updates only a valid independent track and counts actual changes
+  ---
+  duration_ms: 0.3018
+  type: 'test'
+  ...
+# Subtest: bounded pump catches up missed blocks and fills the ring in one task without starving controls
+ok 40 - bounded pump catches up missed blocks and fills the ring in one task without starving controls
+  ---
+  duration_ms: 0.1254
+  type: 'test'
+  ...
+# Subtest: bounds processes 250000 notes without spreading function arguments
+ok 41 - bounds processes 250000 notes without spreading function arguments
+  ---
+  duration_ms: 34.7096
+  type: 'test'
+  ...
+# Subtest: moving against the right edge keeps selected note spacing intact
+ok 42 - moving against the right edge keeps selected note spacing intact
+  ---
+  duration_ms: 0.4145
+  type: 'test'
+  ...
+# Subtest: negative offsets and layer boundaries clamp the common group offset
+ok 43 - negative offsets and layer boundaries clamp the common group offset
+  ---
+  duration_ms: 0.1662
+  type: 'test'
+  ...
+# Subtest: group transposition retains musical intervals at the keyboard boundary
+ok 44 - group transposition retains musical intervals at the keyboard boundary
+  ---
+  duration_ms: 0.0901
+  type: 'test'
+  ...
+# Subtest: locked source notes stay put and any locked destination rejects a move atomically
+ok 45 - locked source notes stay put and any locked destination rejects a move atomically
+  ---
+  duration_ms: 0.1854
+  type: 'test'
+  ...
+# Subtest: moving selected notes replaces unselected destination notes without duplicate cells
+ok 46 - moving selected notes replaces unselected destination notes without duplicate cells
+  ---
+  duration_ms: 0.1556
+  type: 'test'
+  ...
+# Subtest: invalid paste coordinates leave notes, layers and length unchanged
+ok 47 - invalid paste coordinates leave notes, layers and length unchanged
+  ---
+  duration_ms: 0.4326
+  type: 'test'
+  ...
+# Subtest: valid paste replaces collisions, skips locked destinations, creates default layers and new IDs
+ok 48 - valid paste replaces collisions, skips locked destinations, creates default layers and new IDs
+  ---
+  duration_ms: 1.8565
+  type: 'test'
+  ...
+# Subtest: paste counts replacements correctly at the note limit and fails without mutation when exceeded
+ok 49 - paste counts replacements correctly at the note limit and fails without mutation when exceeded
+  ---
+  duration_ms: 743.7198
+  type: 'test'
+  ...
+# Subtest: all 15 native macros are concrete descriptors; vibrato/LFO/stereo follow occupied columns
+ok 50 - all 15 native macros are concrete descriptors; vibrato/LFO/stereo follow occupied columns
+  ---
+  duration_ms: 1.5624
+  type: 'test'
+  ...
+# Subtest: arpeggio and portamento match native column cycles and reverse ramp
+ok 51 - arpeggio and portamento match native column cycles and reverse ramp
+  ---
+  duration_ms: 0.3632
+  type: 'test'
+  ...
+# Subtest: chorus validates every column before committing and alternates row pan/pitch
+ok 52 - chorus validates every column before committing and alternates row pan/pitch
+  ---
+  duration_ms: 0.3407
+  type: 'test'
+  ...
+# Subtest: fades multiply original velocities, protect single-column selections and reset properties
+ok 53 - fades multiply original velocities, protect single-column selections and reset properties
+  ---
+  duration_ms: 0.288
+  type: 'test'
+  ...
+# Subtest: native stagger applies each row delta, compression preserves collisions and expansion is anchored
+ok 54 - native stagger applies each row delta, compression preserves collisions and expansion is anchored
+  ---
+  duration_ms: 0.1812
+  type: 'test'
+  ...
+# Subtest: tremolo emits actual repeated notes, rounds native spacing and supports fade envelopes
+ok 55 - tremolo emits actual repeated notes, rounds native spacing and supports fade envelopes
+  ---
+  duration_ms: 2.1127
+  type: 'test'
+  ...
+# Subtest: locked sources remain intact; locked destination or tick overflow fails atomically
+ok 56 - locked sources remain intact; locked destination or tick overflow fails atomically
+  ---
+  duration_ms: 0.1876
+  type: 'test'
+  ...
+# Subtest: range folding, selection modes, instrument replacement and chord insertion are functional
+ok 57 - range folding, selection modes, instrument replacement and chord insertion are functional
+  ---
+  duration_ms: 0.4328
+  type: 'test'
+  ...
+# Subtest: NBS v5 preserves Unicode, signed pitch, loop, layer settings and custom instruments
+ok 58 - NBS v5 preserves Unicode, signed pitch, loop, layer settings and custom instruments
+  ---
+  duration_ms: 1.554
+  type: 'test'
+  ...
+# Subtest: all historical NBS versions load and normalize their missing fields
+ok 59 - all historical NBS versions load and normalize their missing fields
+  ---
+  duration_ms: 0.9395
+  type: 'test'
+  ...
+# Subtest: NBS imports legacy byte strings without corrupting accented characters
+ok 60 - NBS imports legacy byte strings without corrupting accented characters
+  ---
+  duration_ms: 0.1606
+  type: 'test'
+  ...
+# Subtest: NBS respects byte-array offsets and preserves unknown trailing bytes
+ok 61 - NBS respects byte-array offsets and preserves unknown trailing bytes
+  ---
+  duration_ms: 0.2755
+  type: 'test'
+  ...
+# Subtest: NBS rejects truncated headers, unsupported versions, huge strings and overlapping cells
+ok 62 - NBS rejects truncated headers, unsupported versions, huge strings and overlapping cells
+  ---
+  duration_ms: 1.1848
+  type: 'test'
+  ...
+# Subtest: NBS rejects unsupported note keys and velocity instead of silently changing the score
+ok 63 - NBS rejects unsupported note keys and velocity instead of silently changing the score
+  ---
+  duration_ms: 0.1637
+  type: 'test'
+  ...
+# Subtest: MIDI imports running status, polyphony, program changes and variable tempos across tracks
+ok 64 - MIDI imports running status, polyphony, program changes and variable tempos across tracks
+  ---
+  duration_ms: 0.889
+  type: 'test'
+  ...
+# Subtest: MIDI ignores percussion note-off, maps drums, skips keys outside the NBS piano
+ok 65 - MIDI ignores percussion note-off, maps drums, skips keys outside the NBS piano
+  ---
+  duration_ms: 0.1855
+  type: 'test'
+  ...
+# Subtest: MIDI applies conductor-track program and channel controllers to other tracks
+ok 66 - MIDI applies conductor-track program and channel controllers to other tracks
+  ---
+  duration_ms: 0.1619
+  type: 'test'
+  ...
+# Subtest: GM xylophone, vibraphone, square wave, banjo and bright piano match native instrument IDs
+ok 67 - GM xylophone, vibraphone, square wave, banjo and bright piano match native instrument IDs
+  ---
+  duration_ms: 0.2214
+  type: 'test'
+  ...
+# Subtest: MIDI export and import preserve melodic onset, duration, instruments, tempo and text
+ok 68 - MIDI export and import preserve melodic onset, duration, instruments, tempo and text
+  ---
+  duration_ms: 0.6518
+  type: 'test'
+  ...
+# Subtest: MIDI exporter honors mute/solo and emits standard SMF chunks
+ok 69 - MIDI exporter honors mute/solo and emits standard SMF chunks
+  ---
+  duration_ms: 0.3323
+  type: 'test'
+  ...
+# Subtest: MIDI SMPTE files use frame timing and skip unknown metadata and SysEx
+ok 70 - MIDI SMPTE files use frame timing and skip unknown metadata and SysEx
+  ---
+  duration_ms: 0.1085
+  type: 'test'
+  ...
+# Subtest: MIDI rejects truncated tracks, invalid running status and overlong VLQ values
+ok 71 - MIDI rejects truncated tracks, invalid running status and overlong VLQ values
+  ---
+  duration_ms: 0.1718
+  type: 'test'
+  ...
+# Subtest: MIDI target tempo and subdivisions retain variable-tempo onset/duration in seconds
+ok 72 - MIDI target tempo and subdivisions retain variable-tempo onset/duration in seconds
+  ---
+  duration_ms: 0.1384
+  type: 'test'
+  ...
+# Subtest: finer MIDI grid preserves close onsets and can reduce quantization collision layers
+ok 73 - finer MIDI grid preserves close onsets and can reduce quantization collision layers
+  ---
+  duration_ms: 0.1386
+  type: 'test'
+  ...
+# Subtest: leading-silence removal starts at first retained note after mapping exclusions
+ok 74 - leading-silence removal starts at first retained note after mapping exclusions
+  ---
+  duration_ms: 0.2969
+  type: 'test'
+  ...
+# Subtest: per-program mappings follow actual channel program changes and clone current custom definitions
+ok 75 - per-program mappings follow actual channel program changes and clone current custom definitions
+  ---
+  duration_ms: 0.2463
+  type: 'test'
+  ...
+# Subtest: complete original GM preset is opt-in and reproduces native sample octave compensation
+ok 76 - complete original GM preset is opt-in and reproduces native sample octave compensation
+  ---
+  duration_ms: 0.2296
+  type: 'test'
+  ...
+# Subtest: complete original percussion table and explicit key/instrument/skip mappings are applied
+ok 77 - complete original percussion table and explicit key/instrument/skip mappings are applied
+  ---
+  duration_ms: 0.1615
+  type: 'test'
+  ...
+# Subtest: velocity/pan/name flags are independent and do not remove zero-volume notes
+ok 78 - velocity/pan/name flags are independent and do not remove zero-volume notes
+  ---
+  duration_ms: 0.1479
+  type: 'test'
+  ...
+# Subtest: octave offsets run before range checks, while native range folding preserves pitch classes
+ok 79 - octave offsets run before range checks, while native range folding preserves pitch classes
+  ---
+  duration_ms: 0.3957
+  type: 'test'
+  ...
+# Subtest: maxLayers and invalid import settings reject without mutating input bytes or options
+ok 80 - maxLayers and invalid import settings reject without mutating input bytes or options
+  ---
+  duration_ms: 0.3207
+  type: 'test'
+  ...
+# Subtest: SMPTE timing accepts the same grid/trim options and excessive timelines fail explicitly
+ok 81 - SMPTE timing accepts the same grid/trim options and excessive timelines fail explicitly
+  ---
+  duration_ms: 0.1184
+  type: 'test'
+  ...
+# Subtest: actual 65,535 simultaneous MIDI notes fit, while the 65,536th rejects without truncation
+ok 82 - actual 65,535 simultaneous MIDI notes fit, while the 65,536th rejects without truncation
+  ---
+  duration_ms: 112.5034
+  type: 'test'
+  ...
+# Subtest: launch options honor env, explicit port, no-open and paths with spaces without shell parsing
+ok 83 - launch options honor env, explicit port, no-open and paths with spaces without shell parsing
+  ---
+  duration_ms: 1.2665
+  type: 'test'
+  ...
+# Subtest: browser commands use argument arrays and fall back between Linux desktop openers
+ok 84 - browser commands use argument arrays and fall back between Linux desktop openers
+  ---
+  duration_ms: 2.1276
+  type: 'test'
+  ...
+# Subtest: Windows browser launch puts untrusted URL in environment rather than PowerShell source
+ok 85 - Windows browser launch puts untrusted URL in environment rather than PowerShell source
+  ---
+  duration_ms: 0.1948
+  type: 'test'
+  ...
+# Subtest: desktop Exec quoting escapes shell characters, percent field codes and desktop string backslashes
+ok 86 - desktop Exec quoting escapes shell characters, percent field codes and desktop string backslashes
+  ---
+  duration_ms: 0.4431
+  type: 'test'
+  ...
+# Subtest: desktop installer and uninstaller only change their own user-local entry
+ok 87 - desktop installer and uninstaller only change their own user-local entry
+  ---
+  duration_ms: 20.4868
+  type: 'test'
+  ...
+# Subtest: 130000-note layer duplicates atomically without argument-spread overflow and remains undoable
+ok 88 - 130000-note layer duplicates atomically without argument-spread overflow and remains undoable
+  ---
+  duration_ms: 509.3753
+  type: 'test'
+  ...
+# Subtest: layer movement carries its settings and only remaps affected notes
+ok 89 - layer movement carries its settings and only remaps affected notes
+  ---
+  duration_ms: 0.3031
+  type: 'test'
+  ...
+# Subtest: locked move and capacity errors leave both original arrays and data untouched
+ok 90 - locked move and capacity errors leave both original arrays and data untouched
+  ---
+  duration_ms: 2.5459
+  type: 'test'
+  ...
+# Subtest: remove-empty remaps positions without trusting external layer IDs and retains selected/locked layers
+ok 91 - remove-empty remaps positions without trusting external layer IDs and retains selected/locked layers
+  ---
+  duration_ms: 0.1744
+  type: 'test'
+  ...
+# Subtest: insert shifts note references and boundary movement is a true no-op
+ok 92 - insert shifts note references and boundary movement is a true no-op
+  ---
+  duration_ms: 0.1059
+  type: 'test'
+  ...
+# Subtest: MIDI decoder handles channel, zero-velocity note off, pitch bend and rejects invalid packets
+ok 93 - MIDI decoder handles channel, zero-velocity note off, pitch bend and rejects invalid packets
+  ---
+  duration_ms: 0.6278
+  type: 'test'
+  ...
+# Subtest: step recording keeps a chord at one tick and advances when all keys release
+ok 94 - step recording keeps a chord at one tick and advances when all keys release
+  ---
+  duration_ms: 0.7019
+  type: 'test'
+  ...
+# Subtest: sustain pedal extends recorded duration and bend/volume/pan are per channel
+ok 95 - sustain pedal extends recorded duration and bend/volume/pan are per channel
+  ---
+  duration_ms: 0.2093
+  type: 'test'
+  ...
+# Subtest: device filtering and disconnect close only attached ports and flush held recordings
+ok 96 - device filtering and disconnect close only attached ports and flush held recordings
+  ---
+  duration_ms: 0.2854
+  type: 'test'
+  ...
+# Subtest: permission refusal never starts recording or attaches a device
+ok 97 - permission refusal never starts recording or attaches a device
+  ---
+  duration_ms: 0.2815
+  type: 'test'
+  ...
+# Subtest: access is requested only by explicit connect and never requests SysEx
+ok 98 - access is requested only by explicit connect and never requests SysEx
+  ---
+  duration_ms: 0.4657
+  type: 'test'
+  ...
+# Subtest: two keyboards using the same MIDI channel retain independent bend, gain, pan and sustain
+ok 99 - two keyboards using the same MIDI channel retain independent bend, gain, pan and sustain
+  ---
+  duration_ms: 0.1475
+  type: 'test'
+  ...
+# Subtest: changing channel filter flushes excluded held notes and leaves accepted chord notes active
+ok 100 - changing channel filter flushes excluded held notes and leaves accepted chord notes active
+  ---
+  duration_ms: 0.1286
+  type: 'test'
+  ...
+# Subtest: sustain threshold, reset controllers and step chords advance once after the final physical key
+ok 101 - sustain threshold, reset controllers and step chords advance once after the final physical key
+  ---
+  duration_ms: 0.1588
+  type: 'test'
+  ...
+# Subtest: panic controllers and device disabling flush only the relevant device/channel
+ok 102 - panic controllers and device disabling flush only the relevant device/channel
+  ---
+  duration_ms: 0.1491
+  type: 'test'
+  ...
+# Subtest: pitch-bend endpoints and channel state are captured at each note onset
+ok 103 - pitch-bend endpoints and channel state are captured at each note onset
+  ---
+  duration_ms: 1.145
+  type: 'test'
+  ...
+# Subtest: realtime recording uses supplied transport clock for onset and quantizes elapsed duration
+ok 104 - realtime recording uses supplied transport clock for onset and quantizes elapsed duration
+  ---
+  duration_ms: 0.1179
+  type: 'test'
+  ...
+# Subtest: step recording ignores elapsed transport time and repeated note-on does not prematurely advance
+ok 105 - step recording ignores elapsed transport time and repeated note-on does not prematurely advance
+  ---
+  duration_ms: 0.1207
+  type: 'test'
+  ...
+# Subtest: hot unplug flushes held recordings and reconnect starts with clean channel controllers
+ok 106 - hot unplug flushes held recordings and reconnect starts with clean channel controllers
+  ---
+  duration_ms: 0.1761
+  type: 'test'
+  ...
+# Subtest: invalid packets, unavailable piano keys and invalid device configuration cannot create recordings
+ok 107 - invalid packets, unavailable piano keys and invalid device configuration cannot create recordings
+  ---
+  duration_ms: 0.1917
+  type: 'test'
+  ...
+# Subtest: stop recording flushes once and later monitoring notes do not enter the old recording
+ok 108 - stop recording flushes once and later monitoring notes do not enter the old recording
+  ---
+  duration_ms: 0.0825
+  type: 'test'
+  ...
+# Subtest: NBT is bounded, Java modified UTF-8 compatible, and rejects truncated or duplicate tags
+ok 109 - NBT is bounded, Java modified UTF-8 compatible, and rejects truncated or duplicate tags
+  ---
+  duration_ms: 1.146
+  type: 'test'
+  ...
+# Subtest: all three native layouts emit actual in-bounds note blocks, repeaters and Alpha arrays
+ok 110 - all three native layouts emit actual in-bounds note blocks, repeaters and Alpha arrays
+  ---
+  duration_ms: 25.0098
+  type: 'test'
+  ...
+# Subtest: legacy entity names and all four directions survive physical rotation
+ok 111 - legacy entity names and all four directions survive physical rotation
+  ---
+  duration_ms: 7.812
+  type: 'test'
+  ...
+# Subtest: structure palette has correct note instruments and command blocks include actual extended playsound
+ok 112 - structure palette has correct note instruments and command blocks include actual extended playsound
+  ---
+  duration_ms: 6.1028
+  type: 'test'
+  ...
+# Subtest: filters locked/muted/out-of-range notes and reports physical tempo changes
+ok 113 - filters locked/muted/out-of-range notes and reports physical tempo changes
+  ---
+  duration_ms: 0.6268
+  type: 'test'
+  ...
+# Subtest: branch filters selected layers, stereo and range; own embedded score contains only exported notes
+ok 114 - branch filters selected layers, stereo and range; own embedded score contains only exported notes
+  ---
+  duration_ms: 1.457
+  type: 'test'
+  ...
+# Subtest: nine-lane track has one common trigger and preserves every physical note
+ok 115 - nine-lane track has one common trigger and preserves every physical note
+  ---
+  duration_ms: 8.9973
+  type: 'test'
+  ...
+# Subtest: external redstone trace respects repeater directions, delay and chosen NBS tempo
+ok 116 - external redstone trace respects repeater directions, delay and chosen NBS tempo
+  ---
+  duration_ms: 1.0526
+  type: 'test'
+  ...
+# Subtest: datapack emits usable Java-version paths, finite loop functions, exact pitch/pan/volume and commands
+ok 117 - datapack emits usable Java-version paths, finite loop functions, exact pitch/pan/volume and commands
+  ---
+  duration_ms: 2.9592
+  type: 'test'
+  ...
+# Subtest: every original visualizer emits distinct real falling-block motion, offsets and optional glow
+ok 118 - every original visualizer emits distinct real falling-block motion, offsets and optional glow
+  ---
+  duration_ms: 2.2277
+  type: 'test'
+  ...
+# Subtest: bundled resource packs contain original sounds/textures; custom pack only accepts actual OGG data
+ok 119 - bundled resource packs contain original sounds/textures; custom pack only accepts actual OGG data
+  ---
+  duration_ms: 32.038
+  type: 'test'
+  ...
+# Subtest: external datapack metadata validation rejects empty/non-pack archives
+ok 120 - external datapack metadata validation rejects empty/non-pack archives
+  ---
+  duration_ms: 0.2566
+  type: 'test'
+  ...
+# Subtest: external datapacks above the JS argument-spread limit import without stack overflow
+ok 121 - external datapacks above the JS argument-spread limit import without stack overflow
+  ---
+  duration_ms: 279.8389
+  type: 'test'
+  ...
+# Subtest: 130000-note decoded external structure imports without argument-spread overflow; tick bounds fail explicitly
+ok 122 - 130000-note decoded external structure imports without argument-spread overflow; tick bounds fail explicitly
+  ---
+  duration_ms: 291.9358
+  type: 'test'
+  ...
+# Subtest: blank projects are independent, use four layers, and have sensible NBS defaults
+ok 123 - blank projects are independent, use four layers, and have sensible NBS defaults
+  ---
+  duration_ms: 1.026
+  type: 'test'
+  ...
+# Subtest: ten thousand independent tracks keep their own reverb and note references
+ok 124 - ten thousand independent tracks keep their own reverb and note references
+  ---
+  duration_ms: 24.9678
+  type: 'test'
+  ...
+# Subtest: the original demo contains 128 notes, six instruments, and no overlapping cells
+ok 125 - the original demo contains 128 notes, six instruments, and no overlapping cells
+  ---
+  duration_ms: 1.1844
+  type: 'test'
+  ...
+# Subtest: NBS keys map to MIDI-based note names across all octaves
+ok 126 - NBS keys map to MIDI-based note names across all octaves
+  ---
+  duration_ms: 0.1381
+  type: 'test'
+  ...
+# Subtest: normalization preserves extensions, metadata and custom samples without mutating input
+ok 127 - normalization preserves extensions, metadata and custom samples without mutating input
+  ---
+  duration_ms: 0.2497
+  type: 'test'
+  ...
+# Subtest: array-position layer references remain stable when layer IDs are renumbered
+ok 128 - array-position layer references remain stable when layer IDs are renumbered
+  ---
+  duration_ms: 0.1579
+  type: 'test'
+  ...
+# Subtest: normalization clamps malformed numbers, grows layers, and keeps the last duplicate cell
+ok 129 - normalization clamps malformed numbers, grows layers, and keeps the last duplicate cell
+  ---
+  duration_ms: 0.1914
+  type: 'test'
+  ...
+# Subtest: invalid array shapes and excessive counts fail before copying or iterating
+ok 130 - invalid array shapes and excessive counts fail before copying or iterating
+  ---
+  duration_ms: 3.3349
+  type: 'test'
+  ...
+# Subtest: undo/redo deep clone snapshots, obey the limit and clear abandoned redo branches
+ok 131 - undo/redo deep clone snapshots, obey the limit and clear abandoned redo branches
+  ---
+  duration_ms: 0.2768
+  type: 'test'
+  ...
+# Subtest: history exposes exact depths and adaptively keeps the nearest undo/redo snapshots
+ok 132 - history exposes exact depths and adaptively keeps the nearest undo/redo snapshots
+  ---
+  duration_ms: 0.2572
+  type: 'test'
+  ...
+# Subtest: lowered history limits bound subsequent transfers and preserve valid range
+ok 133 - lowered history limits bound subsequent transfers and preserve valid range
+  ---
+  duration_ms: 0.117
+  type: 'test'
+  ...
+# Subtest: local services require exact same-origin and per-instance token before mutations
+ok 134 - local services require exact same-origin and per-instance token before mutations
+  ---
+  duration_ms: 172.5844
+  type: 'test'
+  ...
+# Subtest: API validates JSON, methods, routes, codec options and declared body bounds
+ok 135 - API validates JSON, methods, routes, codec options and declared body bounds
+  ---
+  duration_ms: 169.9425
+  type: 'test'
+  ...
+# Subtest: only the explicit launch file is available and URL protocol repair preserves URL encoding
+ok 136 - only the explicit launch file is available and URL protocol repair preserves URL encoding
+  ---
+  duration_ms: 176.073
+  type: 'test'
+  ...
+# Subtest: explicit remote song fetch handles bounded redirects and rejects unsupported or credentialed URLs
+ok 137 - explicit remote song fetch handles bounded redirects and rejects unsupported or credentialed URLs
+  ---
+  duration_ms: 240.5385
+  type: 'test'
+  ...
+# Subtest: Discord IPC is opt-in and performs handshake, activity, ping/pong and clear over a real local socket
+ok 138 - Discord IPC is opt-in and performs handshake, activity, ping/pong and clear over a real local socket
+  ---
+  duration_ms: 77.1081
+  type: 'test'
+  ...
+# Subtest: missing Discord IPC reports an actionable error without enabling a background retry
+ok 139 - missing Discord IPC reports an actionable error without enabling a background retry
+  ---
+  duration_ms: 44.2001
+  type: 'test'
+  ...
+# Subtest: available FFmpeg performs real codec conversion of a generated PCM WAV
+ok 140 - available FFmpeg performs real codec conversion of a generated PCM WAV
+  ---
+  duration_ms: 242.8604
+  type: 'test'
+  ...
+# Subtest: FFmpeg permits one export at a time, releases failed uploads and enforces its process timeout
+ok 141 - FFmpeg permits one export at a time, releases failed uploads and enforces its process timeout
+  ---
+  duration_ms: 211.4137
+  type: 'test'
+  ...
+# Subtest: reads actual original bundled NBP v1 fixture, signed pitch and panning
+ok 142 - reads actual original bundled NBP v1 fixture, signed pitch and panning
+  ---
+  duration_ms: 3.6215
+  type: 'test'
+  ...
+# Subtest: selection-code sentinel is recognized only as a layer delta, not a pitch
+ok 143 - selection-code sentinel is recognized only as a layer delta, not a pitch
+  ---
+  duration_ms: 0.1614
+  type: 'test'
+  ...
+# Subtest: native compressed clipboard selection decodes zlib/base64 with and without final NUL
+ok 144 - native compressed clipboard selection decodes zlib/base64 with and without final NUL
+  ---
+  duration_ms: 6.3197
+  type: 'test'
+  ...
+# Subtest: NBP rejects truncated, unknown, inconsistent and malformed data
+ok 145 - NBP rejects truncated, unknown, inconsistent and malformed data
+  ---
+  duration_ms: 0.64
+  type: 'test'
+  ...
+# Subtest: extract and insert are relative, preserve properties, grow layers and protect locked destinations
+ok 146 - extract and insert are relative, preserve properties, grow layers and protect locked destinations
+  ---
+  duration_ms: 2.0312
+  type: 'test'
+  ...
+# Subtest: large layer indices survive NBP code even when native byte-only column hints overflow
+ok 147 - large layer indices survive NBP code even when native byte-only column hints overflow
+  ---
+  duration_ms: 0.1324
+  type: 'test'
+  ...
+# Subtest: POSIX launchers handle spaces, directory links, arbitrary cwd, environment and arguments
+ok 148 - POSIX launchers handle spaces, directory links, arbitrary cwd, environment and arguments # SKIP Set NBS_TEST_SHELL to an existing POSIX shell on Windows.
+  ---
+  duration_ms: 0.4367
+  type: 'test'
+  ...
+# Subtest: portable project stores real WAV PCM and every track reverb with custom references
+ok 149 - portable project stores real WAV PCM and every track reverb with custom references
+  ---
+  duration_ms: 1.5982
+  type: 'test'
+  ...
+# Subtest: sample autosave avoids copies for identical banks and restoration preserves stereo channels
+ok 150 - sample autosave avoids copies for identical banks and restoration preserves stereo channels
+  ---
+  duration_ms: 0.4871
+  type: 'test'
+  ...
+# Subtest: portable projects reject duplicate sample IDs and missing audio before any state change
+ok 151 - portable projects reject duplicate sample IDs and missing audio before any state change
+  ---
+  duration_ms: 0.5057
+  type: 'test'
+  ...
+# Subtest: NBS extension restores independent track reverb and editing state without discarding foreign bytes
+ok 152 - NBS extension restores independent track reverb and editing state without discarding foreign bytes
+  ---
+  duration_ms: 1.7097
+  type: 'test'
+  ...
+# Subtest: standard-only NBS export omits the effect extension and retains native mute behavior
+ok 153 - standard-only NBS export omits the effect extension and retains native mute behavior
+  ---
+  duration_ms: 0.1626
+  type: 'test'
+  ...
+# Subtest: corrupted or unsupported extension is preserved untouched and never partially applies controls
+ok 154 - corrupted or unsupported extension is preserved untouched and never partially applies controls
+  ---
+  duration_ms: 0.1313
+  type: 'test'
+  ...
+# Subtest: ten thousand tracks and per-track effects survive an NBS file roundtrip
+ok 155 - ten thousand tracks and per-track effects survive an NBS file roundtrip
+  ---
+  duration_ms: 30.9057
+  type: 'test'
+  ...
+# Subtest: fatal Worker errors reject outstanding and all subsequent requests without posting again
+ok 156 - fatal Worker errors reject outstanding and all subsequent requests without posting again
+  ---
+  duration_ms: 1.5528
+  type: 'test'
+  ...
+# Subtest: message decoding failure rejects pending work and does not read future files
+ok 157 - message decoding failure rejects pending work and does not read future files
+  ---
+  duration_ms: 0.2676
+  type: 'test'
+  ...
+# Subtest: Worker construction failure becomes a bounded request rejection
+ok 158 - Worker construction failure becomes a bounded request rejection
+  ---
+  duration_ms: 0.2707
+  type: 'test'
+  ...
+# Subtest: a synchronous postMessage failure rejects that request while later requests still work
+ok 159 - a synchronous postMessage failure rejects that request while later requests still work
+  ---
+  duration_ms: 0.7274
+  type: 'test'
+  ...
+# Subtest: ordinary file/storage errors stay request-specific and progress leaves the request open
+ok 160 - ordinary file/storage errors stay request-specific and progress leaves the request open
+  ---
+  duration_ms: 0.3032
+  type: 'test'
+  ...
+# Subtest: server serves the index, scripts and binary assets with correct MIME and lengths
+ok 161 - server serves the index, scripts and binary assets with correct MIME and lengths
+  ---
+  duration_ms: 38.5926
+  type: 'test'
+  ...
+# Subtest: HEAD returns headers without a response body
+ok 162 - HEAD returns headers without a response body
+  ---
+  duration_ms: 2.0956
+  type: 'test'
+  ...
+# Subtest: server accepts local Host values and rejects remote Host values
+ok 163 - server accepts local Host values and rejects remote Host values
+  ---
+  duration_ms: 11.5871
+  type: 'test'
+  ...
+# Subtest: server rejects write methods
+ok 164 - server rejects write methods
+  ---
+  duration_ms: 3.0503
+  type: 'test'
+  ...
+# Subtest: server rejects hidden files, encoded traversal, backslashes and null bytes
+ok 165 - server rejects hidden files, encoded traversal, backslashes and null bytes
+  ---
+  duration_ms: 4.017
+  type: 'test'
+  ...
+# Subtest: server returns 400 for malformed URI encoding and 404 for missing files or directories
+ok 166 - server returns 400 for malformed URI encoding and 404 for missing files or directories
+  ---
+  duration_ms: 3.9821
+  type: 'test'
+  ...
+# Subtest: server refuses a symbolic link or junction pointing outside its root
+ok 167 - server refuses a symbolic link or junction pointing outside its root
+  ---
+  duration_ms: 1.8624
+  type: 'test'
+  ...
+# Subtest: SemVer ordering handles numeric segments, prereleases and build metadata without dependencies
+ok 168 - SemVer ordering handles numeric segments, prereleases and build metadata without dependencies
+  ---
+  duration_ms: 0.8711
+  type: 'test'
+  ...
+# Subtest: default CLI dry-run verifies SHA/changes and writes nothing, including no backup or lock
+ok 169 - default CLI dry-run verifies SHA/changes and writes nothing, including no backup or lock
+  ---
+  duration_ms: 83.3734
+  type: 'test'
+  ...
+# Subtest: apply and rollback restore exact original files, delete additions, and preserve local untracked work
+ok 170 - apply and rollback restore exact original files, delete additions, and preserve local untracked work
+  ---
+  duration_ms: 79.9715
+  type: 'test'
+  ...
+# Subtest: bad payload hashes, unavailable entries, unlisted executable and version mismatch fail before writes
+ok 171 - bad payload hashes, unavailable entries, unlisted executable and version mismatch fail before writes
+  ---
+  duration_ms: 10.3574
+  type: 'test'
+  ...
+# Subtest: ZIP duplicate, traversal, case aliases and symlink entry metadata are rejected
+ok 172 - ZIP duplicate, traversal, case aliases and symlink entry metadata are rejected
+  ---
+  duration_ms: 0.5487
+  type: 'test'
+  ...
+# Subtest: filesystem parent links and a linked backup folder cannot redirect updater writes
+ok 173 - filesystem parent links and a linked backup folder cannot redirect updater writes
+  ---
+  duration_ms: 14.1153
+  type: 'test'
+  ...
+# Subtest: CLI explicit apply and rollback work only on the disposable --root
+ok 174 - CLI explicit apply and rollback work only on the disposable --root
+  ---
+  duration_ms: 250.2073
+  type: 'test'
+  ...
+# Subtest: manifest bounds and reserved paths cannot write into updater metadata
+ok 175 - manifest bounds and reserved paths cannot write into updater metadata
+  ---
+  duration_ms: 24.3486
+  type: 'test'
+  ...
+# Subtest: a mid-apply rename failure compensates every write and keeps verified rollback bytes
+ok 176 - a mid-apply rename failure compensates every write and keeps verified rollback bytes
+  ---
+  duration_ms: 80.8714
+  type: 'test'
+  ...
+# Subtest: staging failure occurs before any public mutation
+ok 177 - staging failure occurs before any public mutation
+  ---
+  duration_ms: 26.711
+  type: 'test'
+  ...
+# Subtest: rollback refuses edited installed files and corrupted backups without changing project bytes
+ok 178 - rollback refuses edited installed files and corrupted backups without changing project bytes
+  ---
+  duration_ms: 47.5164
+  type: 'test'
+  ...
+# Subtest: rollback failure restores the updated project and preserves backup/retry state
+ok 179 - rollback failure restores the updated project and preserves backup/retry state
+  ---
+  duration_ms: 106.3234
+  type: 'test'
+  ...
+# Subtest: rollback compensation failure retains recoverable originals and can be retried
+ok 180 - rollback compensation failure retains recoverable originals and can be retried
+  ---
+  duration_ms: 97.303
+  type: 'test'
+  ...
+1..180
+# tests 180
+# suites 0
+# pass 179
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 4105.0724

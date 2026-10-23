@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "kind": "linux-local-service-validation",
+  "startedAt": "2026-10-23T10:29:34.629Z",
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "kernel": "7.2.9-arch1-1",
+    "node": "v24.11.0",
+    "cpu": "AMD Ryzen 9 9950X3D 16-Core Processor"
+  },
+  "officialNode": {
+    "url": "https://nodejs.org/dist/v24.11.0/node-v24.11.0-linux-x64.tar.xz",
+    "sha256": "46da9a098973ab7ba4fca76945581ecb2eaf468de347173897044382f10e0a0a"
+  },
+  "limitations": [
+    "Headless Linux kernel/server/IPC/codec and desktop-file tests. No Linux desktop browser, audio device, hardware MIDI or real Discord client was tested."
+  ],
+  "server": {
+    "listen": "http://127.0.0.1:37383",
+    "loopbackOnly": true,
+    "headers": {
+      "coop": "same-origin",
+      "coep": "require-corp",
+      "corp": "same-origin"
+    }
+  },
+  "wasm": {
+    "mime": "application/wasm",
+    "bytes": 39275,
+    "sha256": "6a6d3c084c111011d962696927c7d304cc83192ac82418eba4a4ba1a72e7cd79"
+  },
+  "ffmpeg": {
+    "version": "ffmpeg version n9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "path": "/usr/bin/ffmpeg"
+  },
+  "codecs": [
+    {
+      "format": "mp3",
+      "bytes": 3804,
+      "codec_name": "mp3",
+      "sample_rate": "44100",
+      "channels": 2
+    },
+    {
+      "format": "flac",
+      "bytes": 12303,
+      "codec_name": "flac",
+      "sample_rate": "44100",
+      "channels": 2
+    },
+    {
+      "format": "aiff",
+      "bytes": 17694,
+      "codec_name": "pcm_s16be",
+      "sample_rate": "44100",
+      "channels": 2
+    },
+    {
+      "format": "ogg",
+      "bytes": 4581,
+      "codec_name": "vorbis",
+      "sample_rate": "44100",
+      "channels": 2
+    },
+    {
+      "format": "wav",
+      "bytes": 17718,
+      "codec_name": "pcm_s16le",
+      "sample_rate": "44100",
+      "channels": 2
+    }
+  ],
+  "desktop": {
+    "temporaryDataHome": true,
+    "install": true,
+    "uninstall": true,
+    "spacePath": true,
+    "bundledNodeSelectedWithoutPATH": true,
+    "mime": [
+      "nbs",
+      "nbp",
+      "nbpz"
+    ],
+    "changedDefaultAssociations": false
+  },
+  "tests": {
+    "command": "node --test --test-reporter=tap tests/native-services.test.mjs tests/launch.test.mjs tests/posix-launch.test.mjs",
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0
+  },
+  "passed": true,
+  "finishedAt": "2026-10-23T10:29:36.020Z",
+  "serverOutput": "\nNote Block Studio Web\nhttp://127.0.0.1:37383\nLocal computer only. Press Ctrl+C to stop.\n\n"
+}

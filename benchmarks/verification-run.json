@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-23T09:46:00.335004+00:00",
+  "suite": {
+    "command": "node --test --test-reporter=tap tests/*.test.mjs rust/tests/*.test.mjs",
+    "exitCode": 0,
+    "tests": 83,
+    "passed": 82,
+    "failed": 0,
+    "skipped": 1,
+    "durationMs": 2768.4719,
+    "skip": "Optional separately compiled scalar WASM path absent in default suite"
+  },
+  "separateScalarABI": {
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 76.5382
+  },
+  "browserWavExport": {
+    "channels": 2,
+    "sampleRate": 48000,
+    "sampleWidthBytes": 2,
+    "frames": 758400,
+    "seconds": 15.8,
+    "peak": 0.64190673828125,
+    "rms": 0.0747863781339532
+  },
+  "browserNormalPlayback": {
+    "tracks": 6,
+    "reverbTrack1": 65,
+    "liveNoteCountBefore": 128,
+    "liveNoteCountAfter": 129,
+    "underruns": 0,
+    "consoleErrors": []
+  },
+  "browserNbsDownload": {
+    "tracks": 10000,
+    "notes": 10000,
+    "track10000Reverb": 37,
+    "neighborReverb": 99
+  },
+  "browserIndexedDBReload": {
+    "tracks": 10000,
+    "track10000Reverb": 37
+  },
+  "wasm": {
+    "bytes": 39275,
+    "sha256": "6a6d3c084c111011d962696927c7d304cc83192ac82418eba4a4ba1a72e7cd79"
+  }
+}

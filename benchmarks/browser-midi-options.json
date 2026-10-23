@@ -1,0 +1,23 @@
+{
+  "tempo": 80,
+  "notes": [
+    {
+      "id": "n1",
+      "tick": 0,
+      "layer": 0,
+      "key": 63,
+      "instrument": 1,
+      "velocity": 79,
+      "pan": 0,
+      "pitch": 0
+    }
+  ],
+  "customInstruments": [
+    {
+      "name": "V3 Sine",
+      "file": "v3-sine.wav",
+      "key": 45,
+      "pressKey": false
+    }
+  ]
+}

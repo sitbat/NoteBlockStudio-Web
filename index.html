@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f3f3">
+  <meta name="description" content="Note Block Studio 本地音乐编辑器">
+  <title>Note Block Studio</title>
+  <link rel="icon" href="assets/icon.ico">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/native-menus.css">
+</head>
+<body>
+  <div id="boot" class="boot"><strong>Note Block Studio</strong><p>正在打开本地编辑器…</p><p>请通过项目内的 <b>start.bat</b> 启动。</p></div>
+  <div id="app" class="app" hidden>
+    <header class="menu-bar">
+      <nav class="main-menu" aria-label="主菜单">
+        <button id="fileMenuBtn" aria-haspopup="menu" aria-expanded="false">文件<span>F</span></button>
+        <button id="editMenuBtn" aria-haspopup="menu" aria-expanded="false">编辑<span>E</span></button>
+        <button id="viewMenuBtn" aria-haspopup="menu" aria-expanded="false">设置<span>S</span></button>
+        <button id="helpMenuBtn" aria-haspopup="menu" aria-expanded="false">帮助<span>H</span></button>
+      </nav>
+      <button id="songInfoBtn" class="document-tab" title="编辑歌曲信息"><span id="projectTitle">晨光练习</span><small>— Note Block Studio</small></button>
+      <span class="local-label">本地文件</span>
+    </header>
+    <section class="main-toolbar" aria-label="文件、播放与编辑工具">
+      <div class="toolbar-group file-actions">
+        <button id="newBtn" title="新文件（Ctrl+N）" aria-label="新文件"><img src="assets/original/toolbar-light/00-new.png" alt=""></button>
+        <button id="openBtn" title="打开歌曲（Ctrl+O）" aria-label="打开歌曲"><img src="assets/original/toolbar-light/01-open.png" alt=""></button>
+        <button id="saveBtn" title="保存 NBS（Ctrl+S）" aria-label="保存 NBS"><img src="assets/original/toolbar-light/02-save.png" alt=""></button>
+        <button id="exportBtn" title="导出 NBS、MIDI、WAV 或项目" aria-label="导出"><img src="assets/original/toolbar-light/03-save-as.png" alt=""></button>
+      </div>
+      <div class="toolbar-separator"></div>
+      <div class="toolbar-group playback-controls">
+        <button id="playBtn" class="play-button" title="播放 / 暂停（空格）" aria-label="播放"><img src="assets/original/toolbar-light/04-play.png" alt=""></button>
+        <button id="recordMidiBtn" title="MIDI 设备与录制" aria-label="MIDI 录制"><img src="assets/original/toolbar-light/09-record.png" alt=""></button><button id="stopBtn" title="停止歌曲（Esc）" aria-label="停止"><img src="assets/original/toolbar-light/06-stop.png" alt=""></button>
+        <button id="startBtn" title="回到开头（Home）" aria-label="回到开头"><img src="assets/original/toolbar-light/07-back.png" alt=""></button>
+        <button id="loopBtn" title="循环播放（L）" aria-label="循环播放" aria-pressed="false"><img src="assets/original/toolbar-light/50-loop.png" alt=""></button>
+      </div>
+      <div class="toolbar-separator"></div>
+      <div class="editor-toolbar"><div class="toolbar-group tools" role="group" aria-label="编辑工具">
+        <button class="tool active" data-tool="draw" title="画笔（B）" aria-label="画笔" aria-pressed="true"><img src="assets/original/toolbar-light/54-editmode-key.png" alt=""></button>
+        <button class="tool" data-tool="select" title="选择（V）" aria-label="选择" aria-pressed="false"><img class="layer-tool-image" src="assets/original/layer-icons/11-select-layer-light-base.png" alt=""></button>
+        <button class="tool" data-tool="erase" title="橡皮（E）" aria-label="橡皮" aria-pressed="false"><img src="assets/original/toolbar-light/39-delete.png" alt=""></button>
+        <button id="undoBtn" title="撤销（Ctrl+Z）" aria-label="撤销"><img src="assets/original/toolbar-light/29-undo.png" alt=""></button>
+        <button id="redoBtn" title="重做（Ctrl+Shift+Z）" aria-label="重做"><img src="assets/original/toolbar-light/31-redo.png" alt=""></button>
+      </div></div>
+      <div class="toolbar-separator"></div>
+      <section class="instrument-section" aria-label="乐器音色"><div id="instrumentRack" class="instrument-rack"></div><button id="customInstrumentBtn" class="custom-instrument" title="添加本地自定义音色" aria-label="添加自定义音色"><img src="assets/original/layer-icons/12-add-layer-light-base.png" alt=""></button></section>
+      <div class="toolbar-separator"></div>
+      <div class="toolbar-group settings-tools">
+        <button id="propertiesBtn" title="音符属性" aria-label="音符属性" aria-expanded="false" aria-controls="propertiesPanel"><img src="assets/original/toolbar-light/41-properties.png" alt=""></button>
+        <button id="engineSettingsBtn" title="混音与混响设置" aria-label="混音与混响设置"><img src="assets/original/toolbar-light/42-instruments.png" alt=""></button>
+        <button id="performanceBtn" title="播放性能" aria-label="播放性能"><img src="assets/original/toolbar-light/55-editmode-vel.png" alt=""></button>
+        <button id="helpBtn" title="操作指南（?）" aria-label="操作指南"><img src="assets/original/toolbar-light/44-help.png" alt=""></button>
+      </div>
+      <label class="master-volume" title="主音量"><span aria-hidden="true">♪</span><input id="masterVolume" type="range" min="0" max="100" value="75" aria-label="主音量"><span id="volumeLabel">75%</span></label>
+    </section>
+    <main class="workspace"><div class="editor-panel"><div class="timeline-layout">
+      <div class="layer-heading">
+        <div class="time-display"><strong id="timeDisplay">00:00.00</strong><small id="positionDisplay">001 : 01</small></div>
+        <label class="numeric-control tempo-control" title="歌曲速度（ticks/秒）"><input id="tempoInput" type="number" min="0.05" max="655.35" step="0.25" value="10" aria-label="速度 ticks 每秒"><small>t/s</small></label>
+        <label class="numeric-control signature-control" title="每小节拍数"><input id="signatureInput" type="number" min="1" max="16" value="4" aria-label="每小节拍数"><small>拍</small></label>
+        <span class="layer-count" title="音轨数"><b id="layerCount">06</b></span>
+        <button id="addLayerBtn" title="添加音轨" aria-label="添加音轨"><img src="assets/original/layer-icons/12-add-layer-light-base.png" alt=""></button>
+      </div>
+      <div class="ruler-container"><canvas id="ruler" aria-label="点击时间标尺定位"></canvas><div class="grid-options"><label>网格<select id="snapSelect" aria-label="网格吸附"><option value="1">1 tick</option><option value="2">2 ticks</option><option value="4">1 拍</option><option value="8">2 拍</option></select></label><button id="zoomOutBtn" aria-label="缩小" title="缩小">−</button><span id="zoomLabel">100%</span><button id="zoomInBtn" aria-label="放大" title="放大">+</button><button id="fitBtn" class="small-button" title="缩放至整曲">适合</button></div></div>
+      <div id="layerPane" class="layer-pane"><div id="layerStack"></div></div>
+      <div id="gridScroll" class="grid-scroll" tabindex="0" role="application" aria-label="音符时间网格，画笔点击添加音符，右键删除"><div id="gridSpacer" class="grid-spacer"></div></div>
+      <canvas id="grid" class="grid-canvas" aria-hidden="true"></canvas>
+    </div><div class="overview" id="overview"><canvas id="overviewCanvas"></canvas></div></div></main>
+    <section class="keyboard-panel">
+      <div class="keyboard-heading"><span id="activeInstrumentLabel">竖琴 · Harp</span><label class="demo-picker"><select id="demoSelect" aria-label="打开示例曲"><option value="">打开示例曲…</option><option value="welcome">晨光练习</option><option value="10000-tracks.nbs">10,000 轨编辑示例</option><option value="Nyan Cat.nbs">Nyan Cat</option><option value="Turkish March.nbs">Turkish March</option><option value="The Ground's Colour Is Yellow.nbs">The Ground's Colour Is Yellow</option><option value="Megalovania - Super Smash Bros. Ultimate.nbs">Megalovania</option></select></label><div class="octave-controls"><button id="octaveDownBtn" aria-label="降低键盘八度" title="降低八度">◀</button><span id="octaveLabel">C3 — B5</span><button id="octaveUpBtn" aria-label="提高键盘八度" title="提高八度">▶</button></div></div>
+      <div id="piano" class="piano" aria-label="点击琴键选择音高并试听"></div>
+    </section>
+    <footer class="status-bar"><span id="statusText">准备就绪</span><span id="projectCaption">6 条音轨 · 128 个音符</span><span id="songStats">128 notes</span><span id="saveState">已保存在此浏览器</span><span id="engineStats" title="点击工具栏的播放性能查看详情">准备就绪</span></footer>
+  </div>
+  <aside id="propertiesPanel" class="inspector is-hidden" aria-label="音符属性">
+    <div class="inspector-heading"><strong>音符属性</strong><span id="selectionBadge" class="count-badge">0</span><button id="closePropertiesBtn" aria-label="关闭音符属性">×</button></div>
+    <p id="selectionHint" class="inspector-hint">设置下一颗音符，或选择网格中的音符。</p>
+    <div class="pitch-preview"><span id="pitchName">F♯4</span><div class="pitch-stepper"><button id="pitchDownBtn" aria-label="音高降低">−</button><input id="keyInput" type="number" min="0" max="87" value="45" aria-label="NBS 音高"><button id="pitchUpBtn" aria-label="音高升高">+</button></div></div>
+    <label class="inspector-field">乐器<select id="noteInstrument"></select></label>
+    <label class="inspector-field">力度<span id="velocityValue">100%</span><input id="velocityInput" type="range" min="0" max="100" value="100"></label>
+    <label class="inspector-field">声像<span id="panValue">居中</span><input id="panInput" type="range" min="-100" max="100" value="0"></label>
+    <label class="inspector-field inline-field">微调音高<div><input id="finePitchInput" type="number" min="-1200" max="1200" value="0"><small>cents</small></div></label>
+    <button id="previewNoteBtn" class="outline-button">试听音符</button>
+    <div class="selection-actions"><button id="duplicateBtn" title="复制到后方（Ctrl+D）">重复</button><button id="deleteBtn" title="删除所选（Delete）">删除</button></div>
+  </aside>
+  <input id="fileInput" type="file" accept=".nbs,.mid,.midi,.json,.nbp,.nbpz,.zip" hidden>
+  <input id="sampleInput" type="file" accept="audio/*,.ogg,.wav,.mp3,.flac" hidden>
+  <dialog id="modal"><div id="modalContent"></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="dropOverlay" class="drop-overlay" hidden><img src="assets/original/toolbar-light/01-open.png" alt=""><h2>将曲谱拖到这里</h2><p>NBS · MIDI · 项目 JSON</p></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

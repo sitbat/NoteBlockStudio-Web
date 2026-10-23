@@ -1,0 +1,50 @@
+# Local build/cache output
+node_modules/
+target/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Platform dependencies are downloaded separately; keep licenses/provenance.
+/runtime/*/bin/
+/runtime/*/node
+/runtime/*/node.exe
+/runtime/*/ffmpeg
+/runtime/*/ffmpeg.exe
+/runtime/*/ffprobe
+/runtime/*/ffprobe.exe
+/runtime/.downloads/
+/runtime/.runtime-backups/
+/runtime/.setup-*/
+
+# Generated release packages and installed-release metadata
+/release-manifest.json
+/*.zip
+/*.tar.gz
+/dist/
+/.update-backups/
+/.update-lock
+/.update-stage-*/
+
+# Local songs, credentials and scratch data
+/work/
+/tmp/
+/projects/
+/exports/
+/backups/
+/*.nbs
+/*.nbp
+/*.nbpz
+/*.mid
+/*.midi
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+/benchmarks/local-*

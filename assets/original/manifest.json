@@ -1,0 +1,3504 @@
+{
+  "sourceRoot": "NoteBlockStudio (provided source archive)",
+  "extractedFrom": "Local supplied source only; PNG composite frames copied byte-for-byte, no native code executed.",
+  "order": "GameMaker sequence frame track sorted by Key; UUIDs must never be sorted alphabetically.",
+  "toolbarEnum": {
+    "new": 0,
+    "open": 1,
+    "save": 2,
+    "save-as": 3,
+    "play": 4,
+    "pause": 5,
+    "stop": 6,
+    "back": 7,
+    "forward": 8,
+    "record": 9,
+    "ins-1": 10,
+    "ins-2": 11,
+    "ins-3": 12,
+    "ins-4": 13,
+    "ins-5": 14,
+    "ins-6": 15,
+    "ins-7": 16,
+    "ins-8": 17,
+    "ins-9": 18,
+    "ins-10": 19,
+    "ins-11": 20,
+    "ins-12": 21,
+    "ins-13": 22,
+    "ins-14": 23,
+    "ins-15": 24,
+    "ins-16": 25,
+    "custom-ins-base": 26,
+    "custom-ins-overlay": 27,
+    "undo-inactive": 28,
+    "undo": 29,
+    "redo-inactive": 30,
+    "redo": 31,
+    "copy-inactive": 32,
+    "copy": 33,
+    "cut-inactive": 34,
+    "cut": 35,
+    "paste-inactive": 36,
+    "paste": 37,
+    "delete-inactive": 38,
+    "delete": 39,
+    "information": 40,
+    "properties": 41,
+    "instruments": 42,
+    "midi-input": 43,
+    "help": 44,
+    "internet": 45,
+    "check": 46,
+    "sub-menu": 47,
+    "check-inactive": 48,
+    "loop-inactive": 49,
+    "loop": 50,
+    "metronome-inactive": 51,
+    "metronome-1": 52,
+    "metronome-2": 53,
+    "editmode-key": 54,
+    "editmode-vel": 55,
+    "editmode-pan": 56,
+    "editmode-pit": 57,
+    "insbox-expand": 58,
+    "insbox-collapse": 59
+  },
+  "families": {
+    "toolbar-light": {
+      "sprite": "spr_icons_f_hires",
+      "count": 60,
+      "width": 100,
+      "height": 100,
+      "cssScale": 0.25,
+      "cssWidth": 25,
+      "cssHeight": 25,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "toolbar-dark": {
+      "sprite": "spr_icons_d_hires",
+      "count": 60,
+      "width": 100,
+      "height": 100,
+      "cssScale": 0.25,
+      "cssWidth": 25,
+      "cssHeight": 25,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "toolbar-accent-mask": {
+      "sprite": "spr_icons_col_hires",
+      "count": 60,
+      "width": 100,
+      "height": 100,
+      "cssScale": 0.25,
+      "cssWidth": 25,
+      "cssHeight": 25,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "layer-icons": {
+      "sprite": "spr_layericons_f_hires",
+      "count": 27,
+      "width": 64,
+      "height": 64,
+      "cssScale": 0.25,
+      "cssWidth": 16,
+      "cssHeight": 16,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "macros": {
+      "sprite": "spr_macroicons_hires",
+      "count": 15,
+      "width": 64,
+      "height": 64,
+      "cssScale": 0.25,
+      "cssWidth": 16,
+      "cssHeight": 16,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "note-blocks": {
+      "sprite": "spr_block_color",
+      "count": 34,
+      "width": 32,
+      "height": 32,
+      "cssScale": 1,
+      "cssWidth": 32,
+      "cssHeight": 32,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "instrument-glyphs": {
+      "sprite": "spr_instrumenticons",
+      "count": 17,
+      "width": 16,
+      "height": 16,
+      "cssScale": 1,
+      "cssWidth": 16,
+      "cssHeight": 16,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "piano-normal": {
+      "sprite": "spr_piano",
+      "count": 15,
+      "width": 40,
+      "height": 121,
+      "cssScale": 1,
+      "cssWidth": 40,
+      "cssHeight": 121,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "piano-hires": {
+      "sprite": "spr_piano_hires",
+      "count": 15,
+      "width": 160,
+      "height": 484,
+      "cssScale": 0.25,
+      "cssWidth": 40,
+      "cssHeight": 121,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "layer-background": {
+      "sprite": "spr_layerbox",
+      "count": 4,
+      "width": 256,
+      "height": 34,
+      "cssScale": 1,
+      "cssWidth": 256,
+      "cssHeight": 34,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "ruler-background": {
+      "sprite": "spr_timeline",
+      "count": 3,
+      "width": 1,
+      "height": 32,
+      "cssScale": 1,
+      "cssWidth": 1,
+      "cssHeight": 32,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "tempo-box": {
+      "sprite": "spr_tempobox_hires",
+      "count": 6,
+      "width": 296,
+      "height": 88,
+      "cssScale": 0.25,
+      "cssWidth": 74,
+      "cssHeight": 22,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "toolbar-button-background": {
+      "sprite": "spr_frame1_hires",
+      "count": 6,
+      "width": 100,
+      "height": 92,
+      "cssScale": 0.25,
+      "cssWidth": 25,
+      "cssHeight": 23,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "layer-button-background": {
+      "sprite": "spr_frame4_hires",
+      "count": 6,
+      "width": 64,
+      "height": 64,
+      "cssScale": 0.25,
+      "cssWidth": 16,
+      "cssHeight": 16,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "markers": {
+      "sprite": "spr_marker",
+      "count": 11,
+      "width": 16,
+      "height": 15,
+      "cssScale": 1,
+      "cssWidth": 16,
+      "cssHeight": 15,
+      "origin": [
+        8,
+        0
+      ]
+    },
+    "selection-overlay": {
+      "sprite": "spr_block_sel",
+      "count": 1,
+      "width": 32,
+      "height": 32,
+      "cssScale": 1,
+      "cssWidth": 32,
+      "cssHeight": 32,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "lock-overlay": {
+      "sprite": "spr_lock",
+      "count": 1,
+      "width": 32,
+      "height": 32,
+      "cssScale": 1,
+      "cssWidth": 32,
+      "cssHeight": 32,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "volume-meter": {
+      "sprite": "spr_volume_f_hires",
+      "count": 6,
+      "width": 48,
+      "height": 40,
+      "cssScale": 0.25,
+      "cssWidth": 12,
+      "cssHeight": 10,
+      "origin": [
+        0,
+        0
+      ]
+    },
+    "stereo-meter": {
+      "sprite": "spr_stereo_f_hires",
+      "count": 7,
+      "width": 48,
+      "height": 40,
+      "cssScale": 0.25,
+      "cssWidth": 12,
+      "cssHeight": 10,
+      "origin": [
+        0,
+        0
+      ]
+    }
+  },
+  "assets": [
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 0,
+      "meaning": "new",
+      "file": "toolbar-light/00-new.png",
+      "source": "sprites/spr_icons_f_hires/881410d0-3505-4582-bff0-def20278bf72.png",
+      "uuid": "881410d0-3505-4582-bff0-def20278bf72"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 1,
+      "meaning": "open",
+      "file": "toolbar-light/01-open.png",
+      "source": "sprites/spr_icons_f_hires/0430e910-87cd-4835-9305-0a7a244bddc7.png",
+      "uuid": "0430e910-87cd-4835-9305-0a7a244bddc7"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 2,
+      "meaning": "save",
+      "file": "toolbar-light/02-save.png",
+      "source": "sprites/spr_icons_f_hires/8e91ea6a-9075-49b7-8c66-b5b4307575ec.png",
+      "uuid": "8e91ea6a-9075-49b7-8c66-b5b4307575ec"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 3,
+      "meaning": "save-as",
+      "file": "toolbar-light/03-save-as.png",
+      "source": "sprites/spr_icons_f_hires/b12d207c-a84e-4aa6-b095-51fd15a9ff39.png",
+      "uuid": "b12d207c-a84e-4aa6-b095-51fd15a9ff39"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 4,
+      "meaning": "play",
+      "file": "toolbar-light/04-play.png",
+      "source": "sprites/spr_icons_f_hires/ba7c821b-8fbd-4ea2-90c8-6d602059eda0.png",
+      "uuid": "ba7c821b-8fbd-4ea2-90c8-6d602059eda0"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 5,
+      "meaning": "pause",
+      "file": "toolbar-light/05-pause.png",
+      "source": "sprites/spr_icons_f_hires/a6e1d514-d825-4f78-8ddd-3298ec4461f8.png",
+      "uuid": "a6e1d514-d825-4f78-8ddd-3298ec4461f8"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 6,
+      "meaning": "stop",
+      "file": "toolbar-light/06-stop.png",
+      "source": "sprites/spr_icons_f_hires/7a82915d-23c7-472b-a8ed-17cb0ebe2f71.png",
+      "uuid": "7a82915d-23c7-472b-a8ed-17cb0ebe2f71"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 7,
+      "meaning": "back",
+      "file": "toolbar-light/07-back.png",
+      "source": "sprites/spr_icons_f_hires/a15ee684-1579-47e6-a0b8-c6b313282633.png",
+      "uuid": "a15ee684-1579-47e6-a0b8-c6b313282633"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 8,
+      "meaning": "forward",
+      "file": "toolbar-light/08-forward.png",
+      "source": "sprites/spr_icons_f_hires/124322de-52f0-4f81-abfe-bbea41e13e7f.png",
+      "uuid": "124322de-52f0-4f81-abfe-bbea41e13e7f"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 9,
+      "meaning": "record",
+      "file": "toolbar-light/09-record.png",
+      "source": "sprites/spr_icons_f_hires/19352047-3b81-4206-88ff-e28027a2e92b.png",
+      "uuid": "19352047-3b81-4206-88ff-e28027a2e92b"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 10,
+      "meaning": "ins-1",
+      "file": "toolbar-light/10-ins-1.png",
+      "source": "sprites/spr_icons_f_hires/5d602a56-5154-4924-97ae-3d5b6d515c4d.png",
+      "uuid": "5d602a56-5154-4924-97ae-3d5b6d515c4d"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 11,
+      "meaning": "ins-2",
+      "file": "toolbar-light/11-ins-2.png",
+      "source": "sprites/spr_icons_f_hires/b2fc7fba-c6df-45c5-ae6d-7733c3d297e6.png",
+      "uuid": "b2fc7fba-c6df-45c5-ae6d-7733c3d297e6"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 12,
+      "meaning": "ins-3",
+      "file": "toolbar-light/12-ins-3.png",
+      "source": "sprites/spr_icons_f_hires/792828f4-b6f4-4710-9f15-9cf1757169bc.png",
+      "uuid": "792828f4-b6f4-4710-9f15-9cf1757169bc"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 13,
+      "meaning": "ins-4",
+      "file": "toolbar-light/13-ins-4.png",
+      "source": "sprites/spr_icons_f_hires/b9c73f60-236a-44d9-a155-1ac6bfa2c0f0.png",
+      "uuid": "b9c73f60-236a-44d9-a155-1ac6bfa2c0f0"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 14,
+      "meaning": "ins-5",
+      "file": "toolbar-light/14-ins-5.png",
+      "source": "sprites/spr_icons_f_hires/6d228a7d-dc86-436e-b769-bc9b060e69f4.png",
+      "uuid": "6d228a7d-dc86-436e-b769-bc9b060e69f4"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 15,
+      "meaning": "ins-6",
+      "file": "toolbar-light/15-ins-6.png",
+      "source": "sprites/spr_icons_f_hires/d53eeb02-d4c0-4a97-bb54-0011f46af692.png",
+      "uuid": "d53eeb02-d4c0-4a97-bb54-0011f46af692"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 16,
+      "meaning": "ins-7",
+      "file": "toolbar-light/16-ins-7.png",
+      "source": "sprites/spr_icons_f_hires/ceb5d9da-f916-4526-9047-bd5d02a0b460.png",
+      "uuid": "ceb5d9da-f916-4526-9047-bd5d02a0b460"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 17,
+      "meaning": "ins-8",
+      "file": "toolbar-light/17-ins-8.png",
+      "source": "sprites/spr_icons_f_hires/2aff132d-b7a9-4d7d-9eaa-6ef6b1bc8e33.png",
+      "uuid": "2aff132d-b7a9-4d7d-9eaa-6ef6b1bc8e33"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 18,
+      "meaning": "ins-9",
+      "file": "toolbar-light/18-ins-9.png",
+      "source": "sprites/spr_icons_f_hires/47746641-7112-44fc-bd60-646cdb6d00ba.png",
+      "uuid": "47746641-7112-44fc-bd60-646cdb6d00ba"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 19,
+      "meaning": "ins-10",
+      "file": "toolbar-light/19-ins-10.png",
+      "source": "sprites/spr_icons_f_hires/22c581f9-b78c-4874-aa54-96669d4522ff.png",
+      "uuid": "22c581f9-b78c-4874-aa54-96669d4522ff"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 20,
+      "meaning": "ins-11",
+      "file": "toolbar-light/20-ins-11.png",
+      "source": "sprites/spr_icons_f_hires/05fb7959-c839-4145-8d19-9f5feae3e500.png",
+      "uuid": "05fb7959-c839-4145-8d19-9f5feae3e500"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 21,
+      "meaning": "ins-12",
+      "file": "toolbar-light/21-ins-12.png",
+      "source": "sprites/spr_icons_f_hires/95872c11-c097-4c60-83f3-68686c0d2381.png",
+      "uuid": "95872c11-c097-4c60-83f3-68686c0d2381"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 22,
+      "meaning": "ins-13",
+      "file": "toolbar-light/22-ins-13.png",
+      "source": "sprites/spr_icons_f_hires/0f14d725-2410-4776-85e5-0ce7b9a41184.png",
+      "uuid": "0f14d725-2410-4776-85e5-0ce7b9a41184"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 23,
+      "meaning": "ins-14",
+      "file": "toolbar-light/23-ins-14.png",
+      "source": "sprites/spr_icons_f_hires/6aafec79-330a-48bf-b278-bd5b40db91bb.png",
+      "uuid": "6aafec79-330a-48bf-b278-bd5b40db91bb"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 24,
+      "meaning": "ins-15",
+      "file": "toolbar-light/24-ins-15.png",
+      "source": "sprites/spr_icons_f_hires/6e1e6bab-b014-48e4-bfb5-48267aa7479f.png",
+      "uuid": "6e1e6bab-b014-48e4-bfb5-48267aa7479f"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 25,
+      "meaning": "ins-16",
+      "file": "toolbar-light/25-ins-16.png",
+      "source": "sprites/spr_icons_f_hires/1599a33d-5efd-4fc7-ad43-9271821d016f.png",
+      "uuid": "1599a33d-5efd-4fc7-ad43-9271821d016f"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 26,
+      "meaning": "custom-ins-base",
+      "file": "toolbar-light/26-custom-ins-base.png",
+      "source": "sprites/spr_icons_f_hires/7c21461e-e635-4c5a-a312-64b996601173.png",
+      "uuid": "7c21461e-e635-4c5a-a312-64b996601173"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 27,
+      "meaning": "custom-ins-overlay",
+      "file": "toolbar-light/27-custom-ins-overlay.png",
+      "source": "sprites/spr_icons_f_hires/bdd78d3b-9fd3-41e3-9f53-2eeb19f04dbd.png",
+      "uuid": "bdd78d3b-9fd3-41e3-9f53-2eeb19f04dbd"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 28,
+      "meaning": "undo-inactive",
+      "file": "toolbar-light/28-undo-inactive.png",
+      "source": "sprites/spr_icons_f_hires/43a06df6-5b89-400d-a0b9-33f468cd0f48.png",
+      "uuid": "43a06df6-5b89-400d-a0b9-33f468cd0f48"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 29,
+      "meaning": "undo",
+      "file": "toolbar-light/29-undo.png",
+      "source": "sprites/spr_icons_f_hires/5fc2ca29-5236-47d5-a12a-d2407c06dbae.png",
+      "uuid": "5fc2ca29-5236-47d5-a12a-d2407c06dbae"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 30,
+      "meaning": "redo-inactive",
+      "file": "toolbar-light/30-redo-inactive.png",
+      "source": "sprites/spr_icons_f_hires/888a7c77-822d-4514-840a-ab90d1343f71.png",
+      "uuid": "888a7c77-822d-4514-840a-ab90d1343f71"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 31,
+      "meaning": "redo",
+      "file": "toolbar-light/31-redo.png",
+      "source": "sprites/spr_icons_f_hires/789631e6-052d-4ce4-ae3f-fa12e7fc363d.png",
+      "uuid": "789631e6-052d-4ce4-ae3f-fa12e7fc363d"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 32,
+      "meaning": "copy-inactive",
+      "file": "toolbar-light/32-copy-inactive.png",
+      "source": "sprites/spr_icons_f_hires/3b34529a-137d-4587-bbe1-6f581eb34ec0.png",
+      "uuid": "3b34529a-137d-4587-bbe1-6f581eb34ec0"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 33,
+      "meaning": "copy",
+      "file": "toolbar-light/33-copy.png",
+      "source": "sprites/spr_icons_f_hires/7d1eed6f-44f5-4605-a3a8-e2050b2297da.png",
+      "uuid": "7d1eed6f-44f5-4605-a3a8-e2050b2297da"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 34,
+      "meaning": "cut-inactive",
+      "file": "toolbar-light/34-cut-inactive.png",
+      "source": "sprites/spr_icons_f_hires/607e8248-53ea-4e1f-9f57-6fd558ee4626.png",
+      "uuid": "607e8248-53ea-4e1f-9f57-6fd558ee4626"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 35,
+      "meaning": "cut",
+      "file": "toolbar-light/35-cut.png",
+      "source": "sprites/spr_icons_f_hires/f4905b71-5b90-4f64-bf67-89bf4421f3b0.png",
+      "uuid": "f4905b71-5b90-4f64-bf67-89bf4421f3b0"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 36,
+      "meaning": "paste-inactive",
+      "file": "toolbar-light/36-paste-inactive.png",
+      "source": "sprites/spr_icons_f_hires/5d862d3b-065b-4f8b-b927-de1606fd6e11.png",
+      "uuid": "5d862d3b-065b-4f8b-b927-de1606fd6e11"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 37,
+      "meaning": "paste",
+      "file": "toolbar-light/37-paste.png",
+      "source": "sprites/spr_icons_f_hires/649601e9-282e-40df-8c21-956e60b47b2a.png",
+      "uuid": "649601e9-282e-40df-8c21-956e60b47b2a"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 38,
+      "meaning": "delete-inactive",
+      "file": "toolbar-light/38-delete-inactive.png",
+      "source": "sprites/spr_icons_f_hires/fc03df9f-c066-4ccf-af38-a9d003c9dd9d.png",
+      "uuid": "fc03df9f-c066-4ccf-af38-a9d003c9dd9d"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 39,
+      "meaning": "delete",
+      "file": "toolbar-light/39-delete.png",
+      "source": "sprites/spr_icons_f_hires/e97e6d16-3109-40a7-b90c-32a332324b9f.png",
+      "uuid": "e97e6d16-3109-40a7-b90c-32a332324b9f"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 40,
+      "meaning": "information",
+      "file": "toolbar-light/40-information.png",
+      "source": "sprites/spr_icons_f_hires/f03d0884-0261-41f4-8456-993ca2947358.png",
+      "uuid": "f03d0884-0261-41f4-8456-993ca2947358"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 41,
+      "meaning": "properties",
+      "file": "toolbar-light/41-properties.png",
+      "source": "sprites/spr_icons_f_hires/64ad350d-4358-439b-86f1-a6dc12c35b86.png",
+      "uuid": "64ad350d-4358-439b-86f1-a6dc12c35b86"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 42,
+      "meaning": "instruments",
+      "file": "toolbar-light/42-instruments.png",
+      "source": "sprites/spr_icons_f_hires/f3c3d6fe-f3ab-4df9-a79f-e54c1e783ff6.png",
+      "uuid": "f3c3d6fe-f3ab-4df9-a79f-e54c1e783ff6"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 43,
+      "meaning": "midi-input",
+      "file": "toolbar-light/43-midi-input.png",
+      "source": "sprites/spr_icons_f_hires/9618b0fd-4ce9-476f-8792-d1c57b4bfa7f.png",
+      "uuid": "9618b0fd-4ce9-476f-8792-d1c57b4bfa7f"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 44,
+      "meaning": "help",
+      "file": "toolbar-light/44-help.png",
+      "source": "sprites/spr_icons_f_hires/907de300-92db-4ab3-877d-8d45c19084b4.png",
+      "uuid": "907de300-92db-4ab3-877d-8d45c19084b4"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 45,
+      "meaning": "internet",
+      "file": "toolbar-light/45-internet.png",
+      "source": "sprites/spr_icons_f_hires/ece0fcf1-7a4d-4aa4-bb42-7a8f0f226be2.png",
+      "uuid": "ece0fcf1-7a4d-4aa4-bb42-7a8f0f226be2"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 46,
+      "meaning": "check",
+      "file": "toolbar-light/46-check.png",
+      "source": "sprites/spr_icons_f_hires/ee31b756-1e12-4388-9b8f-785f5f03f8d9.png",
+      "uuid": "ee31b756-1e12-4388-9b8f-785f5f03f8d9"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 47,
+      "meaning": "sub-menu",
+      "file": "toolbar-light/47-sub-menu.png",
+      "source": "sprites/spr_icons_f_hires/96ee2a7d-16c6-4e14-be75-f61ba18c4486.png",
+      "uuid": "96ee2a7d-16c6-4e14-be75-f61ba18c4486"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 48,
+      "meaning": "check-inactive",
+      "file": "toolbar-light/48-check-inactive.png",
+      "source": "sprites/spr_icons_f_hires/6fa478c9-631a-4155-86e5-31ac944329af.png",
+      "uuid": "6fa478c9-631a-4155-86e5-31ac944329af"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 49,
+      "meaning": "loop-inactive",
+      "file": "toolbar-light/49-loop-inactive.png",
+      "source": "sprites/spr_icons_f_hires/8a685344-d1be-4800-be22-ad67a6638cf7.png",
+      "uuid": "8a685344-d1be-4800-be22-ad67a6638cf7"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 50,
+      "meaning": "loop",
+      "file": "toolbar-light/50-loop.png",
+      "source": "sprites/spr_icons_f_hires/7b9c20d5-6900-4dda-8707-fa03fcbd56d1.png",
+      "uuid": "7b9c20d5-6900-4dda-8707-fa03fcbd56d1"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 51,
+      "meaning": "metronome-inactive",
+      "file": "toolbar-light/51-metronome-inactive.png",
+      "source": "sprites/spr_icons_f_hires/2664a8bc-811c-4fa8-babf-5a318a60aeca.png",
+      "uuid": "2664a8bc-811c-4fa8-babf-5a318a60aeca"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 52,
+      "meaning": "metronome-1",
+      "file": "toolbar-light/52-metronome-1.png",
+      "source": "sprites/spr_icons_f_hires/1c0130a5-69f8-4fb0-b58b-13084a475bbc.png",
+      "uuid": "1c0130a5-69f8-4fb0-b58b-13084a475bbc"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 53,
+      "meaning": "metronome-2",
+      "file": "toolbar-light/53-metronome-2.png",
+      "source": "sprites/spr_icons_f_hires/6edf73cb-96e4-453f-bd1e-66ee648698bf.png",
+      "uuid": "6edf73cb-96e4-453f-bd1e-66ee648698bf"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 54,
+      "meaning": "editmode-key",
+      "file": "toolbar-light/54-editmode-key.png",
+      "source": "sprites/spr_icons_f_hires/1d240ef8-0c92-4d08-965d-fa4200bf79af.png",
+      "uuid": "1d240ef8-0c92-4d08-965d-fa4200bf79af"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 55,
+      "meaning": "editmode-vel",
+      "file": "toolbar-light/55-editmode-vel.png",
+      "source": "sprites/spr_icons_f_hires/9b5217c4-489f-4eb8-ba1d-090cd4dd9696.png",
+      "uuid": "9b5217c4-489f-4eb8-ba1d-090cd4dd9696"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 56,
+      "meaning": "editmode-pan",
+      "file": "toolbar-light/56-editmode-pan.png",
+      "source": "sprites/spr_icons_f_hires/91c5ba64-fecc-454c-ad74-78a4de744b63.png",
+      "uuid": "91c5ba64-fecc-454c-ad74-78a4de744b63"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 57,
+      "meaning": "editmode-pit",
+      "file": "toolbar-light/57-editmode-pit.png",
+      "source": "sprites/spr_icons_f_hires/ddd30f32-abcf-4e3d-a575-470513463367.png",
+      "uuid": "ddd30f32-abcf-4e3d-a575-470513463367"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 58,
+      "meaning": "insbox-expand",
+      "file": "toolbar-light/58-insbox-expand.png",
+      "source": "sprites/spr_icons_f_hires/72f9ab59-e69e-43a7-b509-ff1726a508b2.png",
+      "uuid": "72f9ab59-e69e-43a7-b509-ff1726a508b2"
+    },
+    {
+      "family": "toolbar-light",
+      "sprite": "spr_icons_f_hires",
+      "frame": 59,
+      "meaning": "insbox-collapse",
+      "file": "toolbar-light/59-insbox-collapse.png",
+      "source": "sprites/spr_icons_f_hires/ce1e0863-d76c-42ce-8bcd-40886dad2161.png",
+      "uuid": "ce1e0863-d76c-42ce-8bcd-40886dad2161"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 0,
+      "meaning": "new",
+      "file": "toolbar-dark/00-new.png",
+      "source": "sprites/spr_icons_d_hires/881410d0-3505-4582-bff0-def20278bf72.png",
+      "uuid": "881410d0-3505-4582-bff0-def20278bf72"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 1,
+      "meaning": "open",
+      "file": "toolbar-dark/01-open.png",
+      "source": "sprites/spr_icons_d_hires/0430e910-87cd-4835-9305-0a7a244bddc7.png",
+      "uuid": "0430e910-87cd-4835-9305-0a7a244bddc7"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 2,
+      "meaning": "save",
+      "file": "toolbar-dark/02-save.png",
+      "source": "sprites/spr_icons_d_hires/8e91ea6a-9075-49b7-8c66-b5b4307575ec.png",
+      "uuid": "8e91ea6a-9075-49b7-8c66-b5b4307575ec"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 3,
+      "meaning": "save-as",
+      "file": "toolbar-dark/03-save-as.png",
+      "source": "sprites/spr_icons_d_hires/b12d207c-a84e-4aa6-b095-51fd15a9ff39.png",
+      "uuid": "b12d207c-a84e-4aa6-b095-51fd15a9ff39"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 4,
+      "meaning": "play",
+      "file": "toolbar-dark/04-play.png",
+      "source": "sprites/spr_icons_d_hires/ba7c821b-8fbd-4ea2-90c8-6d602059eda0.png",
+      "uuid": "ba7c821b-8fbd-4ea2-90c8-6d602059eda0"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 5,
+      "meaning": "pause",
+      "file": "toolbar-dark/05-pause.png",
+      "source": "sprites/spr_icons_d_hires/a6e1d514-d825-4f78-8ddd-3298ec4461f8.png",
+      "uuid": "a6e1d514-d825-4f78-8ddd-3298ec4461f8"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 6,
+      "meaning": "stop",
+      "file": "toolbar-dark/06-stop.png",
+      "source": "sprites/spr_icons_d_hires/7a82915d-23c7-472b-a8ed-17cb0ebe2f71.png",
+      "uuid": "7a82915d-23c7-472b-a8ed-17cb0ebe2f71"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 7,
+      "meaning": "back",
+      "file": "toolbar-dark/07-back.png",
+      "source": "sprites/spr_icons_d_hires/a15ee684-1579-47e6-a0b8-c6b313282633.png",
+      "uuid": "a15ee684-1579-47e6-a0b8-c6b313282633"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 8,
+      "meaning": "forward",
+      "file": "toolbar-dark/08-forward.png",
+      "source": "sprites/spr_icons_d_hires/124322de-52f0-4f81-abfe-bbea41e13e7f.png",
+      "uuid": "124322de-52f0-4f81-abfe-bbea41e13e7f"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 9,
+      "meaning": "record",
+      "file": "toolbar-dark/09-record.png",
+      "source": "sprites/spr_icons_d_hires/19352047-3b81-4206-88ff-e28027a2e92b.png",
+      "uuid": "19352047-3b81-4206-88ff-e28027a2e92b"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 10,
+      "meaning": "ins-1",
+      "file": "toolbar-dark/10-ins-1.png",
+      "source": "sprites/spr_icons_d_hires/5d602a56-5154-4924-97ae-3d5b6d515c4d.png",
+      "uuid": "5d602a56-5154-4924-97ae-3d5b6d515c4d"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 11,
+      "meaning": "ins-2",
+      "file": "toolbar-dark/11-ins-2.png",
+      "source": "sprites/spr_icons_d_hires/b2fc7fba-c6df-45c5-ae6d-7733c3d297e6.png",
+      "uuid": "b2fc7fba-c6df-45c5-ae6d-7733c3d297e6"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 12,
+      "meaning": "ins-3",
+      "file": "toolbar-dark/12-ins-3.png",
+      "source": "sprites/spr_icons_d_hires/792828f4-b6f4-4710-9f15-9cf1757169bc.png",
+      "uuid": "792828f4-b6f4-4710-9f15-9cf1757169bc"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 13,
+      "meaning": "ins-4",
+      "file": "toolbar-dark/13-ins-4.png",
+      "source": "sprites/spr_icons_d_hires/b9c73f60-236a-44d9-a155-1ac6bfa2c0f0.png",
+      "uuid": "b9c73f60-236a-44d9-a155-1ac6bfa2c0f0"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 14,
+      "meaning": "ins-5",
+      "file": "toolbar-dark/14-ins-5.png",
+      "source": "sprites/spr_icons_d_hires/6d228a7d-dc86-436e-b769-bc9b060e69f4.png",
+      "uuid": "6d228a7d-dc86-436e-b769-bc9b060e69f4"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 15,
+      "meaning": "ins-6",
+      "file": "toolbar-dark/15-ins-6.png",
+      "source": "sprites/spr_icons_d_hires/d53eeb02-d4c0-4a97-bb54-0011f46af692.png",
+      "uuid": "d53eeb02-d4c0-4a97-bb54-0011f46af692"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 16,
+      "meaning": "ins-7",
+      "file": "toolbar-dark/16-ins-7.png",
+      "source": "sprites/spr_icons_d_hires/ceb5d9da-f916-4526-9047-bd5d02a0b460.png",
+      "uuid": "ceb5d9da-f916-4526-9047-bd5d02a0b460"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 17,
+      "meaning": "ins-8",
+      "file": "toolbar-dark/17-ins-8.png",
+      "source": "sprites/spr_icons_d_hires/2aff132d-b7a9-4d7d-9eaa-6ef6b1bc8e33.png",
+      "uuid": "2aff132d-b7a9-4d7d-9eaa-6ef6b1bc8e33"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 18,
+      "meaning": "ins-9",
+      "file": "toolbar-dark/18-ins-9.png",
+      "source": "sprites/spr_icons_d_hires/47746641-7112-44fc-bd60-646cdb6d00ba.png",
+      "uuid": "47746641-7112-44fc-bd60-646cdb6d00ba"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 19,
+      "meaning": "ins-10",
+      "file": "toolbar-dark/19-ins-10.png",
+      "source": "sprites/spr_icons_d_hires/22c581f9-b78c-4874-aa54-96669d4522ff.png",
+      "uuid": "22c581f9-b78c-4874-aa54-96669d4522ff"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 20,
+      "meaning": "ins-11",
+      "file": "toolbar-dark/20-ins-11.png",
+      "source": "sprites/spr_icons_d_hires/05fb7959-c839-4145-8d19-9f5feae3e500.png",
+      "uuid": "05fb7959-c839-4145-8d19-9f5feae3e500"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 21,
+      "meaning": "ins-12",
+      "file": "toolbar-dark/21-ins-12.png",
+      "source": "sprites/spr_icons_d_hires/95872c11-c097-4c60-83f3-68686c0d2381.png",
+      "uuid": "95872c11-c097-4c60-83f3-68686c0d2381"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 22,
+      "meaning": "ins-13",
+      "file": "toolbar-dark/22-ins-13.png",
+      "source": "sprites/spr_icons_d_hires/0f14d725-2410-4776-85e5-0ce7b9a41184.png",
+      "uuid": "0f14d725-2410-4776-85e5-0ce7b9a41184"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 23,
+      "meaning": "ins-14",
+      "file": "toolbar-dark/23-ins-14.png",
+      "source": "sprites/spr_icons_d_hires/6aafec79-330a-48bf-b278-bd5b40db91bb.png",
+      "uuid": "6aafec79-330a-48bf-b278-bd5b40db91bb"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 24,
+      "meaning": "ins-15",
+      "file": "toolbar-dark/24-ins-15.png",
+      "source": "sprites/spr_icons_d_hires/6e1e6bab-b014-48e4-bfb5-48267aa7479f.png",
+      "uuid": "6e1e6bab-b014-48e4-bfb5-48267aa7479f"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 25,
+      "meaning": "ins-16",
+      "file": "toolbar-dark/25-ins-16.png",
+      "source": "sprites/spr_icons_d_hires/1599a33d-5efd-4fc7-ad43-9271821d016f.png",
+      "uuid": "1599a33d-5efd-4fc7-ad43-9271821d016f"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 26,
+      "meaning": "custom-ins-base",
+      "file": "toolbar-dark/26-custom-ins-base.png",
+      "source": "sprites/spr_icons_d_hires/7c21461e-e635-4c5a-a312-64b996601173.png",
+      "uuid": "7c21461e-e635-4c5a-a312-64b996601173"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 27,
+      "meaning": "custom-ins-overlay",
+      "file": "toolbar-dark/27-custom-ins-overlay.png",
+      "source": "sprites/spr_icons_d_hires/bdd78d3b-9fd3-41e3-9f53-2eeb19f04dbd.png",
+      "uuid": "bdd78d3b-9fd3-41e3-9f53-2eeb19f04dbd"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 28,
+      "meaning": "undo-inactive",
+      "file": "toolbar-dark/28-undo-inactive.png",
+      "source": "sprites/spr_icons_d_hires/43a06df6-5b89-400d-a0b9-33f468cd0f48.png",
+      "uuid": "43a06df6-5b89-400d-a0b9-33f468cd0f48"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 29,
+      "meaning": "undo",
+      "file": "toolbar-dark/29-undo.png",
+      "source": "sprites/spr_icons_d_hires/5fc2ca29-5236-47d5-a12a-d2407c06dbae.png",
+      "uuid": "5fc2ca29-5236-47d5-a12a-d2407c06dbae"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 30,
+      "meaning": "redo-inactive",
+      "file": "toolbar-dark/30-redo-inactive.png",
+      "source": "sprites/spr_icons_d_hires/888a7c77-822d-4514-840a-ab90d1343f71.png",
+      "uuid": "888a7c77-822d-4514-840a-ab90d1343f71"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 31,
+      "meaning": "redo",
+      "file": "toolbar-dark/31-redo.png",
+      "source": "sprites/spr_icons_d_hires/789631e6-052d-4ce4-ae3f-fa12e7fc363d.png",
+      "uuid": "789631e6-052d-4ce4-ae3f-fa12e7fc363d"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 32,
+      "meaning": "copy-inactive",
+      "file": "toolbar-dark/32-copy-inactive.png",
+      "source": "sprites/spr_icons_d_hires/3b34529a-137d-4587-bbe1-6f581eb34ec0.png",
+      "uuid": "3b34529a-137d-4587-bbe1-6f581eb34ec0"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 33,
+      "meaning": "copy",
+      "file": "toolbar-dark/33-copy.png",
+      "source": "sprites/spr_icons_d_hires/7d1eed6f-44f5-4605-a3a8-e2050b2297da.png",
+      "uuid": "7d1eed6f-44f5-4605-a3a8-e2050b2297da"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 34,
+      "meaning": "cut-inactive",
+      "file": "toolbar-dark/34-cut-inactive.png",
+      "source": "sprites/spr_icons_d_hires/607e8248-53ea-4e1f-9f57-6fd558ee4626.png",
+      "uuid": "607e8248-53ea-4e1f-9f57-6fd558ee4626"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 35,
+      "meaning": "cut",
+      "file": "toolbar-dark/35-cut.png",
+      "source": "sprites/spr_icons_d_hires/f4905b71-5b90-4f64-bf67-89bf4421f3b0.png",
+      "uuid": "f4905b71-5b90-4f64-bf67-89bf4421f3b0"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 36,
+      "meaning": "paste-inactive",
+      "file": "toolbar-dark/36-paste-inactive.png",
+      "source": "sprites/spr_icons_d_hires/5d862d3b-065b-4f8b-b927-de1606fd6e11.png",
+      "uuid": "5d862d3b-065b-4f8b-b927-de1606fd6e11"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 37,
+      "meaning": "paste",
+      "file": "toolbar-dark/37-paste.png",
+      "source": "sprites/spr_icons_d_hires/649601e9-282e-40df-8c21-956e60b47b2a.png",
+      "uuid": "649601e9-282e-40df-8c21-956e60b47b2a"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 38,
+      "meaning": "delete-inactive",
+      "file": "toolbar-dark/38-delete-inactive.png",
+      "source": "sprites/spr_icons_d_hires/fc03df9f-c066-4ccf-af38-a9d003c9dd9d.png",
+      "uuid": "fc03df9f-c066-4ccf-af38-a9d003c9dd9d"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 39,
+      "meaning": "delete",
+      "file": "toolbar-dark/39-delete.png",
+      "source": "sprites/spr_icons_d_hires/e97e6d16-3109-40a7-b90c-32a332324b9f.png",
+      "uuid": "e97e6d16-3109-40a7-b90c-32a332324b9f"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 40,
+      "meaning": "information",
+      "file": "toolbar-dark/40-information.png",
+      "source": "sprites/spr_icons_d_hires/f03d0884-0261-41f4-8456-993ca2947358.png",
+      "uuid": "f03d0884-0261-41f4-8456-993ca2947358"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 41,
+      "meaning": "properties",
+      "file": "toolbar-dark/41-properties.png",
+      "source": "sprites/spr_icons_d_hires/64ad350d-4358-439b-86f1-a6dc12c35b86.png",
+      "uuid": "64ad350d-4358-439b-86f1-a6dc12c35b86"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 42,
+      "meaning": "instruments",
+      "file": "toolbar-dark/42-instruments.png",
+      "source": "sprites/spr_icons_d_hires/f3c3d6fe-f3ab-4df9-a79f-e54c1e783ff6.png",
+      "uuid": "f3c3d6fe-f3ab-4df9-a79f-e54c1e783ff6"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 43,
+      "meaning": "midi-input",
+      "file": "toolbar-dark/43-midi-input.png",
+      "source": "sprites/spr_icons_d_hires/9618b0fd-4ce9-476f-8792-d1c57b4bfa7f.png",
+      "uuid": "9618b0fd-4ce9-476f-8792-d1c57b4bfa7f"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 44,
+      "meaning": "help",
+      "file": "toolbar-dark/44-help.png",
+      "source": "sprites/spr_icons_d_hires/907de300-92db-4ab3-877d-8d45c19084b4.png",
+      "uuid": "907de300-92db-4ab3-877d-8d45c19084b4"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 45,
+      "meaning": "internet",
+      "file": "toolbar-dark/45-internet.png",
+      "source": "sprites/spr_icons_d_hires/ece0fcf1-7a4d-4aa4-bb42-7a8f0f226be2.png",
+      "uuid": "ece0fcf1-7a4d-4aa4-bb42-7a8f0f226be2"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 46,
+      "meaning": "check",
+      "file": "toolbar-dark/46-check.png",
+      "source": "sprites/spr_icons_d_hires/ee31b756-1e12-4388-9b8f-785f5f03f8d9.png",
+      "uuid": "ee31b756-1e12-4388-9b8f-785f5f03f8d9"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 47,
+      "meaning": "sub-menu",
+      "file": "toolbar-dark/47-sub-menu.png",
+      "source": "sprites/spr_icons_d_hires/96ee2a7d-16c6-4e14-be75-f61ba18c4486.png",
+      "uuid": "96ee2a7d-16c6-4e14-be75-f61ba18c4486"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 48,
+      "meaning": "check-inactive",
+      "file": "toolbar-dark/48-check-inactive.png",
+      "source": "sprites/spr_icons_d_hires/6fa478c9-631a-4155-86e5-31ac944329af.png",
+      "uuid": "6fa478c9-631a-4155-86e5-31ac944329af"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 49,
+      "meaning": "loop-inactive",
+      "file": "toolbar-dark/49-loop-inactive.png",
+      "source": "sprites/spr_icons_d_hires/8a685344-d1be-4800-be22-ad67a6638cf7.png",
+      "uuid": "8a685344-d1be-4800-be22-ad67a6638cf7"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 50,
+      "meaning": "loop",
+      "file": "toolbar-dark/50-loop.png",
+      "source": "sprites/spr_icons_d_hires/7b9c20d5-6900-4dda-8707-fa03fcbd56d1.png",
+      "uuid": "7b9c20d5-6900-4dda-8707-fa03fcbd56d1"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 51,
+      "meaning": "metronome-inactive",
+      "file": "toolbar-dark/51-metronome-inactive.png",
+      "source": "sprites/spr_icons_d_hires/2664a8bc-811c-4fa8-babf-5a318a60aeca.png",
+      "uuid": "2664a8bc-811c-4fa8-babf-5a318a60aeca"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 52,
+      "meaning": "metronome-1",
+      "file": "toolbar-dark/52-metronome-1.png",
+      "source": "sprites/spr_icons_d_hires/1c0130a5-69f8-4fb0-b58b-13084a475bbc.png",
+      "uuid": "1c0130a5-69f8-4fb0-b58b-13084a475bbc"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 53,
+      "meaning": "metronome-2",
+      "file": "toolbar-dark/53-metronome-2.png",
+      "source": "sprites/spr_icons_d_hires/6edf73cb-96e4-453f-bd1e-66ee648698bf.png",
+      "uuid": "6edf73cb-96e4-453f-bd1e-66ee648698bf"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 54,
+      "meaning": "editmode-key",
+      "file": "toolbar-dark/54-editmode-key.png",
+      "source": "sprites/spr_icons_d_hires/1d240ef8-0c92-4d08-965d-fa4200bf79af.png",
+      "uuid": "1d240ef8-0c92-4d08-965d-fa4200bf79af"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 55,
+      "meaning": "editmode-vel",
+      "file": "toolbar-dark/55-editmode-vel.png",
+      "source": "sprites/spr_icons_d_hires/9b5217c4-489f-4eb8-ba1d-090cd4dd9696.png",
+      "uuid": "9b5217c4-489f-4eb8-ba1d-090cd4dd9696"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 56,
+      "meaning": "editmode-pan",
+      "file": "toolbar-dark/56-editmode-pan.png",
+      "source": "sprites/spr_icons_d_hires/91c5ba64-fecc-454c-ad74-78a4de744b63.png",
+      "uuid": "91c5ba64-fecc-454c-ad74-78a4de744b63"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 57,
+      "meaning": "editmode-pit",
+      "file": "toolbar-dark/57-editmode-pit.png",
+      "source": "sprites/spr_icons_d_hires/ddd30f32-abcf-4e3d-a575-470513463367.png",
+      "uuid": "ddd30f32-abcf-4e3d-a575-470513463367"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 58,
+      "meaning": "insbox-expand",
+      "file": "toolbar-dark/58-insbox-expand.png",
+      "source": "sprites/spr_icons_d_hires/72f9ab59-e69e-43a7-b509-ff1726a508b2.png",
+      "uuid": "72f9ab59-e69e-43a7-b509-ff1726a508b2"
+    },
+    {
+      "family": "toolbar-dark",
+      "sprite": "spr_icons_d_hires",
+      "frame": 59,
+      "meaning": "insbox-collapse",
+      "file": "toolbar-dark/59-insbox-collapse.png",
+      "source": "sprites/spr_icons_d_hires/ce1e0863-d76c-42ce-8bcd-40886dad2161.png",
+      "uuid": "ce1e0863-d76c-42ce-8bcd-40886dad2161"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 0,
+      "meaning": "new",
+      "file": "toolbar-accent-mask/00-new.png",
+      "source": "sprites/spr_icons_col_hires/881410d0-3505-4582-bff0-def20278bf72.png",
+      "uuid": "881410d0-3505-4582-bff0-def20278bf72"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 1,
+      "meaning": "open",
+      "file": "toolbar-accent-mask/01-open.png",
+      "source": "sprites/spr_icons_col_hires/0430e910-87cd-4835-9305-0a7a244bddc7.png",
+      "uuid": "0430e910-87cd-4835-9305-0a7a244bddc7"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 2,
+      "meaning": "save",
+      "file": "toolbar-accent-mask/02-save.png",
+      "source": "sprites/spr_icons_col_hires/8e91ea6a-9075-49b7-8c66-b5b4307575ec.png",
+      "uuid": "8e91ea6a-9075-49b7-8c66-b5b4307575ec"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 3,
+      "meaning": "save-as",
+      "file": "toolbar-accent-mask/03-save-as.png",
+      "source": "sprites/spr_icons_col_hires/b12d207c-a84e-4aa6-b095-51fd15a9ff39.png",
+      "uuid": "b12d207c-a84e-4aa6-b095-51fd15a9ff39"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 4,
+      "meaning": "play",
+      "file": "toolbar-accent-mask/04-play.png",
+      "source": "sprites/spr_icons_col_hires/ba7c821b-8fbd-4ea2-90c8-6d602059eda0.png",
+      "uuid": "ba7c821b-8fbd-4ea2-90c8-6d602059eda0"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 5,
+      "meaning": "pause",
+      "file": "toolbar-accent-mask/05-pause.png",
+      "source": "sprites/spr_icons_col_hires/a6e1d514-d825-4f78-8ddd-3298ec4461f8.png",
+      "uuid": "a6e1d514-d825-4f78-8ddd-3298ec4461f8"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 6,
+      "meaning": "stop",
+      "file": "toolbar-accent-mask/06-stop.png",
+      "source": "sprites/spr_icons_col_hires/7a82915d-23c7-472b-a8ed-17cb0ebe2f71.png",
+      "uuid": "7a82915d-23c7-472b-a8ed-17cb0ebe2f71"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 7,
+      "meaning": "back",
+      "file": "toolbar-accent-mask/07-back.png",
+      "source": "sprites/spr_icons_col_hires/a15ee684-1579-47e6-a0b8-c6b313282633.png",
+      "uuid": "a15ee684-1579-47e6-a0b8-c6b313282633"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 8,
+      "meaning": "forward",
+      "file": "toolbar-accent-mask/08-forward.png",
+      "source": "sprites/spr_icons_col_hires/124322de-52f0-4f81-abfe-bbea41e13e7f.png",
+      "uuid": "124322de-52f0-4f81-abfe-bbea41e13e7f"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 9,
+      "meaning": "record",
+      "file": "toolbar-accent-mask/09-record.png",
+      "source": "sprites/spr_icons_col_hires/19352047-3b81-4206-88ff-e28027a2e92b.png",
+      "uuid": "19352047-3b81-4206-88ff-e28027a2e92b"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 10,
+      "meaning": "ins-1",
+      "file": "toolbar-accent-mask/10-ins-1.png",
+      "source": "sprites/spr_icons_col_hires/5d602a56-5154-4924-97ae-3d5b6d515c4d.png",
+      "uuid": "5d602a56-5154-4924-97ae-3d5b6d515c4d"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 11,
+      "meaning": "ins-2",
+      "file": "toolbar-accent-mask/11-ins-2.png",
+      "source": "sprites/spr_icons_col_hires/b2fc7fba-c6df-45c5-ae6d-7733c3d297e6.png",
+      "uuid": "b2fc7fba-c6df-45c5-ae6d-7733c3d297e6"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 12,
+      "meaning": "ins-3",
+      "file": "toolbar-accent-mask/12-ins-3.png",
+      "source": "sprites/spr_icons_col_hires/792828f4-b6f4-4710-9f15-9cf1757169bc.png",
+      "uuid": "792828f4-b6f4-4710-9f15-9cf1757169bc"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 13,
+      "meaning": "ins-4",
+      "file": "toolbar-accent-mask/13-ins-4.png",
+      "source": "sprites/spr_icons_col_hires/b9c73f60-236a-44d9-a155-1ac6bfa2c0f0.png",
+      "uuid": "b9c73f60-236a-44d9-a155-1ac6bfa2c0f0"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 14,
+      "meaning": "ins-5",
+      "file": "toolbar-accent-mask/14-ins-5.png",
+      "source": "sprites/spr_icons_col_hires/6d228a7d-dc86-436e-b769-bc9b060e69f4.png",
+      "uuid": "6d228a7d-dc86-436e-b769-bc9b060e69f4"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 15,
+      "meaning": "ins-6",
+      "file": "toolbar-accent-mask/15-ins-6.png",
+      "source": "sprites/spr_icons_col_hires/d53eeb02-d4c0-4a97-bb54-0011f46af692.png",
+      "uuid": "d53eeb02-d4c0-4a97-bb54-0011f46af692"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 16,
+      "meaning": "ins-7",
+      "file": "toolbar-accent-mask/16-ins-7.png",
+      "source": "sprites/spr_icons_col_hires/ceb5d9da-f916-4526-9047-bd5d02a0b460.png",
+      "uuid": "ceb5d9da-f916-4526-9047-bd5d02a0b460"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 17,
+      "meaning": "ins-8",
+      "file": "toolbar-accent-mask/17-ins-8.png",
+      "source": "sprites/spr_icons_col_hires/2aff132d-b7a9-4d7d-9eaa-6ef6b1bc8e33.png",
+      "uuid": "2aff132d-b7a9-4d7d-9eaa-6ef6b1bc8e33"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 18,
+      "meaning": "ins-9",
+      "file": "toolbar-accent-mask/18-ins-9.png",
+      "source": "sprites/spr_icons_col_hires/47746641-7112-44fc-bd60-646cdb6d00ba.png",
+      "uuid": "47746641-7112-44fc-bd60-646cdb6d00ba"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 19,
+      "meaning": "ins-10",
+      "file": "toolbar-accent-mask/19-ins-10.png",
+      "source": "sprites/spr_icons_col_hires/22c581f9-b78c-4874-aa54-96669d4522ff.png",
+      "uuid": "22c581f9-b78c-4874-aa54-96669d4522ff"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 20,
+      "meaning": "ins-11",
+      "file": "toolbar-accent-mask/20-ins-11.png",
+      "source": "sprites/spr_icons_col_hires/05fb7959-c839-4145-8d19-9f5feae3e500.png",
+      "uuid": "05fb7959-c839-4145-8d19-9f5feae3e500"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 21,
+      "meaning": "ins-12",
+      "file": "toolbar-accent-mask/21-ins-12.png",
+      "source": "sprites/spr_icons_col_hires/95872c11-c097-4c60-83f3-68686c0d2381.png",
+      "uuid": "95872c11-c097-4c60-83f3-68686c0d2381"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 22,
+      "meaning": "ins-13",
+      "file": "toolbar-accent-mask/22-ins-13.png",
+      "source": "sprites/spr_icons_col_hires/0f14d725-2410-4776-85e5-0ce7b9a41184.png",
+      "uuid": "0f14d725-2410-4776-85e5-0ce7b9a41184"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 23,
+      "meaning": "ins-14",
+      "file": "toolbar-accent-mask/23-ins-14.png",
+      "source": "sprites/spr_icons_col_hires/6aafec79-330a-48bf-b278-bd5b40db91bb.png",
+      "uuid": "6aafec79-330a-48bf-b278-bd5b40db91bb"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 24,
+      "meaning": "ins-15",
+      "file": "toolbar-accent-mask/24-ins-15.png",
+      "source": "sprites/spr_icons_col_hires/6e1e6bab-b014-48e4-bfb5-48267aa7479f.png",
+      "uuid": "6e1e6bab-b014-48e4-bfb5-48267aa7479f"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 25,
+      "meaning": "ins-16",
+      "file": "toolbar-accent-mask/25-ins-16.png",
+      "source": "sprites/spr_icons_col_hires/1599a33d-5efd-4fc7-ad43-9271821d016f.png",
+      "uuid": "1599a33d-5efd-4fc7-ad43-9271821d016f"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 26,
+      "meaning": "custom-ins-base",
+      "file": "toolbar-accent-mask/26-custom-ins-base.png",
+      "source": "sprites/spr_icons_col_hires/7c21461e-e635-4c5a-a312-64b996601173.png",
+      "uuid": "7c21461e-e635-4c5a-a312-64b996601173"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 27,
+      "meaning": "custom-ins-overlay",
+      "file": "toolbar-accent-mask/27-custom-ins-overlay.png",
+      "source": "sprites/spr_icons_col_hires/bdd78d3b-9fd3-41e3-9f53-2eeb19f04dbd.png",
+      "uuid": "bdd78d3b-9fd3-41e3-9f53-2eeb19f04dbd"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 28,
+      "meaning": "undo-inactive",
+      "file": "toolbar-accent-mask/28-undo-inactive.png",
+      "source": "sprites/spr_icons_col_hires/43a06df6-5b89-400d-a0b9-33f468cd0f48.png",
+      "uuid": "43a06df6-5b89-400d-a0b9-33f468cd0f48"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 29,
+      "meaning": "undo",
+      "file": "toolbar-accent-mask/29-undo.png",
+      "source": "sprites/spr_icons_col_hires/5fc2ca29-5236-47d5-a12a-d2407c06dbae.png",
+      "uuid": "5fc2ca29-5236-47d5-a12a-d2407c06dbae"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 30,
+      "meaning": "redo-inactive",
+      "file": "toolbar-accent-mask/30-redo-inactive.png",
+      "source": "sprites/spr_icons_col_hires/888a7c77-822d-4514-840a-ab90d1343f71.png",
+      "uuid": "888a7c77-822d-4514-840a-ab90d1343f71"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 31,
+      "meaning": "redo",
+      "file": "toolbar-accent-mask/31-redo.png",
+      "source": "sprites/spr_icons_col_hires/789631e6-052d-4ce4-ae3f-fa12e7fc363d.png",
+      "uuid": "789631e6-052d-4ce4-ae3f-fa12e7fc363d"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 32,
+      "meaning": "copy-inactive",
+      "file": "toolbar-accent-mask/32-copy-inactive.png",
+      "source": "sprites/spr_icons_col_hires/3b34529a-137d-4587-bbe1-6f581eb34ec0.png",
+      "uuid": "3b34529a-137d-4587-bbe1-6f581eb34ec0"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 33,
+      "meaning": "copy",
+      "file": "toolbar-accent-mask/33-copy.png",
+      "source": "sprites/spr_icons_col_hires/7d1eed6f-44f5-4605-a3a8-e2050b2297da.png",
+      "uuid": "7d1eed6f-44f5-4605-a3a8-e2050b2297da"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 34,
+      "meaning": "cut-inactive",
+      "file": "toolbar-accent-mask/34-cut-inactive.png",
+      "source": "sprites/spr_icons_col_hires/607e8248-53ea-4e1f-9f57-6fd558ee4626.png",
+      "uuid": "607e8248-53ea-4e1f-9f57-6fd558ee4626"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 35,
+      "meaning": "cut",
+      "file": "toolbar-accent-mask/35-cut.png",
+      "source": "sprites/spr_icons_col_hires/f4905b71-5b90-4f64-bf67-89bf4421f3b0.png",
+      "uuid": "f4905b71-5b90-4f64-bf67-89bf4421f3b0"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 36,
+      "meaning": "paste-inactive",
+      "file": "toolbar-accent-mask/36-paste-inactive.png",
+      "source": "sprites/spr_icons_col_hires/5d862d3b-065b-4f8b-b927-de1606fd6e11.png",
+      "uuid": "5d862d3b-065b-4f8b-b927-de1606fd6e11"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 37,
+      "meaning": "paste",
+      "file": "toolbar-accent-mask/37-paste.png",
+      "source": "sprites/spr_icons_col_hires/649601e9-282e-40df-8c21-956e60b47b2a.png",
+      "uuid": "649601e9-282e-40df-8c21-956e60b47b2a"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 38,
+      "meaning": "delete-inactive",
+      "file": "toolbar-accent-mask/38-delete-inactive.png",
+      "source": "sprites/spr_icons_col_hires/fc03df9f-c066-4ccf-af38-a9d003c9dd9d.png",
+      "uuid": "fc03df9f-c066-4ccf-af38-a9d003c9dd9d"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 39,
+      "meaning": "delete",
+      "file": "toolbar-accent-mask/39-delete.png",
+      "source": "sprites/spr_icons_col_hires/e97e6d16-3109-40a7-b90c-32a332324b9f.png",
+      "uuid": "e97e6d16-3109-40a7-b90c-32a332324b9f"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 40,
+      "meaning": "information",
+      "file": "toolbar-accent-mask/40-information.png",
+      "source": "sprites/spr_icons_col_hires/f03d0884-0261-41f4-8456-993ca2947358.png",
+      "uuid": "f03d0884-0261-41f4-8456-993ca2947358"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 41,
+      "meaning": "properties",
+      "file": "toolbar-accent-mask/41-properties.png",
+      "source": "sprites/spr_icons_col_hires/64ad350d-4358-439b-86f1-a6dc12c35b86.png",
+      "uuid": "64ad350d-4358-439b-86f1-a6dc12c35b86"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 42,
+      "meaning": "instruments",
+      "file": "toolbar-accent-mask/42-instruments.png",
+      "source": "sprites/spr_icons_col_hires/f3c3d6fe-f3ab-4df9-a79f-e54c1e783ff6.png",
+      "uuid": "f3c3d6fe-f3ab-4df9-a79f-e54c1e783ff6"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 43,
+      "meaning": "midi-input",
+      "file": "toolbar-accent-mask/43-midi-input.png",
+      "source": "sprites/spr_icons_col_hires/9618b0fd-4ce9-476f-8792-d1c57b4bfa7f.png",
+      "uuid": "9618b0fd-4ce9-476f-8792-d1c57b4bfa7f"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 44,
+      "meaning": "help",
+      "file": "toolbar-accent-mask/44-help.png",
+      "source": "sprites/spr_icons_col_hires/907de300-92db-4ab3-877d-8d45c19084b4.png",
+      "uuid": "907de300-92db-4ab3-877d-8d45c19084b4"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 45,
+      "meaning": "internet",
+      "file": "toolbar-accent-mask/45-internet.png",
+      "source": "sprites/spr_icons_col_hires/ece0fcf1-7a4d-4aa4-bb42-7a8f0f226be2.png",
+      "uuid": "ece0fcf1-7a4d-4aa4-bb42-7a8f0f226be2"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 46,
+      "meaning": "check",
+      "file": "toolbar-accent-mask/46-check.png",
+      "source": "sprites/spr_icons_col_hires/ee31b756-1e12-4388-9b8f-785f5f03f8d9.png",
+      "uuid": "ee31b756-1e12-4388-9b8f-785f5f03f8d9"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 47,
+      "meaning": "sub-menu",
+      "file": "toolbar-accent-mask/47-sub-menu.png",
+      "source": "sprites/spr_icons_col_hires/96ee2a7d-16c6-4e14-be75-f61ba18c4486.png",
+      "uuid": "96ee2a7d-16c6-4e14-be75-f61ba18c4486"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 48,
+      "meaning": "check-inactive",
+      "file": "toolbar-accent-mask/48-check-inactive.png",
+      "source": "sprites/spr_icons_col_hires/6fa478c9-631a-4155-86e5-31ac944329af.png",
+      "uuid": "6fa478c9-631a-4155-86e5-31ac944329af"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 49,
+      "meaning": "loop-inactive",
+      "file": "toolbar-accent-mask/49-loop-inactive.png",
+      "source": "sprites/spr_icons_col_hires/8a685344-d1be-4800-be22-ad67a6638cf7.png",
+      "uuid": "8a685344-d1be-4800-be22-ad67a6638cf7"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 50,
+      "meaning": "loop",
+      "file": "toolbar-accent-mask/50-loop.png",
+      "source": "sprites/spr_icons_col_hires/7b9c20d5-6900-4dda-8707-fa03fcbd56d1.png",
+      "uuid": "7b9c20d5-6900-4dda-8707-fa03fcbd56d1"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 51,
+      "meaning": "metronome-inactive",
+      "file": "toolbar-accent-mask/51-metronome-inactive.png",
+      "source": "sprites/spr_icons_col_hires/2664a8bc-811c-4fa8-babf-5a318a60aeca.png",
+      "uuid": "2664a8bc-811c-4fa8-babf-5a318a60aeca"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 52,
+      "meaning": "metronome-1",
+      "file": "toolbar-accent-mask/52-metronome-1.png",
+      "source": "sprites/spr_icons_col_hires/1c0130a5-69f8-4fb0-b58b-13084a475bbc.png",
+      "uuid": "1c0130a5-69f8-4fb0-b58b-13084a475bbc"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 53,
+      "meaning": "metronome-2",
+      "file": "toolbar-accent-mask/53-metronome-2.png",
+      "source": "sprites/spr_icons_col_hires/6edf73cb-96e4-453f-bd1e-66ee648698bf.png",
+      "uuid": "6edf73cb-96e4-453f-bd1e-66ee648698bf"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 54,
+      "meaning": "editmode-key",
+      "file": "toolbar-accent-mask/54-editmode-key.png",
+      "source": "sprites/spr_icons_col_hires/1d240ef8-0c92-4d08-965d-fa4200bf79af.png",
+      "uuid": "1d240ef8-0c92-4d08-965d-fa4200bf79af"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 55,
+      "meaning": "editmode-vel",
+      "file": "toolbar-accent-mask/55-editmode-vel.png",
+      "source": "sprites/spr_icons_col_hires/9b5217c4-489f-4eb8-ba1d-090cd4dd9696.png",
+      "uuid": "9b5217c4-489f-4eb8-ba1d-090cd4dd9696"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 56,
+      "meaning": "editmode-pan",
+      "file": "toolbar-accent-mask/56-editmode-pan.png",
+      "source": "sprites/spr_icons_col_hires/91c5ba64-fecc-454c-ad74-78a4de744b63.png",
+      "uuid": "91c5ba64-fecc-454c-ad74-78a4de744b63"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 57,
+      "meaning": "editmode-pit",
+      "file": "toolbar-accent-mask/57-editmode-pit.png",
+      "source": "sprites/spr_icons_col_hires/ddd30f32-abcf-4e3d-a575-470513463367.png",
+      "uuid": "ddd30f32-abcf-4e3d-a575-470513463367"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 58,
+      "meaning": "insbox-expand",
+      "file": "toolbar-accent-mask/58-insbox-expand.png",
+      "source": "sprites/spr_icons_col_hires/ce1e0863-d76c-42ce-8bcd-40886dad2161.png",
+      "uuid": "ce1e0863-d76c-42ce-8bcd-40886dad2161"
+    },
+    {
+      "family": "toolbar-accent-mask",
+      "sprite": "spr_icons_col_hires",
+      "frame": 59,
+      "meaning": "insbox-collapse",
+      "file": "toolbar-accent-mask/59-insbox-collapse.png",
+      "source": "sprites/spr_icons_col_hires/72f9ab59-e69e-43a7-b509-ff1726a508b2.png",
+      "uuid": "72f9ab59-e69e-43a7-b509-ff1726a508b2"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 0,
+      "meaning": "lock-dark-base",
+      "file": "layer-icons/00-lock-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/eb69eef9-96c5-4df3-a94d-3708fef40b3a.png",
+      "uuid": "eb69eef9-96c5-4df3-a94d-3708fef40b3a"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 1,
+      "meaning": "solo-dark-base",
+      "file": "layer-icons/01-solo-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/fd113cd9-f40e-4671-86e2-d2f9f71339b9.png",
+      "uuid": "fd113cd9-f40e-4671-86e2-d2f9f71339b9"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 2,
+      "meaning": "select-layer-dark-base",
+      "file": "layer-icons/02-select-layer-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/f6a6be8a-a046-4e2c-a697-a53a1f93be85.png",
+      "uuid": "f6a6be8a-a046-4e2c-a697-a53a1f93be85"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 3,
+      "meaning": "add-layer-dark-base",
+      "file": "layer-icons/03-add-layer-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/ceef1e7d-702a-461b-8d06-2dbe41d940a5.png",
+      "uuid": "ceef1e7d-702a-461b-8d06-2dbe41d940a5"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 4,
+      "meaning": "remove-layer-dark-base",
+      "file": "layer-icons/04-remove-layer-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/d268bee6-cb12-42cc-a5a8-cfc3f26de239.png",
+      "uuid": "d268bee6-cb12-42cc-a5a8-cfc3f26de239"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 5,
+      "meaning": "shift-up-dark-base",
+      "file": "layer-icons/05-shift-up-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/8c9eeaa9-6a57-45b0-a1bc-6b9c2a8bf3d3.png",
+      "uuid": "8c9eeaa9-6a57-45b0-a1bc-6b9c2a8bf3d3"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 6,
+      "meaning": "shift-down-dark-base",
+      "file": "layer-icons/06-shift-down-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/f09e0858-35cd-4620-ab52-25dbc612d13d.png",
+      "uuid": "f09e0858-35cd-4620-ab52-25dbc612d13d"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 7,
+      "meaning": "expand-workspace-dark-base",
+      "file": "layer-icons/07-expand-workspace-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/8408a07d-430b-4d01-ba8c-1d30133d93de.png",
+      "uuid": "8408a07d-430b-4d01-ba8c-1d30133d93de"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 8,
+      "meaning": "return-workspace-dark-base",
+      "file": "layer-icons/08-return-workspace-dark-base.png",
+      "source": "sprites/spr_layericons_f_hires/50861285-0f24-44a9-9418-4a22a897acd7.png",
+      "uuid": "50861285-0f24-44a9-9418-4a22a897acd7"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 9,
+      "meaning": "lock-light-base",
+      "file": "layer-icons/09-lock-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/558263c4-0ca6-4daf-abfa-74bd42d9d2ae.png",
+      "uuid": "558263c4-0ca6-4daf-abfa-74bd42d9d2ae"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 10,
+      "meaning": "solo-light-base",
+      "file": "layer-icons/10-solo-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/bc1df208-a5bf-49ea-b135-00cc71d4de86.png",
+      "uuid": "bc1df208-a5bf-49ea-b135-00cc71d4de86"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 11,
+      "meaning": "select-layer-light-base",
+      "file": "layer-icons/11-select-layer-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/4752b4b8-9c50-4322-aad8-287b09c38853.png",
+      "uuid": "4752b4b8-9c50-4322-aad8-287b09c38853"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 12,
+      "meaning": "add-layer-light-base",
+      "file": "layer-icons/12-add-layer-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/0d65a85d-aa4c-4a73-b016-873f0c661a1f.png",
+      "uuid": "0d65a85d-aa4c-4a73-b016-873f0c661a1f"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 13,
+      "meaning": "remove-layer-light-base",
+      "file": "layer-icons/13-remove-layer-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/c4e55bbc-bda7-4f11-92e9-ce1149d5afdb.png",
+      "uuid": "c4e55bbc-bda7-4f11-92e9-ce1149d5afdb"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 14,
+      "meaning": "shift-up-light-base",
+      "file": "layer-icons/14-shift-up-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/568c68cb-5586-4b15-b054-b4c04f3b7959.png",
+      "uuid": "568c68cb-5586-4b15-b054-b4c04f3b7959"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 15,
+      "meaning": "shift-down-light-base",
+      "file": "layer-icons/15-shift-down-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/1f2d97cb-0418-4e8e-a6d0-a040c4bcf106.png",
+      "uuid": "1f2d97cb-0418-4e8e-a6d0-a040c4bcf106"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 16,
+      "meaning": "expand-workspace-light-base",
+      "file": "layer-icons/16-expand-workspace-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/fef01bb0-cbfc-4272-b423-761c76f233f2.png",
+      "uuid": "fef01bb0-cbfc-4272-b423-761c76f233f2"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 17,
+      "meaning": "return-workspace-light-base",
+      "file": "layer-icons/17-return-workspace-light-base.png",
+      "source": "sprites/spr_layericons_f_hires/c5b3b3a9-68cf-4100-b278-876878464812.png",
+      "uuid": "c5b3b3a9-68cf-4100-b278-876878464812"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 18,
+      "meaning": "lock-accent-mask",
+      "file": "layer-icons/18-lock-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/f5d83dcf-1a7c-416a-8c0d-225cf226cfc5.png",
+      "uuid": "f5d83dcf-1a7c-416a-8c0d-225cf226cfc5"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 19,
+      "meaning": "solo-accent-mask",
+      "file": "layer-icons/19-solo-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/dfab5df1-7b75-41a2-8c9f-5fd92c1ff8b0.png",
+      "uuid": "dfab5df1-7b75-41a2-8c9f-5fd92c1ff8b0"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 20,
+      "meaning": "select-layer-accent-mask",
+      "file": "layer-icons/20-select-layer-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/2d5ca195-b5a1-4a79-8c1f-0cd272613145.png",
+      "uuid": "2d5ca195-b5a1-4a79-8c1f-0cd272613145"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 21,
+      "meaning": "add-layer-accent-mask",
+      "file": "layer-icons/21-add-layer-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/5f3cebd4-2164-4745-b1c6-b4753c7d70ed.png",
+      "uuid": "5f3cebd4-2164-4745-b1c6-b4753c7d70ed"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 22,
+      "meaning": "remove-layer-accent-mask",
+      "file": "layer-icons/22-remove-layer-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/c6b32f5b-e002-49b4-a130-6feac3c5ca75.png",
+      "uuid": "c6b32f5b-e002-49b4-a130-6feac3c5ca75"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 23,
+      "meaning": "shift-up-accent-mask",
+      "file": "layer-icons/23-shift-up-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/3485541b-4997-4a90-ac43-b6d84e7a31e5.png",
+      "uuid": "3485541b-4997-4a90-ac43-b6d84e7a31e5"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 24,
+      "meaning": "shift-down-accent-mask",
+      "file": "layer-icons/24-shift-down-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/2633fa0b-b4dc-467d-9d69-246585224cc3.png",
+      "uuid": "2633fa0b-b4dc-467d-9d69-246585224cc3"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 25,
+      "meaning": "expand-workspace-accent-mask",
+      "file": "layer-icons/25-expand-workspace-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/b8c47bf9-8ad5-413c-a02e-7bff3abed4fd.png",
+      "uuid": "b8c47bf9-8ad5-413c-a02e-7bff3abed4fd"
+    },
+    {
+      "family": "layer-icons",
+      "sprite": "spr_layericons_f_hires",
+      "frame": 26,
+      "meaning": "return-workspace-accent-mask",
+      "file": "layer-icons/26-return-workspace-accent-mask.png",
+      "source": "sprites/spr_layericons_f_hires/0fb25fc9-f66c-4c8c-bd17-0bee4e39c229.png",
+      "uuid": "0fb25fc9-f66c-4c8c-bd17-0bee4e39c229"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 0,
+      "meaning": "tremolo",
+      "file": "macros/00-tremolo.png",
+      "source": "sprites/spr_macroicons_hires/3748dc20-c3d1-435f-9564-03a7d8834e0c.png",
+      "uuid": "3748dc20-c3d1-435f-9564-03a7d8834e0c"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 1,
+      "meaning": "stereo",
+      "file": "macros/01-stereo.png",
+      "source": "sprites/spr_macroicons_hires/6f0cafe4-a7bc-428d-930a-439cf2af21ac.png",
+      "uuid": "6f0cafe4-a7bc-428d-930a-439cf2af21ac"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 2,
+      "meaning": "arpeggio",
+      "file": "macros/02-arpeggio.png",
+      "source": "sprites/spr_macroicons_hires/8c4aafb9-a467-4722-8e4a-ec5bbdeb1143.png",
+      "uuid": "8c4aafb9-a467-4722-8e4a-ec5bbdeb1143"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 3,
+      "meaning": "portamento",
+      "file": "macros/03-portamento.png",
+      "source": "sprites/spr_macroicons_hires/1293ad1a-d8e7-4abc-9a81-596657903d7f.png",
+      "uuid": "1293ad1a-d8e7-4abc-9a81-596657903d7f"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 4,
+      "meaning": "vibrato",
+      "file": "macros/04-vibrato.png",
+      "source": "sprites/spr_macroicons_hires/99537a70-25d8-4a69-acf1-7d1d9e20220b.png",
+      "uuid": "99537a70-25d8-4a69-acf1-7d1d9e20220b"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 5,
+      "meaning": "stagger",
+      "file": "macros/05-stagger.png",
+      "source": "sprites/spr_macroicons_hires/5003698e-ac74-458b-b719-77cc68f366ac.png",
+      "uuid": "5003698e-ac74-458b-b719-77cc68f366ac"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 6,
+      "meaning": "chorus",
+      "file": "macros/06-chorus.png",
+      "source": "sprites/spr_macroicons_hires/420fe35c-b0ff-492a-98fb-13c7a9cad583.png",
+      "uuid": "420fe35c-b0ff-492a-98fb-13c7a9cad583"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 7,
+      "meaning": "velocity-lfo",
+      "file": "macros/07-velocity-lfo.png",
+      "source": "sprites/spr_macroicons_hires/36faa554-d478-4508-933f-08dcf6886145.png",
+      "uuid": "36faa554-d478-4508-933f-08dcf6886145"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 8,
+      "meaning": "fade-in",
+      "file": "macros/08-fade-in.png",
+      "source": "sprites/spr_macroicons_hires/647e5098-38c2-4178-9845-37e9ddcf03f8.png",
+      "uuid": "647e5098-38c2-4178-9845-37e9ddcf03f8"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 9,
+      "meaning": "fade-out",
+      "file": "macros/09-fade-out.png",
+      "source": "sprites/spr_macroicons_hires/d3aa6c13-ff46-45da-9e66-8608af55ca5d.png",
+      "uuid": "d3aa6c13-ff46-45da-9e66-8608af55ca5d"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 10,
+      "meaning": "replace-key",
+      "file": "macros/10-replace-key.png",
+      "source": "sprites/spr_macroicons_hires/cb4d25c6-0ef4-4c71-ac28-98ac8ac64cc1.png",
+      "uuid": "cb4d25c6-0ef4-4c71-ac28-98ac8ac64cc1"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 11,
+      "meaning": "set-velocity",
+      "file": "macros/11-set-velocity.png",
+      "source": "sprites/spr_macroicons_hires/88db0670-8b1c-4b6e-a7c1-2bed566cc779.png",
+      "uuid": "88db0670-8b1c-4b6e-a7c1-2bed566cc779"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 12,
+      "meaning": "set-pan",
+      "file": "macros/12-set-pan.png",
+      "source": "sprites/spr_macroicons_hires/509f0728-f954-49a5-93bd-d7f8d51770ce.png",
+      "uuid": "509f0728-f954-49a5-93bd-d7f8d51770ce"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 13,
+      "meaning": "set-pitch",
+      "file": "macros/13-set-pitch.png",
+      "source": "sprites/spr_macroicons_hires/2ea2e28d-179c-47b5-ab94-89db2d2b2edd.png",
+      "uuid": "2ea2e28d-179c-47b5-ab94-89db2d2b2edd"
+    },
+    {
+      "family": "macros",
+      "sprite": "spr_macroicons_hires",
+      "frame": 14,
+      "meaning": "reset-properties",
+      "file": "macros/14-reset-properties.png",
+      "source": "sprites/spr_macroicons_hires/070695f3-8e3e-463f-89c6-4845d9d66278.png",
+      "uuid": "070695f3-8e3e-463f-89c6-4845d9d66278"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 0,
+      "meaning": "harp",
+      "file": "note-blocks/00-harp.png",
+      "source": "sprites/spr_block_color/81350207-a9e8-41a7-8a4e-87cf29a7203f.png",
+      "uuid": "81350207-a9e8-41a7-8a4e-87cf29a7203f"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 1,
+      "meaning": "double-bass",
+      "file": "note-blocks/01-double-bass.png",
+      "source": "sprites/spr_block_color/ff952cd6-2f4c-4942-8a29-7f895aa5c00d.png",
+      "uuid": "ff952cd6-2f4c-4942-8a29-7f895aa5c00d"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 2,
+      "meaning": "bass-drum",
+      "file": "note-blocks/02-bass-drum.png",
+      "source": "sprites/spr_block_color/09af78ec-8c67-4fa0-ba8c-e70886ed7634.png",
+      "uuid": "09af78ec-8c67-4fa0-ba8c-e70886ed7634"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 3,
+      "meaning": "snare-drum",
+      "file": "note-blocks/03-snare-drum.png",
+      "source": "sprites/spr_block_color/83636ef1-c905-4115-b8f1-c06a5242e29b.png",
+      "uuid": "83636ef1-c905-4115-b8f1-c06a5242e29b"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 4,
+      "meaning": "click",
+      "file": "note-blocks/04-click.png",
+      "source": "sprites/spr_block_color/7cab3939-805e-4543-b45a-46e36045761c.png",
+      "uuid": "7cab3939-805e-4543-b45a-46e36045761c"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 5,
+      "meaning": "guitar",
+      "file": "note-blocks/05-guitar.png",
+      "source": "sprites/spr_block_color/5bba66a2-8b1f-4d0a-beae-3e1522b21a21.png",
+      "uuid": "5bba66a2-8b1f-4d0a-beae-3e1522b21a21"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 6,
+      "meaning": "flute",
+      "file": "note-blocks/06-flute.png",
+      "source": "sprites/spr_block_color/3c1d183e-8e77-4982-9c9a-d9edfcf89241.png",
+      "uuid": "3c1d183e-8e77-4982-9c9a-d9edfcf89241"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 7,
+      "meaning": "bell",
+      "file": "note-blocks/07-bell.png",
+      "source": "sprites/spr_block_color/cc4ed8a2-59d3-4488-bd3d-645806634603.png",
+      "uuid": "cc4ed8a2-59d3-4488-bd3d-645806634603"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 8,
+      "meaning": "chime",
+      "file": "note-blocks/08-chime.png",
+      "source": "sprites/spr_block_color/6424d1d9-aa72-431f-94d0-69810a5579e0.png",
+      "uuid": "6424d1d9-aa72-431f-94d0-69810a5579e0"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 9,
+      "meaning": "xylophone",
+      "file": "note-blocks/09-xylophone.png",
+      "source": "sprites/spr_block_color/e4256469-5548-4970-81d4-fe78a957f8bf.png",
+      "uuid": "e4256469-5548-4970-81d4-fe78a957f8bf"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 10,
+      "meaning": "iron-xylophone",
+      "file": "note-blocks/10-iron-xylophone.png",
+      "source": "sprites/spr_block_color/c5152919-a8f5-46c0-b320-09e6b3f9535c.png",
+      "uuid": "c5152919-a8f5-46c0-b320-09e6b3f9535c"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 11,
+      "meaning": "cow-bell",
+      "file": "note-blocks/11-cow-bell.png",
+      "source": "sprites/spr_block_color/5ea6b4ca-80a3-4e1a-81f7-dbf2250c711d.png",
+      "uuid": "5ea6b4ca-80a3-4e1a-81f7-dbf2250c711d"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 12,
+      "meaning": "didgeridoo",
+      "file": "note-blocks/12-didgeridoo.png",
+      "source": "sprites/spr_block_color/3275a111-edb5-4d3f-8c90-f07aca3d235c.png",
+      "uuid": "3275a111-edb5-4d3f-8c90-f07aca3d235c"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 13,
+      "meaning": "bit",
+      "file": "note-blocks/13-bit.png",
+      "source": "sprites/spr_block_color/355dc121-1f32-4a3d-b6fd-531e882c93cf.png",
+      "uuid": "355dc121-1f32-4a3d-b6fd-531e882c93cf"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 14,
+      "meaning": "banjo",
+      "file": "note-blocks/14-banjo.png",
+      "source": "sprites/spr_block_color/82aeebe0-8995-4711-9ab7-a6e4a34db80a.png",
+      "uuid": "82aeebe0-8995-4711-9ab7-a6e4a34db80a"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 15,
+      "meaning": "pling",
+      "file": "note-blocks/15-pling.png",
+      "source": "sprites/spr_block_color/588290da-b5bf-49b6-91d7-324b61018608.png",
+      "uuid": "588290da-b5bf-49b6-91d7-324b61018608"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 16,
+      "meaning": "custom-1",
+      "file": "note-blocks/16-custom-1.png",
+      "source": "sprites/spr_block_color/e0526b97-a9cb-4f2b-96cd-a6b1a4694b8f.png",
+      "uuid": "e0526b97-a9cb-4f2b-96cd-a6b1a4694b8f"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 17,
+      "meaning": "custom-2",
+      "file": "note-blocks/17-custom-2.png",
+      "source": "sprites/spr_block_color/baeee1ff-2173-4256-8275-b501d6974a89.png",
+      "uuid": "baeee1ff-2173-4256-8275-b501d6974a89"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 18,
+      "meaning": "custom-3",
+      "file": "note-blocks/18-custom-3.png",
+      "source": "sprites/spr_block_color/64164c03-f6ec-44bd-b6d4-203d7dfdb486.png",
+      "uuid": "64164c03-f6ec-44bd-b6d4-203d7dfdb486"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 19,
+      "meaning": "custom-4",
+      "file": "note-blocks/19-custom-4.png",
+      "source": "sprites/spr_block_color/a3848511-16aa-4832-80d6-b0210debf63c.png",
+      "uuid": "a3848511-16aa-4832-80d6-b0210debf63c"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 20,
+      "meaning": "custom-5",
+      "file": "note-blocks/20-custom-5.png",
+      "source": "sprites/spr_block_color/4c3b7057-705d-4098-ba9b-68dcbe60196b.png",
+      "uuid": "4c3b7057-705d-4098-ba9b-68dcbe60196b"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 21,
+      "meaning": "custom-6",
+      "file": "note-blocks/21-custom-6.png",
+      "source": "sprites/spr_block_color/3a671f93-6e7f-4aed-ab91-58cdfbd688eb.png",
+      "uuid": "3a671f93-6e7f-4aed-ab91-58cdfbd688eb"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 22,
+      "meaning": "custom-7",
+      "file": "note-blocks/22-custom-7.png",
+      "source": "sprites/spr_block_color/e3c650e8-90d8-4de0-b3a5-c7b10b9d4cc9.png",
+      "uuid": "e3c650e8-90d8-4de0-b3a5-c7b10b9d4cc9"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 23,
+      "meaning": "custom-8",
+      "file": "note-blocks/23-custom-8.png",
+      "source": "sprites/spr_block_color/c733b6fb-28d5-4cb0-a828-13006c43a177.png",
+      "uuid": "c733b6fb-28d5-4cb0-a828-13006c43a177"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 24,
+      "meaning": "custom-9",
+      "file": "note-blocks/24-custom-9.png",
+      "source": "sprites/spr_block_color/4b1e24c1-3a65-4803-a7e5-a0de49169f68.png",
+      "uuid": "4b1e24c1-3a65-4803-a7e5-a0de49169f68"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 25,
+      "meaning": "custom-10",
+      "file": "note-blocks/25-custom-10.png",
+      "source": "sprites/spr_block_color/81ad9390-849d-4245-87eb-4381ce359e1d.png",
+      "uuid": "81ad9390-849d-4245-87eb-4381ce359e1d"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 26,
+      "meaning": "custom-11",
+      "file": "note-blocks/26-custom-11.png",
+      "source": "sprites/spr_block_color/17b55d1a-9102-48aa-8d71-efdb1b673f8a.png",
+      "uuid": "17b55d1a-9102-48aa-8d71-efdb1b673f8a"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 27,
+      "meaning": "custom-12",
+      "file": "note-blocks/27-custom-12.png",
+      "source": "sprites/spr_block_color/b74b5721-0f3c-44db-b865-c932662405e8.png",
+      "uuid": "b74b5721-0f3c-44db-b865-c932662405e8"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 28,
+      "meaning": "custom-13",
+      "file": "note-blocks/28-custom-13.png",
+      "source": "sprites/spr_block_color/078aef9d-ba1b-467c-b3d0-d22c7c12e0d7.png",
+      "uuid": "078aef9d-ba1b-467c-b3d0-d22c7c12e0d7"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 29,
+      "meaning": "custom-14",
+      "file": "note-blocks/29-custom-14.png",
+      "source": "sprites/spr_block_color/98a7fa10-a705-4161-802e-ab1a24be0068.png",
+      "uuid": "98a7fa10-a705-4161-802e-ab1a24be0068"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 30,
+      "meaning": "custom-15",
+      "file": "note-blocks/30-custom-15.png",
+      "source": "sprites/spr_block_color/3afb9537-9c9b-436b-8140-653367250e64.png",
+      "uuid": "3afb9537-9c9b-436b-8140-653367250e64"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 31,
+      "meaning": "custom-16",
+      "file": "note-blocks/31-custom-16.png",
+      "source": "sprites/spr_block_color/d08d096c-d80c-4f07-8254-389ba9f54319.png",
+      "uuid": "d08d096c-d80c-4f07-8254-389ba9f54319"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 32,
+      "meaning": "custom-17",
+      "file": "note-blocks/32-custom-17.png",
+      "source": "sprites/spr_block_color/4dcac2e4-44e4-438f-8875-a5f0812dc614.png",
+      "uuid": "4dcac2e4-44e4-438f-8875-a5f0812dc614"
+    },
+    {
+      "family": "note-blocks",
+      "sprite": "spr_block_color",
+      "frame": 33,
+      "meaning": "custom-18",
+      "file": "note-blocks/33-custom-18.png",
+      "source": "sprites/spr_block_color/d3442a47-79de-439e-b461-25674153c58f.png",
+      "uuid": "d3442a47-79de-439e-b461-25674153c58f"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 0,
+      "meaning": "harp",
+      "file": "instrument-glyphs/00-harp.png",
+      "source": "sprites/spr_instrumenticons/300822ce-4ef2-4748-94cc-bfac3792ddb9.png",
+      "uuid": "300822ce-4ef2-4748-94cc-bfac3792ddb9"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 1,
+      "meaning": "double-bass",
+      "file": "instrument-glyphs/01-double-bass.png",
+      "source": "sprites/spr_instrumenticons/e408702d-26a2-4c5c-8f5e-9bb617641d05.png",
+      "uuid": "e408702d-26a2-4c5c-8f5e-9bb617641d05"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 2,
+      "meaning": "bass-drum",
+      "file": "instrument-glyphs/02-bass-drum.png",
+      "source": "sprites/spr_instrumenticons/2be626e6-930c-4256-a3cb-447c757d7a5d.png",
+      "uuid": "2be626e6-930c-4256-a3cb-447c757d7a5d"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 3,
+      "meaning": "snare-drum",
+      "file": "instrument-glyphs/03-snare-drum.png",
+      "source": "sprites/spr_instrumenticons/7ff79a63-42a4-4cd9-ad12-f6bac5505a64.png",
+      "uuid": "7ff79a63-42a4-4cd9-ad12-f6bac5505a64"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 4,
+      "meaning": "click",
+      "file": "instrument-glyphs/04-click.png",
+      "source": "sprites/spr_instrumenticons/890a0185-165e-476e-943f-939601f133ba.png",
+      "uuid": "890a0185-165e-476e-943f-939601f133ba"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 5,
+      "meaning": "guitar",
+      "file": "instrument-glyphs/05-guitar.png",
+      "source": "sprites/spr_instrumenticons/e8bc43d8-3e2d-47be-990b-ef2efb09733d.png",
+      "uuid": "e8bc43d8-3e2d-47be-990b-ef2efb09733d"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 6,
+      "meaning": "flute",
+      "file": "instrument-glyphs/06-flute.png",
+      "source": "sprites/spr_instrumenticons/f29f0827-cf28-460b-8668-d6d9e695d004.png",
+      "uuid": "f29f0827-cf28-460b-8668-d6d9e695d004"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 7,
+      "meaning": "bell",
+      "file": "instrument-glyphs/07-bell.png",
+      "source": "sprites/spr_instrumenticons/2aac095a-9c03-4642-82a0-2688f5411ac0.png",
+      "uuid": "2aac095a-9c03-4642-82a0-2688f5411ac0"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 8,
+      "meaning": "chime",
+      "file": "instrument-glyphs/08-chime.png",
+      "source": "sprites/spr_instrumenticons/05dd53ec-2406-4a16-9ef2-258acfa4fed3.png",
+      "uuid": "05dd53ec-2406-4a16-9ef2-258acfa4fed3"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 9,
+      "meaning": "xylophone",
+      "file": "instrument-glyphs/09-xylophone.png",
+      "source": "sprites/spr_instrumenticons/44f8cf0d-604b-4404-a995-9d0526bdd1cd.png",
+      "uuid": "44f8cf0d-604b-4404-a995-9d0526bdd1cd"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 10,
+      "meaning": "iron-xylophone",
+      "file": "instrument-glyphs/10-iron-xylophone.png",
+      "source": "sprites/spr_instrumenticons/f439b795-4097-4d3d-a2ca-a81dcb3142bc.png",
+      "uuid": "f439b795-4097-4d3d-a2ca-a81dcb3142bc"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 11,
+      "meaning": "cow-bell",
+      "file": "instrument-glyphs/11-cow-bell.png",
+      "source": "sprites/spr_instrumenticons/c4f51c39-5e44-4c1f-82a5-524b50dd4ef7.png",
+      "uuid": "c4f51c39-5e44-4c1f-82a5-524b50dd4ef7"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 12,
+      "meaning": "didgeridoo",
+      "file": "instrument-glyphs/12-didgeridoo.png",
+      "source": "sprites/spr_instrumenticons/03f23b02-b058-4236-9123-dcab3e8925ce.png",
+      "uuid": "03f23b02-b058-4236-9123-dcab3e8925ce"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 13,
+      "meaning": "bit",
+      "file": "instrument-glyphs/13-bit.png",
+      "source": "sprites/spr_instrumenticons/2d3efe6e-8277-4c9d-84f3-f19f4561b2b0.png",
+      "uuid": "2d3efe6e-8277-4c9d-84f3-f19f4561b2b0"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 14,
+      "meaning": "banjo",
+      "file": "instrument-glyphs/14-banjo.png",
+      "source": "sprites/spr_instrumenticons/fc75183b-ccf6-4588-9f1f-f4aeffba973f.png",
+      "uuid": "fc75183b-ccf6-4588-9f1f-f4aeffba973f"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 15,
+      "meaning": "pling",
+      "file": "instrument-glyphs/15-pling.png",
+      "source": "sprites/spr_instrumenticons/76c38b92-f26b-45f5-8581-0178cc99cd26.png",
+      "uuid": "76c38b92-f26b-45f5-8581-0178cc99cd26"
+    },
+    {
+      "family": "instrument-glyphs",
+      "sprite": "spr_instrumenticons",
+      "frame": 16,
+      "meaning": "custom-base",
+      "file": "instrument-glyphs/16-custom-base.png",
+      "source": "sprites/spr_instrumenticons/b0443b9b-ed75-4725-8e1a-e3482a4597b7.png",
+      "uuid": "b0443b9b-ed75-4725-8e1a-e3482a4597b7"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "piano-normal/00-frame-0.png",
+      "source": "sprites/spr_piano/5d658687-de91-4b8a-b78e-1a2f44c91faa.png",
+      "uuid": "5d658687-de91-4b8a-b78e-1a2f44c91faa"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "piano-normal/01-frame-1.png",
+      "source": "sprites/spr_piano/f71932fb-c8b7-4a07-ba08-4571f6d633c2.png",
+      "uuid": "f71932fb-c8b7-4a07-ba08-4571f6d633c2"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "piano-normal/02-frame-2.png",
+      "source": "sprites/spr_piano/f6cff9b3-0cdf-4a05-8a86-b5e9dd8a0ec9.png",
+      "uuid": "f6cff9b3-0cdf-4a05-8a86-b5e9dd8a0ec9"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "piano-normal/03-frame-3.png",
+      "source": "sprites/spr_piano/7f2cceeb-5d5c-4dd3-8f1a-6c69959f31e8.png",
+      "uuid": "7f2cceeb-5d5c-4dd3-8f1a-6c69959f31e8"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "piano-normal/04-frame-4.png",
+      "source": "sprites/spr_piano/b89a8ef5-7238-4d0c-b118-fe9e2d978fd0.png",
+      "uuid": "b89a8ef5-7238-4d0c-b118-fe9e2d978fd0"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "piano-normal/05-frame-5.png",
+      "source": "sprites/spr_piano/31d396c6-54ad-4561-a3e7-ce4613fa145b.png",
+      "uuid": "31d396c6-54ad-4561-a3e7-ce4613fa145b"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 6,
+      "meaning": "frame-6",
+      "file": "piano-normal/06-frame-6.png",
+      "source": "sprites/spr_piano/dc2e3025-af6b-4d59-ab91-fe5ffc5132ce.png",
+      "uuid": "dc2e3025-af6b-4d59-ab91-fe5ffc5132ce"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 7,
+      "meaning": "frame-7",
+      "file": "piano-normal/07-frame-7.png",
+      "source": "sprites/spr_piano/17a84b88-ad5d-43c1-a728-0519050e77b8.png",
+      "uuid": "17a84b88-ad5d-43c1-a728-0519050e77b8"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 8,
+      "meaning": "frame-8",
+      "file": "piano-normal/08-frame-8.png",
+      "source": "sprites/spr_piano/c97e0291-b8d2-4327-837c-e3594ebab295.png",
+      "uuid": "c97e0291-b8d2-4327-837c-e3594ebab295"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 9,
+      "meaning": "frame-9",
+      "file": "piano-normal/09-frame-9.png",
+      "source": "sprites/spr_piano/14acaf69-f5b4-4ef9-b10e-295d91713a7f.png",
+      "uuid": "14acaf69-f5b4-4ef9-b10e-295d91713a7f"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 10,
+      "meaning": "frame-10",
+      "file": "piano-normal/10-frame-10.png",
+      "source": "sprites/spr_piano/32795917-43a4-41c6-af5d-3f203fb21f7b.png",
+      "uuid": "32795917-43a4-41c6-af5d-3f203fb21f7b"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 11,
+      "meaning": "frame-11",
+      "file": "piano-normal/11-frame-11.png",
+      "source": "sprites/spr_piano/4f4d7f3f-c13f-423b-85ad-bc6eb167f21b.png",
+      "uuid": "4f4d7f3f-c13f-423b-85ad-bc6eb167f21b"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 12,
+      "meaning": "frame-12",
+      "file": "piano-normal/12-frame-12.png",
+      "source": "sprites/spr_piano/3f469820-f8c3-478d-b45f-c549d543dfce.png",
+      "uuid": "3f469820-f8c3-478d-b45f-c549d543dfce"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 13,
+      "meaning": "frame-13",
+      "file": "piano-normal/13-frame-13.png",
+      "source": "sprites/spr_piano/f1085d2a-5505-4992-8a9a-81a52f82e0e3.png",
+      "uuid": "f1085d2a-5505-4992-8a9a-81a52f82e0e3"
+    },
+    {
+      "family": "piano-normal",
+      "sprite": "spr_piano",
+      "frame": 14,
+      "meaning": "frame-14",
+      "file": "piano-normal/14-frame-14.png",
+      "source": "sprites/spr_piano/d1283f68-f4c9-4251-abd7-fbcd1dbf7548.png",
+      "uuid": "d1283f68-f4c9-4251-abd7-fbcd1dbf7548"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "piano-hires/00-frame-0.png",
+      "source": "sprites/spr_piano_hires/c6c07b6e-8357-4651-a8c8-22049e7f24db.png",
+      "uuid": "c6c07b6e-8357-4651-a8c8-22049e7f24db"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "piano-hires/01-frame-1.png",
+      "source": "sprites/spr_piano_hires/6bc050b2-5a96-4eb1-bcd4-775d10693fae.png",
+      "uuid": "6bc050b2-5a96-4eb1-bcd4-775d10693fae"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "piano-hires/02-frame-2.png",
+      "source": "sprites/spr_piano_hires/1b3f4c63-675c-4313-8055-516e5c9b21cf.png",
+      "uuid": "1b3f4c63-675c-4313-8055-516e5c9b21cf"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "piano-hires/03-frame-3.png",
+      "source": "sprites/spr_piano_hires/39929937-e3dd-4d9f-a131-a2de0df9eac6.png",
+      "uuid": "39929937-e3dd-4d9f-a131-a2de0df9eac6"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "piano-hires/04-frame-4.png",
+      "source": "sprites/spr_piano_hires/5cddd64e-78f6-448b-a1f9-2be19ca1cd42.png",
+      "uuid": "5cddd64e-78f6-448b-a1f9-2be19ca1cd42"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "piano-hires/05-frame-5.png",
+      "source": "sprites/spr_piano_hires/8971bef8-d632-42d2-bdd5-8f1350824e68.png",
+      "uuid": "8971bef8-d632-42d2-bdd5-8f1350824e68"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 6,
+      "meaning": "frame-6",
+      "file": "piano-hires/06-frame-6.png",
+      "source": "sprites/spr_piano_hires/7c0d6c42-9896-44d5-81b7-1b045813286c.png",
+      "uuid": "7c0d6c42-9896-44d5-81b7-1b045813286c"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 7,
+      "meaning": "frame-7",
+      "file": "piano-hires/07-frame-7.png",
+      "source": "sprites/spr_piano_hires/7b61a00b-d633-45d1-a4dc-ee3961758302.png",
+      "uuid": "7b61a00b-d633-45d1-a4dc-ee3961758302"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 8,
+      "meaning": "frame-8",
+      "file": "piano-hires/08-frame-8.png",
+      "source": "sprites/spr_piano_hires/cc9c8469-991b-431f-ad30-5aa3c2dc275c.png",
+      "uuid": "cc9c8469-991b-431f-ad30-5aa3c2dc275c"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 9,
+      "meaning": "frame-9",
+      "file": "piano-hires/09-frame-9.png",
+      "source": "sprites/spr_piano_hires/14acaf69-f5b4-4ef9-b10e-295d91713a7f.png",
+      "uuid": "14acaf69-f5b4-4ef9-b10e-295d91713a7f"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 10,
+      "meaning": "frame-10",
+      "file": "piano-hires/10-frame-10.png",
+      "source": "sprites/spr_piano_hires/32795917-43a4-41c6-af5d-3f203fb21f7b.png",
+      "uuid": "32795917-43a4-41c6-af5d-3f203fb21f7b"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 11,
+      "meaning": "frame-11",
+      "file": "piano-hires/11-frame-11.png",
+      "source": "sprites/spr_piano_hires/4f4d7f3f-c13f-423b-85ad-bc6eb167f21b.png",
+      "uuid": "4f4d7f3f-c13f-423b-85ad-bc6eb167f21b"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 12,
+      "meaning": "frame-12",
+      "file": "piano-hires/12-frame-12.png",
+      "source": "sprites/spr_piano_hires/3f469820-f8c3-478d-b45f-c549d543dfce.png",
+      "uuid": "3f469820-f8c3-478d-b45f-c549d543dfce"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 13,
+      "meaning": "frame-13",
+      "file": "piano-hires/13-frame-13.png",
+      "source": "sprites/spr_piano_hires/f1085d2a-5505-4992-8a9a-81a52f82e0e3.png",
+      "uuid": "f1085d2a-5505-4992-8a9a-81a52f82e0e3"
+    },
+    {
+      "family": "piano-hires",
+      "sprite": "spr_piano_hires",
+      "frame": 14,
+      "meaning": "frame-14",
+      "file": "piano-hires/14-frame-14.png",
+      "source": "sprites/spr_piano_hires/d1283f68-f4c9-4251-abd7-fbcd1dbf7548.png",
+      "uuid": "d1283f68-f4c9-4251-abd7-fbcd1dbf7548"
+    },
+    {
+      "family": "layer-background",
+      "sprite": "spr_layerbox",
+      "frame": 0,
+      "meaning": "classic-light",
+      "file": "layer-background/00-classic-light.png",
+      "source": "sprites/spr_layerbox/4dd59a77-82cb-47e7-abad-0636e667b161.png",
+      "uuid": "4dd59a77-82cb-47e7-abad-0636e667b161"
+    },
+    {
+      "family": "layer-background",
+      "sprite": "spr_layerbox",
+      "frame": 1,
+      "meaning": "classic-dark",
+      "file": "layer-background/01-classic-dark.png",
+      "source": "sprites/spr_layerbox/71d8521b-d076-46de-8e23-804d2703ea18.png",
+      "uuid": "71d8521b-d076-46de-8e23-804d2703ea18"
+    },
+    {
+      "family": "layer-background",
+      "sprite": "spr_layerbox",
+      "frame": 2,
+      "meaning": "fluent-light",
+      "file": "layer-background/02-fluent-light.png",
+      "source": "sprites/spr_layerbox/c1874162-7095-4567-93ea-96bb13f731eb.png",
+      "uuid": "c1874162-7095-4567-93ea-96bb13f731eb"
+    },
+    {
+      "family": "layer-background",
+      "sprite": "spr_layerbox",
+      "frame": 3,
+      "meaning": "fluent-dark",
+      "file": "layer-background/03-fluent-dark.png",
+      "source": "sprites/spr_layerbox/91fd1cd8-67dd-4c4b-8de7-da2875c77e7d.png",
+      "uuid": "91fd1cd8-67dd-4c4b-8de7-da2875c77e7d"
+    },
+    {
+      "family": "ruler-background",
+      "sprite": "spr_timeline",
+      "frame": 0,
+      "meaning": "light",
+      "file": "ruler-background/00-light.png",
+      "source": "sprites/spr_timeline/32745186-fb72-4a19-b1ea-c659b488d828.png",
+      "uuid": "32745186-fb72-4a19-b1ea-c659b488d828"
+    },
+    {
+      "family": "ruler-background",
+      "sprite": "spr_timeline",
+      "frame": 1,
+      "meaning": "dark",
+      "file": "ruler-background/01-dark.png",
+      "source": "sprites/spr_timeline/526d65c3-1749-48b2-b8c3-0a8072cdc1b6.png",
+      "uuid": "526d65c3-1749-48b2-b8c3-0a8072cdc1b6"
+    },
+    {
+      "family": "ruler-background",
+      "sprite": "spr_timeline",
+      "frame": 2,
+      "meaning": "blackout",
+      "file": "ruler-background/02-blackout.png",
+      "source": "sprites/spr_timeline/e0b0d622-31ac-4ace-b097-1920451aeb6e.png",
+      "uuid": "e0b0d622-31ac-4ace-b097-1920451aeb6e"
+    },
+    {
+      "family": "tempo-box",
+      "sprite": "spr_tempobox_hires",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "tempo-box/00-frame-0.png",
+      "source": "sprites/spr_tempobox_hires/320f1f6e-982c-425e-b47d-ef8fe40f515f.png",
+      "uuid": "320f1f6e-982c-425e-b47d-ef8fe40f515f"
+    },
+    {
+      "family": "tempo-box",
+      "sprite": "spr_tempobox_hires",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "tempo-box/01-frame-1.png",
+      "source": "sprites/spr_tempobox_hires/1a0fd123-7702-4388-b2d3-66389020e807.png",
+      "uuid": "1a0fd123-7702-4388-b2d3-66389020e807"
+    },
+    {
+      "family": "tempo-box",
+      "sprite": "spr_tempobox_hires",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "tempo-box/02-frame-2.png",
+      "source": "sprites/spr_tempobox_hires/64d0a082-8e3b-4003-af3a-c4b079119741.png",
+      "uuid": "64d0a082-8e3b-4003-af3a-c4b079119741"
+    },
+    {
+      "family": "tempo-box",
+      "sprite": "spr_tempobox_hires",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "tempo-box/03-frame-3.png",
+      "source": "sprites/spr_tempobox_hires/c3a83a16-bcaf-4b8d-bca6-70fd3c634031.png",
+      "uuid": "c3a83a16-bcaf-4b8d-bca6-70fd3c634031"
+    },
+    {
+      "family": "tempo-box",
+      "sprite": "spr_tempobox_hires",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "tempo-box/04-frame-4.png",
+      "source": "sprites/spr_tempobox_hires/30c7ffb0-6156-4cbc-afb2-4777d3b3c17b.png",
+      "uuid": "30c7ffb0-6156-4cbc-afb2-4777d3b3c17b"
+    },
+    {
+      "family": "tempo-box",
+      "sprite": "spr_tempobox_hires",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "tempo-box/05-frame-5.png",
+      "source": "sprites/spr_tempobox_hires/7fb45896-e8f0-46fb-a929-d155a9808036.png",
+      "uuid": "7fb45896-e8f0-46fb-a929-d155a9808036"
+    },
+    {
+      "family": "toolbar-button-background",
+      "sprite": "spr_frame1_hires",
+      "frame": 0,
+      "meaning": "light-normal",
+      "file": "toolbar-button-background/00-light-normal.png",
+      "source": "sprites/spr_frame1_hires/032bca1a-7daa-4c1d-a8db-4e14ae85746a.png",
+      "uuid": "032bca1a-7daa-4c1d-a8db-4e14ae85746a"
+    },
+    {
+      "family": "toolbar-button-background",
+      "sprite": "spr_frame1_hires",
+      "frame": 1,
+      "meaning": "light-hover",
+      "file": "toolbar-button-background/01-light-hover.png",
+      "source": "sprites/spr_frame1_hires/275f6b2f-56d3-4886-b907-64ef36c2b9a4.png",
+      "uuid": "275f6b2f-56d3-4886-b907-64ef36c2b9a4"
+    },
+    {
+      "family": "toolbar-button-background",
+      "sprite": "spr_frame1_hires",
+      "frame": 2,
+      "meaning": "light-pressed",
+      "file": "toolbar-button-background/02-light-pressed.png",
+      "source": "sprites/spr_frame1_hires/23176773-0e14-408c-8c66-9b8415c50d79.png",
+      "uuid": "23176773-0e14-408c-8c66-9b8415c50d79"
+    },
+    {
+      "family": "toolbar-button-background",
+      "sprite": "spr_frame1_hires",
+      "frame": 3,
+      "meaning": "dark-normal",
+      "file": "toolbar-button-background/03-dark-normal.png",
+      "source": "sprites/spr_frame1_hires/7ed7f360-4fae-428b-86df-695dc19b4dbf.png",
+      "uuid": "7ed7f360-4fae-428b-86df-695dc19b4dbf"
+    },
+    {
+      "family": "toolbar-button-background",
+      "sprite": "spr_frame1_hires",
+      "frame": 4,
+      "meaning": "dark-hover",
+      "file": "toolbar-button-background/04-dark-hover.png",
+      "source": "sprites/spr_frame1_hires/052afca1-c028-4240-a9da-924beb922c7e.png",
+      "uuid": "052afca1-c028-4240-a9da-924beb922c7e"
+    },
+    {
+      "family": "toolbar-button-background",
+      "sprite": "spr_frame1_hires",
+      "frame": 5,
+      "meaning": "dark-pressed",
+      "file": "toolbar-button-background/05-dark-pressed.png",
+      "source": "sprites/spr_frame1_hires/e8a8208f-75fe-4c98-b156-85d2e709e94c.png",
+      "uuid": "e8a8208f-75fe-4c98-b156-85d2e709e94c"
+    },
+    {
+      "family": "layer-button-background",
+      "sprite": "spr_frame4_hires",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "layer-button-background/00-frame-0.png",
+      "source": "sprites/spr_frame4_hires/99bc45f5-3c44-44b8-be64-73b514fde6d0.png",
+      "uuid": "99bc45f5-3c44-44b8-be64-73b514fde6d0"
+    },
+    {
+      "family": "layer-button-background",
+      "sprite": "spr_frame4_hires",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "layer-button-background/01-frame-1.png",
+      "source": "sprites/spr_frame4_hires/380df7bd-953e-4278-8edb-28467d6255aa.png",
+      "uuid": "380df7bd-953e-4278-8edb-28467d6255aa"
+    },
+    {
+      "family": "layer-button-background",
+      "sprite": "spr_frame4_hires",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "layer-button-background/02-frame-2.png",
+      "source": "sprites/spr_frame4_hires/1c1544ca-e7ec-4ca2-a391-008249d10035.png",
+      "uuid": "1c1544ca-e7ec-4ca2-a391-008249d10035"
+    },
+    {
+      "family": "layer-button-background",
+      "sprite": "spr_frame4_hires",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "layer-button-background/03-frame-3.png",
+      "source": "sprites/spr_frame4_hires/0a9b7a6d-5c96-496c-b96e-3df585665258.png",
+      "uuid": "0a9b7a6d-5c96-496c-b96e-3df585665258"
+    },
+    {
+      "family": "layer-button-background",
+      "sprite": "spr_frame4_hires",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "layer-button-background/04-frame-4.png",
+      "source": "sprites/spr_frame4_hires/c0103eac-7eaa-4a2a-b776-e0261c2c846a.png",
+      "uuid": "c0103eac-7eaa-4a2a-b776-e0261c2c846a"
+    },
+    {
+      "family": "layer-button-background",
+      "sprite": "spr_frame4_hires",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "layer-button-background/05-frame-5.png",
+      "source": "sprites/spr_frame4_hires/e8169be7-de09-4221-926f-0863ec5f4f63.png",
+      "uuid": "e8169be7-de09-4221-926f-0863ec5f4f63"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "markers/00-frame-0.png",
+      "source": "sprites/spr_marker/00f5fbb4-e0de-4463-a375-7aa14fe12adc.png",
+      "uuid": "00f5fbb4-e0de-4463-a375-7aa14fe12adc"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "markers/01-frame-1.png",
+      "source": "sprites/spr_marker/4d70478c-6218-4454-849b-a0ed7c1a9cf6.png",
+      "uuid": "4d70478c-6218-4454-849b-a0ed7c1a9cf6"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "markers/02-frame-2.png",
+      "source": "sprites/spr_marker/80371f0c-1f5d-4b49-a540-b2612a8bdfab.png",
+      "uuid": "80371f0c-1f5d-4b49-a540-b2612a8bdfab"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "markers/03-frame-3.png",
+      "source": "sprites/spr_marker/bf6dd6d4-5991-4fcc-8ae6-bd5517ef0799.png",
+      "uuid": "bf6dd6d4-5991-4fcc-8ae6-bd5517ef0799"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "markers/04-frame-4.png",
+      "source": "sprites/spr_marker/2a0df61f-13ca-4138-bc4c-5f2badb01200.png",
+      "uuid": "2a0df61f-13ca-4138-bc4c-5f2badb01200"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "markers/05-frame-5.png",
+      "source": "sprites/spr_marker/25c39f71-f104-402e-8803-14a507cae97b.png",
+      "uuid": "25c39f71-f104-402e-8803-14a507cae97b"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 6,
+      "meaning": "frame-6",
+      "file": "markers/06-frame-6.png",
+      "source": "sprites/spr_marker/a77f6c34-4e05-46d7-9071-8d496821d782.png",
+      "uuid": "a77f6c34-4e05-46d7-9071-8d496821d782"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 7,
+      "meaning": "frame-7",
+      "file": "markers/07-frame-7.png",
+      "source": "sprites/spr_marker/7930e2d8-53b1-40fc-86c0-987e10ae6648.png",
+      "uuid": "7930e2d8-53b1-40fc-86c0-987e10ae6648"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 8,
+      "meaning": "frame-8",
+      "file": "markers/08-frame-8.png",
+      "source": "sprites/spr_marker/049d2ec4-1f7d-43af-a21d-650b48c4dcd1.png",
+      "uuid": "049d2ec4-1f7d-43af-a21d-650b48c4dcd1"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 9,
+      "meaning": "frame-9",
+      "file": "markers/09-frame-9.png",
+      "source": "sprites/spr_marker/2672544b-aa50-47ad-bee6-dea1564b1fbb.png",
+      "uuid": "2672544b-aa50-47ad-bee6-dea1564b1fbb"
+    },
+    {
+      "family": "markers",
+      "sprite": "spr_marker",
+      "frame": 10,
+      "meaning": "frame-10",
+      "file": "markers/10-frame-10.png",
+      "source": "sprites/spr_marker/1b7acc45-9d1e-4ef9-af44-2984c74affe8.png",
+      "uuid": "1b7acc45-9d1e-4ef9-af44-2984c74affe8"
+    },
+    {
+      "family": "selection-overlay",
+      "sprite": "spr_block_sel",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "selection-overlay/00-frame-0.png",
+      "source": "sprites/spr_block_sel/58591f8e-4bc4-4732-a44c-f3bad9301215.png",
+      "uuid": "58591f8e-4bc4-4732-a44c-f3bad9301215"
+    },
+    {
+      "family": "lock-overlay",
+      "sprite": "spr_lock",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "lock-overlay/00-frame-0.png",
+      "source": "sprites/spr_lock/b2dcb684-2bb9-461b-a6df-4767fcc9a9d8.png",
+      "uuid": "b2dcb684-2bb9-461b-a6df-4767fcc9a9d8"
+    },
+    {
+      "family": "volume-meter",
+      "sprite": "spr_volume_f_hires",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "volume-meter/00-frame-0.png",
+      "source": "sprites/spr_volume_f_hires/589f786b-33f2-4e94-a8e9-518ec7e64fdb.png",
+      "uuid": "589f786b-33f2-4e94-a8e9-518ec7e64fdb"
+    },
+    {
+      "family": "volume-meter",
+      "sprite": "spr_volume_f_hires",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "volume-meter/01-frame-1.png",
+      "source": "sprites/spr_volume_f_hires/1390c7fe-39b4-4e51-9a54-4ec1a953b5ab.png",
+      "uuid": "1390c7fe-39b4-4e51-9a54-4ec1a953b5ab"
+    },
+    {
+      "family": "volume-meter",
+      "sprite": "spr_volume_f_hires",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "volume-meter/02-frame-2.png",
+      "source": "sprites/spr_volume_f_hires/90a58909-2e2b-453a-8311-ae9200e69f87.png",
+      "uuid": "90a58909-2e2b-453a-8311-ae9200e69f87"
+    },
+    {
+      "family": "volume-meter",
+      "sprite": "spr_volume_f_hires",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "volume-meter/03-frame-3.png",
+      "source": "sprites/spr_volume_f_hires/3eba4f6e-38f4-4d3b-a055-9790f01f6b8c.png",
+      "uuid": "3eba4f6e-38f4-4d3b-a055-9790f01f6b8c"
+    },
+    {
+      "family": "volume-meter",
+      "sprite": "spr_volume_f_hires",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "volume-meter/04-frame-4.png",
+      "source": "sprites/spr_volume_f_hires/0eadf59c-0b59-4530-9104-ac2e8942fd75.png",
+      "uuid": "0eadf59c-0b59-4530-9104-ac2e8942fd75"
+    },
+    {
+      "family": "volume-meter",
+      "sprite": "spr_volume_f_hires",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "volume-meter/05-frame-5.png",
+      "source": "sprites/spr_volume_f_hires/5bb0597b-f529-4c77-8da4-bd8395633123.png",
+      "uuid": "5bb0597b-f529-4c77-8da4-bd8395633123"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 0,
+      "meaning": "frame-0",
+      "file": "stereo-meter/00-frame-0.png",
+      "source": "sprites/spr_stereo_f_hires/463e30f5-f38e-49aa-8346-09957682172f.png",
+      "uuid": "463e30f5-f38e-49aa-8346-09957682172f"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 1,
+      "meaning": "frame-1",
+      "file": "stereo-meter/01-frame-1.png",
+      "source": "sprites/spr_stereo_f_hires/9055bc0d-b760-44ae-ad1d-694277a2fcbf.png",
+      "uuid": "9055bc0d-b760-44ae-ad1d-694277a2fcbf"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 2,
+      "meaning": "frame-2",
+      "file": "stereo-meter/02-frame-2.png",
+      "source": "sprites/spr_stereo_f_hires/e6fccb65-6a31-41dc-9366-7dadb495990c.png",
+      "uuid": "e6fccb65-6a31-41dc-9366-7dadb495990c"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 3,
+      "meaning": "frame-3",
+      "file": "stereo-meter/03-frame-3.png",
+      "source": "sprites/spr_stereo_f_hires/be9e14ac-318e-49fa-a797-b5cc8e49ff03.png",
+      "uuid": "be9e14ac-318e-49fa-a797-b5cc8e49ff03"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 4,
+      "meaning": "frame-4",
+      "file": "stereo-meter/04-frame-4.png",
+      "source": "sprites/spr_stereo_f_hires/d7dc5f63-8517-439a-94f7-014eed8f3e78.png",
+      "uuid": "d7dc5f63-8517-439a-94f7-014eed8f3e78"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 5,
+      "meaning": "frame-5",
+      "file": "stereo-meter/05-frame-5.png",
+      "source": "sprites/spr_stereo_f_hires/ef7e5052-241c-451d-9e57-1f64e5f1def9.png",
+      "uuid": "ef7e5052-241c-451d-9e57-1f64e5f1def9"
+    },
+    {
+      "family": "stereo-meter",
+      "sprite": "spr_stereo_f_hires",
+      "frame": 6,
+      "meaning": "frame-6",
+      "file": "stereo-meter/06-frame-6.png",
+      "source": "sprites/spr_stereo_f_hires/991b2803-b4bb-484e-a3ca-a06339e311e4.png",
+      "uuid": "991b2803-b4bb-484e-a3ca-a06339e311e4"
+    }
+  ]
+}

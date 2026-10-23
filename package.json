@@ -1,0 +1,25 @@
+{
+  "name": "noteblockstudio-web-local",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Open Note Block Studio port with a multicore Rust SIMD WASM audio engine",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node scripts/run-tests.mjs",
+    "benchmark:dsp": "node scripts/benchmark-dsp.mjs",
+    "setup:runtime": "node scripts/setup-runtime.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sitbat/NoteBlockStudio-Web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sitbat/NoteBlockStudio-Web/issues"
+  },
+  "homepage": "https://github.com/sitbat/NoteBlockStudio-Web#readme"
+}

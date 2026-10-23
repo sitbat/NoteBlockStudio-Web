@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: launch options honor env, explicit port, no-open and paths with spaces without shell parsing
+ok 1 - launch options honor env, explicit port, no-open and paths with spaces without shell parsing
+  ---
+  duration_ms: 1.159744
+  type: 'test'
+  ...
+# Subtest: browser commands use argument arrays and fall back between Linux desktop openers
+ok 2 - browser commands use argument arrays and fall back between Linux desktop openers
+  ---
+  duration_ms: 2.309637
+  type: 'test'
+  ...
+# Subtest: Windows browser launch puts untrusted URL in environment rather than PowerShell source
+ok 3 - Windows browser launch puts untrusted URL in environment rather than PowerShell source
+  ---
+  duration_ms: 0.170824
+  type: 'test'
+  ...
+# Subtest: desktop Exec quoting escapes shell characters, percent field codes and desktop string backslashes
+ok 4 - desktop Exec quoting escapes shell characters, percent field codes and desktop string backslashes
+  ---
+  duration_ms: 0.389678
+  type: 'test'
+  ...
+# Subtest: desktop installer and uninstaller only change their own user-local entry
+ok 5 - desktop installer and uninstaller only change their own user-local entry
+  ---
+  duration_ms: 30.043412
+  type: 'test'
+  ...
+# Subtest: local services require exact same-origin and per-instance token before mutations
+ok 6 - local services require exact same-origin and per-instance token before mutations
+  ---
+  duration_ms: 109.663553
+  type: 'test'
+  ...
+# Subtest: API validates JSON, methods, routes, codec options and declared body bounds
+ok 7 - API validates JSON, methods, routes, codec options and declared body bounds
+  ---
+  duration_ms: 45.575207
+  type: 'test'
+  ...
+# Subtest: only the explicit launch file is available and URL protocol repair preserves URL encoding
+ok 8 - only the explicit launch file is available and URL protocol repair preserves URL encoding
+  ---
+  duration_ms: 152.808392
+  type: 'test'
+  ...
+# Subtest: explicit remote song fetch handles bounded redirects and rejects unsupported or credentialed URLs
+ok 9 - explicit remote song fetch handles bounded redirects and rejects unsupported or credentialed URLs
+  ---
+  duration_ms: 42.917293
+  type: 'test'
+  ...
+# Subtest: Discord IPC is opt-in and performs handshake, activity, ping/pong and clear over a real local socket
+ok 10 - Discord IPC is opt-in and performs handshake, activity, ping/pong and clear over a real local socket
+  ---
+  duration_ms: 40.673788
+  type: 'test'
+  ...
+# Subtest: missing Discord IPC reports an actionable error without enabling a background retry
+ok 11 - missing Discord IPC reports an actionable error without enabling a background retry
+  ---
+  duration_ms: 31.782663
+  type: 'test'
+  ...
+# Subtest: available FFmpeg performs real codec conversion of a generated PCM WAV
+ok 12 - available FFmpeg performs real codec conversion of a generated PCM WAV
+  ---
+  duration_ms: 206.327515
+  type: 'test'
+  ...
+# Subtest: FFmpeg permits one export at a time, releases failed uploads and enforces its process timeout
+ok 13 - FFmpeg permits one export at a time, releases failed uploads and enforces its process timeout
+  ---
+  duration_ms: 139.645623
+  type: 'test'
+  ...
+# Subtest: POSIX launchers handle spaces, directory links, arbitrary cwd, environment and arguments
+ok 14 - POSIX launchers handle spaces, directory links, arbitrary cwd, environment and arguments
+  ---
+  duration_ms: 175.524204
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 818.414667

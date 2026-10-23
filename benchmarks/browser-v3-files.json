@@ -1,0 +1,114 @@
+{
+  "V3 采样持久化测试.nbpz": {
+    "sampleBytes": 192044,
+    "sampleSha256": "8044abfeed89144b75840b7c5e7c01d620a99fed33eac01ce67cfa425f62eefc",
+    "tracks": 4,
+    "notes": 1,
+    "reverb": 43
+  },
+  "V3 采样持久化测试 (1).nbpz": {
+    "sampleBytes": 192044,
+    "sampleSha256": "8044abfeed89144b75840b7c5e7c01d620a99fed33eac01ce67cfa425f62eefc",
+    "tracks": 4,
+    "notes": 1,
+    "reverb": 43
+  },
+  "v3_________datapack.zip": {
+    "entries": [
+      "data/nbs_song/function/notes/0.mcfunction",
+      "data/nbs_song/function/tree/0_0.mcfunction",
+      "data/nbs_song/function/load.mcfunction",
+      "data/nbs_song/function/tick.mcfunction",
+      "data/nbs_song/function/player_tick.mcfunction",
+      "data/nbs_song/function/finish.mcfunction",
+      "data/nbs_song/function/loop.mcfunction",
+      "data/nbs_song/function/play.mcfunction",
+      "data/nbs_song/function/pause.mcfunction",
+      "data/nbs_song/function/stop.mcfunction",
+      "data/nbs_song/function/restart.mcfunction",
+      "data/nbs_song/function/cleanup.mcfunction",
+      "data/nbs_song/function/uninstall.mcfunction",
+      "pack.mcmeta",
+      "data/minecraft/tags/function/load.json",
+      "data/minecraft/tags/function/tick.json",
+      "nbs-web-project.json",
+      "README.txt"
+    ]
+  },
+  "v3_________sounds.zip": {
+    "entries": [
+      "assets/minecraft/sounds/nbs/v3_sine.ogg",
+      "assets/minecraft/sounds/nbs/v3_sine_-1.ogg",
+      "assets/minecraft/sounds/nbs/v3_sine_1.ogg",
+      "assets/minecraft/sounds.json",
+      "pack.mcmeta"
+    ],
+    "probes": [
+      {
+        "file": "assets/minecraft/sounds/nbs/v3_sine.ogg",
+        "codec": "vorbis",
+        "rate": "48000",
+        "channels": 1,
+        "duration": "0.500000"
+      },
+      {
+        "file": "assets/minecraft/sounds/nbs/v3_sine_-1.ogg",
+        "codec": "vorbis",
+        "rate": "48000",
+        "channels": 1,
+        "duration": "2.000000"
+      },
+      {
+        "file": "assets/minecraft/sounds/nbs/v3_sine_1.ogg",
+        "codec": "vorbis",
+        "rate": "48000",
+        "channels": 1,
+        "duration": "0.125000"
+      }
+    ]
+  },
+  "The Ground's Color is Yellow.nbpz": {
+    "samples": 1,
+    "pcmBytes": 143484
+  },
+  "the_ground_s_color_is_yellow_sounds.zip": {
+    "probes": [
+      {
+        "file": "assets/minecraft/sounds/nbs/entity.experience_orb.pickup.ogg",
+        "codec": "vorbis",
+        "rate": "48000",
+        "channels": 1,
+        "duration": "0.747083"
+      },
+      {
+        "file": "assets/minecraft/sounds/nbs/entity.experience_orb.pickup_-1.ogg",
+        "codec": "vorbis",
+        "rate": "48000",
+        "channels": 1,
+        "duration": "2.988333"
+      },
+      {
+        "file": "assets/minecraft/sounds/nbs/entity.experience_orb.pickup_1.ogg",
+        "codec": "vorbis",
+        "rate": "48000",
+        "channels": 1,
+        "duration": "0.186771"
+      }
+    ]
+  },
+  "minecraftDatapack": {
+    "notes": 1,
+    "instrument": 16,
+    "summary": {
+      "source": "datapack-project"
+    }
+  },
+  "extranotes.zip": {
+    "entries": 35,
+    "packFormat": 34
+  },
+  "instrumenttextures.zip": {
+    "entries": 55,
+    "packFormat": 34
+  }
+}
