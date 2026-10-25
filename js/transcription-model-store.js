@@ -153,7 +153,8 @@ export async function installTranscriptionModel(source,{signal,onProgress=()=>{}
 }
 
 /** The website hosts small graphs only. Large original weights come directly from the model host. */
-export async function installTranscriptionSource(info,{signal,onProgress=()=>{},fetchImpl=globalThis.fetch,estimate=()=>globalThis.navigator?.storage?.estimate?.()}={}){
+export async function installTranscriptionSource(info,{signal,concurrency=2,onProgress=()=>{},fetchImpl=globalThis.fetch,estimate=()=>globalThis.navigator?.storage?.estimate?.()}={}){
+  if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw error('模型下载并发数必须是 1–4 的整数。','INVALID_OPTIONS');
   if(!info?.available||!['small','medium'].includes(info.variant)||!Number.isSafeInteger(info.bytes)||!/^[a-f0-9]{64}$/.test(info.sha256||''))throw error(info?.unavailableReason||'此模型尚未配置可用的浏览器推理图。','MODEL_SOURCE_UNAVAILABLE');
   const packageURL=new URL(info.packageURL,globalThis.location?.href);
   const manifestRaw=await fetchBounded(packageURL,MAX_MANIFEST,{signal,fetchImpl});let source;
@@ -177,7 +178,7 @@ export async function installTranscriptionSource(info,{signal,onProgress=()=>{},
   let map;try{map=JSON.parse(await assets.get(source.mapping).text());}catch{throw error('浏览器权重映射无法解析。');}
   if(map.target?.bytes!==derived.bytes||map.target.path!==derived.path)throw error('派生权重大小不匹配。');
   const progress=p=>onProgress({...p,variant:info.variant});
-  let original=await downloadTranscriptionBlob(info.url,{bytes:info.bytes,signal,onProgress:progress,fetchImpl});
+  let original=await downloadTranscriptionBlob(info.url,{bytes:info.bytes,signal,concurrency,onProgress:progress,fetchImpl});
   if(await sha256Blob(original,{signal,onProgress:progress})!==info.sha256)throw error('模型权重 SHA-256 校验失败，未安装；请重试或检查模型源。','MODEL_HASH_MISMATCH');
   const weights=await adaptTranscriptionWeights(original,map,{signal,onProgress:progress});original=null;
   const sha256=await sha256Blob(weights,{signal,onProgress:progress});

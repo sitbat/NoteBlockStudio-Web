@@ -47,6 +47,11 @@ function memoryCache(t,{onPut}={}){
   return {tables,writes,get opens(){return opens;}};
 }
 
+test('source installer rejects invalid concurrency before fetching even a static manifest',async()=>{
+  let fetched=0;for(const concurrency of [0,5,1.5,null,'4',NaN,Infinity])await assert.rejects(installTranscriptionSource(fixture().info,{concurrency,fetchImpl:()=>{fetched++;throw Error('unexpected request');}}),{code:'INVALID_OPTIONS'});
+  assert.equal(fetched,0);
+});
+
 test('source installer verifies graphs, original SHA and exact mapped bytes before one cache transaction',async t=>{
   const f=fixture(),network=transport(f),cache=memoryCache(t),progress=[];
   const manifest=await installTranscriptionSource(f.info,{fetchImpl:network.fetchImpl,estimate:async()=>({quota:1e9,usage:0}),onProgress:value=>progress.push(value)});

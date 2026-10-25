@@ -1,9 +1,9 @@
 /** Browser-only custom-instrument edits. Input sample maps are never mutated. */
 import {createBlankSong} from './model.js';
 import {writeProjectBundle} from './project-bundle.js';
+import {localFileKey,matchLocalFileReferences} from './file-paths.js';
 
 export const MAX_CUSTOM_INSTRUMENTS = 240;
-const fileKey = value => value.replace(/\\/g, '/');
 function definitions(value) {
   if (!Array.isArray(value) || value.length > MAX_CUSTOM_INSTRUMENTS) throw new Error('NBS 最多支持 240 个自定义音色。');
   return value.map((definition, index) => {
@@ -59,11 +59,22 @@ export function importInstrumentDefinitions(song, imported, {samples = new Map()
   if (!(sourceSamples instanceof Map)) throw new Error('待导入采样库必须为 Map。');
   for (const [index] of sourceSamples) customIndex(index, incoming.length);
   const bank = new Map(samples), matches = new Map(), addedIndices = [], sourceInstrumentMap = new Map(Array.from({length: 16}, (_, i) => [i, i]));
-  custom.forEach((definition, index) => { if (definition.file && samples.has(index) && !matches.has(fileKey(definition.file))) matches.set(fileKey(definition.file), samples.get(index)); });
+  const remember = (file, buffer, replace = false) => {
+    const key = localFileKey(file); if (!key) return;
+    if (replace || !matches.has(key)) matches.set(key, new Set());
+    matches.get(key).add(buffer);
+  };
+  const reuse = file => {
+    const keys = [...matches.keys()], {indices} = matchLocalFileReferences(file, keys);
+    const buffers = new Set(indices.flatMap(index => [...matches.get(keys[index])]));
+    if (buffers.size > 1) throw new Error('音色文件路径存在歧义：大小写或相同路径对应多个不同采样，未修改工程。请指定待导入音色的采样。');
+    return buffers.values().next().value;
+  };
+  custom.forEach((definition, index) => { if (samples.has(index)) remember(definition.file, samples.get(index)); });
   incoming.forEach((definition, index) => {
     const target = custom.length; custom.push(definition); addedIndices.push(target); sourceInstrumentMap.set(16 + index, 16 + target);
-    const buffer = sourceSamples.get(index) ?? (definition.file ? matches.get(fileKey(definition.file)) : undefined);
-    if (buffer) { bank.set(target, buffer); if (definition.file && (sourceSamples.has(index) || !matches.has(fileKey(definition.file)))) matches.set(fileKey(definition.file), buffer); }
+    const supplied = sourceSamples.get(index), buffer = supplied ?? reuse(definition.file);
+    if (buffer) { bank.set(target, buffer); remember(definition.file, buffer, supplied != null); }
   });
   if (incoming.length) song.customInstruments = custom;
   return {changed: incoming.length > 0, samples: bank, addedIndices, sourceInstrumentMap};

@@ -58,7 +58,7 @@ test('init fetches only the 20 fixed local samples once and resolves bundled cus
     assert.equal(audio.buffers.size, 16);
     assert.equal(audio.bundledCustomSamples.size, 4);
     const sample = audio.bundledCustomSamples.get('entity.experience_orb.pickup.ogg');
-    for (const file of ['Custom/entity.experience_orb.pickup.ogg', 'Custom\\entity.experience_orb.pickup.ogg', 'entity.experience_orb.pickup.ogg']) {
+    for (const file of ['Custom/entity.experience_orb.pickup.ogg', 'Custom\\entity.experience_orb.pickup.ogg', 'entity.experience_orb.pickup.ogg', './Custom/entity.experience_orb.pickup.ogg', '.\\Custom\\entity.experience_orb.pickup.ogg', 'custom/ENTITY.EXPERIENCE_ORB.PICKUP.OGG']) {
       assert.equal(audio._sample({instrument: 16}, {customInstruments: [{file}]}).buffer, sample);
     }
     assert.equal(audio.warnings.length, 0);
@@ -67,7 +67,7 @@ test('init fetches only the 20 fixed local samples once and resolves bundled cus
     assert.equal(audio._sample({instrument: 16}, definition).buffer, override);
     audio.removeCustomSample(16);
     assert.equal(audio._sample({instrument: 16}, definition).buffer, sample);
-    for (const file of ['https://example.com/sample.ogg', '../Custom/entity.experience_orb.pickup.ogg', 'Custom/../entity.experience_orb.pickup.ogg', 'file:///C:/sample.ogg']) {
+    for (const file of ['https://example.com/sample.ogg', '../Custom/entity.experience_orb.pickup.ogg', 'Custom/../entity.experience_orb.pickup.ogg', 'file:///C:/sample.ogg', '/Custom/entity.experience_orb.pickup.ogg', 'C:\\Custom\\entity.experience_orb.pickup.ogg', 'other/entity.experience_orb.pickup.ogg', 'Custom/entity.experience_orb.pickup.ogg/.']) {
       assert.equal(audio._sample({instrument: 16}, {customInstruments: [{file}]}).buffer, audio.buffers.get(0));
     }
     assert.equal(requests.length, 20);

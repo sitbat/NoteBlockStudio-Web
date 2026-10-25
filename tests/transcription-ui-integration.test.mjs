@@ -4,7 +4,7 @@ import {installTranscriptionUI} from '../js/transcription-ui.js';
 
 // Event/form adapter for the real UI handlers. This does not emulate browser
 // rendering, permissions, inference, Worker execution or performance.
-function uiFixture({modelReady=false,models=[],decode,download,loadModel,microphone=false}={}){
+function uiFixture({modelReady=false,models=[],decode,download,loadModel,microphone=false,preferences={}}={}){
   const log=[],errors=[],commits=[],listeners=new Set(),contexts=[],nodes=[],tracks=[];let project={},pickCallback=null,frames=0;
   function events(target){target.events=new Map();target.addEventListener=(type,fn)=>target.events.set(type,[...(target.events.get(type)||[]),fn]);target.removeEventListener=(type,fn)=>target.events.set(type,(target.events.get(type)||[]).filter(item=>item!==fn));target.fire=async(type,event={})=>{for(const fn of target.events.get(type)||[])await fn({target,preventDefault(){},stopPropagation(){},...event});};return target;}
   const attributes=source=>Object.fromEntries([...source.matchAll(/([\w-]+)(?:="([^"]*)")?/g)].map(match=>[match[1],match[2]??'']));
@@ -35,10 +35,23 @@ function uiFixture({modelReady=false,models=[],decode,download,loadModel,microph
     scope.navigator.mediaDevices={getUserMedia:async()=>{log.push('permission');const track={stopped:false,stop(){this.stopped=true;log.push('track-stop');}};tracks.push(track);return{getTracks:()=>[track]};}};
   }
   const h={document,controller,getProjectRef:()=>project,getDownloadInfo:variant=>({variant,label:variant,bytes:412000000,url:`https://www.modelscope.cn/${variant}`,available:true}),error:error=>errors.push(error),decodeAudioFile:async(file,options)=>{log.push('decode');return decode?decode(file,options):{pcm:new Float32Array(160),sampleRate:16000};},pickInsertion(callback){pickCallback=callback;return()=>{pickCallback=null;log.push('picker-clean');};},commitNotes:async(notes,options,anchor)=>{commits.push({notes,options,anchor});return {addedNotes:notes.length,selectedIds:[`created:${commits.length}`]};},showMidiMapping(){log.push('mapping');}};
+  h.preferences=preferences;h.onPreferencesChanged=()=>log.push('save-preferences');h.downloadOptions=[];
+  const downloadModel=controller.downloadModel;controller.downloadModel=(variant,options)=>{h.downloadOptions.push({...options});return downloadModel(variant);};
   const ui=installTranscriptionUI(h),panel=ui.panel,action=name=>panel.querySelector(`[data-action="${name}"]`),input=name=>panel.querySelector(`[data-input="${name}"]`),dialog=()=>document.getElementById('transcriptionDownloadDialog');
   return{ui,controller,h,log,errors,commits,tracks,contexts,nodes,action,input,dialog,get snapshot(){return snapshot;},emit,setProject:()=>{project={};},async click(name){await panel.fire('click',{target:action(name)});},async confirmDownload(){await dialog().fire('click',{target:dialog().querySelector('[data-download-action="confirm"]')});},pick(anchor){const callback=pickCallback;pickCallback=null;callback?.(anchor);}};
 }
 const turn=()=>new Promise(resolve=>setTimeout(resolve,0)),file={name:'voice.flac',size:4};
+
+test('download concurrency restores preferences, freezes the active request, and persists the next retry selection',async()=>{
+  const defaults=uiFixture();assert.equal(defaults.ui.panel.querySelector('[data-setting="downloadConcurrency"]').value,'2');defaults.ui.destroy();
+  let reject;let attempts=0;const preferences={transcriptionDownloadConcurrency:3},f=uiFixture({preferences,download:async(_variant,emit)=>{if(++attempts===1)await new Promise((_resolve,no)=>{reject=no;});return emit({state:'ready',modelReady:true,error:null});}});
+  const select=f.ui.panel.querySelector('[data-setting="downloadConcurrency"]');assert.equal(select.value,'3');await f.ui.open();const dialogSelect=f.dialog().querySelector('[data-download-setting="concurrency"]');assert.equal(dialogSelect.value,'3');
+  dialogSelect.value='4';await dialogSelect.fire('change');assert.equal(select.value,'4');assert.equal(preferences.transcriptionDownloadConcurrency,4);assert.ok(f.log.includes('save-preferences'));
+  const pending=f.confirmDownload();await turn();assert.deepEqual(f.h.downloadOptions,[{concurrency:4}]);assert.equal(select.disabled,true);assert.equal(dialogSelect.disabled,true);assert.match(f.ui.panel.querySelector('[data-output="downloadStats"]').textContent,/40 MiB.*4 并发.*已固定/);
+  select.value='1';await select.fire('change');assert.equal(select.value,'4');assert.equal(preferences.transcriptionDownloadConcurrency,4);reject(new Error('network stopped'));await pending;assert.equal(select.disabled,false);
+  select.value='1';await select.fire('change');assert.equal(preferences.transcriptionDownloadConcurrency,1);await f.click('retryDownload');assert.deepEqual(f.h.downloadOptions,[{concurrency:4},{concurrency:1}]);f.ui.destroy();
+  const restored=uiFixture({preferences:JSON.parse(JSON.stringify(preferences))});assert.equal(restored.ui.panel.querySelector('[data-setting="downloadConcurrency"]').value,'1');await restored.ui.open();assert.equal(restored.dialog().querySelector('[data-download-setting="concurrency"]').value,'1');restored.ui.destroy();
+});
 
 test('audio chosen before a model stays local and resumes after explicit model confirmation, then requires a picked insertion',async()=>{
   const f=uiFixture();await f.ui.importAudio(file);assert.equal(f.dialog().open,true);assert.ok(!f.log.includes('decode'));assert.equal(f.commits.length,0);

@@ -58,12 +58,14 @@ export function createTranscriptionWorkerHost(scope,{Runtime=MuscriptorONNX,stor
       }
       case 'listModels':return store.list();
       case 'downloadModel':{
-        idleOnly();const info=catalog(data.variant);if(!info?.available)throw failure(info?.unavailableReason||'此档模型尚未提供浏览器推理图。','MODEL_SOURCE_UNAVAILABLE');
+        idleOnly();const concurrency=data.options?.concurrency===undefined?2:data.options.concurrency;
+        if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw failure('模型下载并发数必须是 1–4 的整数。','INVALID_OPTIONS');
+        const info=catalog(data.variant);if(!info?.available)throw failure(info?.unavailableReason||'此档模型尚未提供浏览器推理图。','MODEL_SOURCE_UNAVAILABLE');
         return modelOperation(async signal=>{
           const cached=(await store.list()).find(item=>item.variant===data.variant&&!item.testOnly);checkModel(signal);
           if(cached){await unload();checkModel(signal);job=null;config.modelId=cached.id;await ensureModel(signal);return snapshot();}
           await unload();checkModel(signal);job=null;view={...view,state:'loading',error:null,warnings:[],modelProgress:{stage:'download',variant:data.variant,loaded:0,total:info.bytes}};publish(true);
-          const installed=await store.download(info,{signal,onProgress:progress=>{if(!signal.aborted){view.modelProgress=progress;publish();}}});checkModel(signal);config.modelId=installed.id;config.model=installed.variant;await ensureModel(signal);return snapshot();
+          const installed=await store.download(info,{signal,concurrency,onProgress:progress=>{if(!signal.aborted){view.modelProgress={...progress,concurrency};publish();}}});checkModel(signal);config.modelId=installed.id;config.model=installed.variant;await ensureModel(signal);return snapshot();
         });
       }
       case 'loadModel':idleOnly();return modelOperation(async signal=>{await unload();checkModel(signal);job=null;config.modelId=data.modelId;await ensureModel(signal);return snapshot();});

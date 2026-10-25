@@ -32,6 +32,36 @@ test('decoded source samples override an existing matching filename and are reus
   const {song,samples}=fixture(),replacement={id:'replacement'},incoming={customInstruments:[definition('first','A.ogg'),definition('second','new.ogg'),definition('third','new.ogg'),definition('fourth','A.ogg')]},next={id:'new'};
   const result=importInstrumentDefinitions(song,incoming,{samples,sourceSamples:new Map([[0,replacement],[1,next]])});assert.equal(result.samples.get(3),replacement);assert.equal(result.samples.get(4),next);assert.equal(result.samples.get(5),next);assert.equal(result.samples.get(6),replacement);
 });
+
+test('bank import reuses safe dot/slash paths and unique case fallbacks, preserving Linux exact-case matches',()=>{
+  const song=createBlankSong(),upper={id:'upper'},lower={id:'lower'},drive={id:'drive'};
+  song.customInstruments=[definition('upper','Custom/Piano.ogg'),definition('lower','Custom/piano.ogg'),definition('drive','C:\\Sounds\\Drum.ogg')];
+  const samples=new Map([[0,upper],[1,lower],[2,drive]]);
+  const result=importInstrumentDefinitions(song,{customInstruments:[definition('dot','./Custom\\Piano.ogg'),definition('exact','Custom/piano.ogg'),definition('drive','c:/sounds/drum.OGG'),definition('other','other/Piano.ogg')]},{samples});
+  assert.equal(result.samples.get(3),upper);assert.equal(result.samples.get(4),lower);assert.equal(result.samples.get(5),drive);assert.equal(result.samples.has(6),false);
+});
+
+test('ambiguous sample-bank aliases fail atomically but explicit decoded source PCM disambiguates',()=>{
+  const song=createBlankSong(),upper={id:'upper'},lower={id:'lower'},supplied={id:'source'};
+  song.customInstruments=[definition('upper','Custom/Piano.ogg'),definition('lower','Custom/piano.ogg')];
+  const samples=new Map([[0,upper],[1,lower]]),before=JSON.stringify(song),incoming={customInstruments:[definition('unloaded','new.ogg'),definition('ambiguous','custom/PIANO.ogg')]};
+  assert.throws(()=>importInstrumentDefinitions(song,incoming,{samples}),/歧义/);assert.equal(JSON.stringify(song),before);assert.deepEqual([...samples],[[0,upper],[1,lower]]);
+  const result=importInstrumentDefinitions(song,incoming,{samples,sourceSamples:new Map([[1,supplied]])});assert.equal(result.samples.get(3),supplied);assert.equal(result.samples.get(0),upper);
+});
+
+test('identical canonical paths with different PCM are ambiguous; shared buffer aliases remain safe',()=>{
+  for(const shared of [false,true]){
+    const song=createBlankSong(),first={},second=shared?first:{};song.customInstruments=[definition('first','./sounds/A.ogg'),definition('second','sounds\\A.ogg')];const samples=new Map([[0,first],[1,second]]),incoming={customInstruments:[definition('new','sounds/A.ogg')]},before=JSON.stringify(song);
+    if(shared)assert.equal(importInstrumentDefinitions(song,incoming,{samples}).samples.get(2),first);
+    else{assert.throws(()=>importInstrumentDefinitions(song,incoming,{samples}),/歧义/);assert.equal(JSON.stringify(song),before);}
+  }
+});
+
+test('opaque URL and parent references roundtrip but never automatically bind another definition',()=>{
+  const song=createBlankSong(),buffer={};song.customInstruments=[definition('url','https://host/piano.ogg'),definition('parent','../piano.ogg')];
+  const result=importInstrumentDefinitions(song,{customInstruments:[definition('url','https://host/piano.ogg'),definition('parent','../piano.ogg')]},{samples:new Map([[0,buffer],[1,buffer]])});
+  assert.equal(result.samples.has(2),false);assert.equal(result.samples.has(3),false);assert.equal(song.customInstruments[3].file,'../piano.ogg');
+});
 test('invalid requests, undefined references and the 240-instrument limit fail atomically',()=>{
   for(const action of [f=>removeInstrument(f.song,-1,f.samples),f=>swapInstruments(f.song,0,3,f.samples),f=>moveInstrument(f.song,0,'sideways',f.samples),f=>removeInstrument(f.song,0,new Map([[99,{}]])),f=>importInstrumentDefinitions(f.song,{customInstruments:[{...definition('bad'),key:88}]},{samples:f.samples}),f=>importInstrumentDefinitions(f.song,{customInstruments:[definition('D')]},{samples:f.samples,sourceSamples:new Map([[3,{}]])})]){
     const f=fixture(),before=JSON.stringify(f.song),bank=[...f.samples];assert.throws(()=>action(f));assert.equal(JSON.stringify(f.song),before);assert.deepEqual([...f.samples],bank);

@@ -3,7 +3,7 @@ export const DEFAULT_PREFERENCES=Object.freeze({
   showLayers:true,showPiano:true,keyNames:true,keyNumbers:false,keyBindings:true,noteChart:false,outOfRange:true,
   keyboardInput:true,selectLastKey:true,keysmax:30,follow:true,followMode:'page',sectionStart:true,sectionEnd:false,mono:false,
   returnMarker:true,fade:true,flat:false,bpm:false,scale:100,wheelMode:'scroll',wheelProperties:true,
-  removeEffect:true,rainbow:false,blackout:false,autoBackup:true,backupMinutes:5,accent:'#0078d4',
+  removeEffect:true,rainbow:false,blackout:false,autoBackup:true,backupMinutes:5,accent:'#0078d4',transcriptionDownloadConcurrency:2,
 });
 export function normalizePreferences(value={}){
   const result={...DEFAULT_PREFERENCES};
@@ -13,6 +13,7 @@ export function normalizePreferences(value={}){
   if(['scroll','instrument','key'].includes(value?.wheelMode))result.wheelMode=value.wheelMode;
   for(const [key,min,max]of [['keysmax',7,52],['scale',75,150],['backupMinutes',1,60]])if(Number.isFinite(Number(value?.[key])))result[key]=Math.max(min,Math.min(max,Math.round(Number(value[key]))));
   if(/^#[\da-f]{6}$/i.test(value?.accent||''))result.accent=value.accent;
+  if(Number.isInteger(value?.transcriptionDownloadConcurrency)&&value.transcriptionDownloadConcurrency>=1&&value.transcriptionDownloadConcurrency<=4)result.transcriptionDownloadConcurrency=value.transcriptionDownloadConcurrency;
   return result;
 }
 export const PIANO_BINDINGS=Object.freeze(Object.fromEntries([...'1Q2W3ER5T6YU8I9O0PZSXDCVG'].map((key,index)=>[key.toLowerCase(),54+index])));

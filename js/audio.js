@@ -1,5 +1,6 @@
 /** Local Web Audio renderer. Pitch follows the original play_sound.gml. */
 import {controlType} from './tempo-map.js';
+import {findLocalFileReference} from './file-paths.js';
 export const INSTRUMENTS = [
   ['竖琴', 'Harp', 'harp.ogg', '#6ab4e6', '🎹'],
   ['低音提琴', 'Double Bass', 'dbass.ogg', '#a08de5', '♬'],
@@ -26,10 +27,10 @@ export const BUNDLED_CUSTOM_SOUNDS = Object.freeze([
   'entity.experience_orb.pickup.ogg',
   'entity.firework.blast_far.ogg',
 ]);
+const bundledCustomReferences = BUNDLED_CUSTOM_SOUNDS.flatMap(file => [file, `Custom/${file}`]);
 export const bundledCustomFile = value => {
-  if (typeof value !== 'string') return null;
-  const path = value.replace(/\\/g, '/');
-  return BUNDLED_CUSTOM_SOUNDS.find(file => path === file || path === `Custom/${file}`) || null;
+  const index = findLocalFileReference(value, bundledCustomReferences);
+  return index < 0 ? null : BUNDLED_CUSTOM_SOUNDS[Math.floor(index / 2)];
 };
 
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));

@@ -22,6 +22,7 @@ import {createTranscriptionController} from './transcription-controller.js';
 import {installTranscriptionUI,transcriptionShortcutAction} from './transcription-ui.js';
 import {BROWSER_OPEN_ACCEPT,isTranscriptionAudioFile} from './browser-files.js';
 import {decodeTranscriptionAudio} from './transcription-audio.js';
+import {findLocalFileReference} from './file-paths.js';
 import {prepareTranscription,appendTranscription} from './transcription-mapping.js';
 
 const $ = id => document.getElementById(id);
@@ -404,7 +405,7 @@ $('sampleInput').onchange=async()=>{
   const capturedSong=song,token=++sampleLoadToken,isCurrent=()=>song===capturedSong&&token===sampleLoadToken;
   try{
     if(file.size>32*1024*1024)throw new Error('单个自定义音色不能超过 32 MB。');
-    let index=target!==''?Number(target):song.customInstruments.findIndex(i=>i.file===file.name);const isNew=index<0||!Number.isInteger(index);
+    let index=target!==''?Number(target):findLocalFileReference(file.webkitRelativePath||file.name,song.customInstruments.map(i=>i.file),{allowBasename:true});const isNew=index<0||!Number.isInteger(index);
     if(isNew){if(song.customInstruments.length>=240)throw new Error('NBS 最多支持 240 个自定义音色。');index=song.customInstruments.length;}
     const previousSamples=new Map(engine.customSamples),data=await file.arrayBuffer();if(!isCurrent())return;
     await engine.setCustomSample(16+index,data,{isCurrent});if(!isCurrent())return;
@@ -530,6 +531,7 @@ function pickTranscriptionInsertion(callback){
   $('gridScroll').addEventListener('pointerdown',pick,true);document.addEventListener('keydown',cancel,true);$('gridScroll').classList.add('transcription-picking');transcriptionPickCleanup=clean;toast('点击网格选择转录开始位置；Esc 取消');return clean;
 }
 transcriptionUI=installTranscriptionUI({controller:transcriptionController,getProjectRef:()=>projectIdentity,toast,error:errorMessage,decodeAudioFile:decodeTranscriptionAudio,pickInsertion:pickTranscriptionInsertion,
+  preferences:editorPreferences,onPreferencesChanged:()=>{try{localStorage.setItem('nbs-web-preferences-v3',JSON.stringify(editorPreferences));}catch{toast('下载设置仅在本次页面生效：浏览器未允许保存偏好。');}},
   getMappingOptions:()=>transcriptionMapping?resolveMidiImportOptions(transcriptionMapping,song.customInstruments):loadMidiImportPreferences(localStorage,song.customInstruments).options,
   showMidiMapping:()=>features.configureMidiImport(options=>{transcriptionMapping=options;},transcriptionMapping),
   commitNotes:(notes,options,anchor)=>{if(playerMode||state.busy||benchmarkTask)throw new Error('请先退出播放器或结束当前性能测试，再确认落谱。');if(anchor.project!==projectIdentity)throw new Error('当前工程已改变，本次转录没有写入其他工程。');touchGrid.reset();const prepared=prepareTranscription(notes,{song,insertTick:anchor.tick,options,sourceName:'音频转录'}),result=appendTranscription(song,prepared,checkpoint);if(result.changed){state.selected=new Set(result.selectedIds);state.layer=result.layer;refresh({save:true});$('gridScroll').scrollTop=state.layer*ROW;}return {...result,addedNotes:result.counts.notes};}

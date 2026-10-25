@@ -127,10 +127,11 @@ export class TranscriptionController {
     catch(error){if(error.name!=='AbortError')this._publish({state:'error',error:{message:error.message,code:error.code||'MODEL_LOAD_FAILED'}});throw error;}
   }
   async listModels(){this._assertLive();return this._request('listModels');}
-  async downloadModel(variant){
+  async downloadModel(variant,{concurrency=2}={}){
     this._assertIdle();if(!['small','medium'].includes(variant))throw new Error('内置下载目前只提供 small 和 medium，其他档位请导入兼容模型包。');
-    this._publish({state:'loading',modelReady:false,actualBackend:null,error:null,backpressure:false,modelProgress:{stage:'download',variant,loaded:0,total:0}});
-    try{const result=await this._request('downloadModel',{variant},[],0);const ready=resultSnapshot(result);if(ready?.modelReady!==true)throw new Error('模型下载后未完成浏览器加载，不能用于识别。');this._apply(ready);return this._snapshot;}
+    if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw new RangeError('模型下载并发数必须是 1–4 的整数。');
+    this._publish({state:'loading',modelReady:false,actualBackend:null,error:null,backpressure:false,modelProgress:{stage:'download',variant,loaded:0,total:0,concurrency}});
+    try{const result=await this._request('downloadModel',{variant,options:{concurrency}},[],0);const ready=resultSnapshot(result);if(ready?.modelReady!==true)throw new Error('模型下载后未完成浏览器加载，不能用于识别。');this._apply(ready);return this._snapshot;}
     catch(error){if(error.name!=='AbortError')this._publish({state:'error',error:{message:error.message,code:error.code||'MODEL_DOWNLOAD_FAILED'}});throw error;}
   }
   async loadModel(modelId){

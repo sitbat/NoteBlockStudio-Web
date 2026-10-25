@@ -5,6 +5,7 @@ const ACTIVE=new Set(['running','processing','recording','paused','draining','st
 const STATES={idle:'等待开始',loading:'正在加载模型',ready:'模型已就绪',starting:'正在准备识别',running:'正在识别',processing:'正在识别',recording:'正在识别',paused:'识别已暂停',draining:'正在处理剩余音频',completed:'识别完成',cancelled:'已取消',error:'识别失败'};
 const validSeconds=value=>Number.isFinite(Number(value))?Math.max(0,Number(value)):0;
 const aborted=()=>Object.assign(new Error('录音已取消'),{name:'AbortError'});
+const checkedConcurrency=value=>{if(!Number.isInteger(value)||value<1||value>4)throw new RangeError('模型下载并发数必须是 1–4 的整数。');return value;};
 
 export function formatTranscriptionBytes(bytes) {
   if(!Number.isFinite(Number(bytes))||Number(bytes)<0)return '大小未知';
@@ -13,12 +14,12 @@ export function formatTranscriptionBytes(bytes) {
 
 /** Consent is explicit and source-specific. Merely constructing or inspecting the gate never downloads weights. */
 export function createTranscriptionDownloadGate({getInfo=getTranscriptionDownloadInfo,listModels=async()=>[],loadModel,downloadModel,cancelDownload=()=>{},onChange=()=>{},now=()=>performance.now()}={}) {
-  let state=Object.freeze({phase:'idle',info:null,cached:null,progress:null,error:null,canRetry:false}),generation=0,consent=null,startedAt=0,lastSample=null;
+  let state=Object.freeze({phase:'idle',info:null,cached:null,progress:null,error:null,canRetry:false,concurrency:null}),generation=0,consent=null,startedAt=0,lastSample=null;
   const update=patch=>{state=Object.freeze({...state,...patch});onChange(state);return state;};
   const infoFor=variant=>{const raw=getInfo(variant)||{};return Object.freeze({...raw,variant,label:String(raw.label||variant),available:raw.available===true,bytes:Number.isFinite(Number(raw.bytes))?Math.max(0,Number(raw.bytes)):0});};
   const sameSource=(a,b)=>!!a&&!!b&&a.variant===b.variant&&a.url===b.url&&a.packageURL===b.packageURL&&a.bytes===b.bytes&&a.sha256===b.sha256;
   async function inspect(variant,{checkCache=true}={}) {
-    const token=++generation,info=infoFor(variant);update({phase:'checking',info,cached:null,progress:null,error:null,canRetry:false});
+    const token=++generation,info=infoFor(variant);update({phase:'checking',info,cached:null,progress:null,error:null,canRetry:false,concurrency:null});
     try{
       const result=checkCache?await listModels():[],models=Array.isArray(result)?result:result?.models||[];
       if(token!==generation)throw aborted();
@@ -44,19 +45,20 @@ export function createTranscriptionDownloadGate({getInfo=getTranscriptionDownloa
     try{const result=await loadModel(id,state.info.variant);if(token!==generation)throw aborted();if(result?.modelReady!==true||result?.testOnly)throw new Error('缓存中的模型尚不可用于音乐识别，请重新加载有效模型。');update({phase:'complete',error:null});return result;}
     catch(error){if(token!==generation)throw aborted();update({phase:'error',error,canRetry:false});throw error;}
   }
-  async function confirmedDownload() {
+  async function confirmedDownload({concurrency=2}={}) {
+    checkedConcurrency(concurrency);
     const info=infoFor(state.info?.variant);
     if(!sameSource(state.info,info))throw new Error('模型来源或大小已变化，请重新查看并确认下载。');
     if(!info.available)throw new Error(info.unavailableReason||'当前构建尚未提供此模型的浏览器转换图，下载暂未开放。');
     if(typeof downloadModel!=='function')throw new Error('当前构建未提供模型下载功能。');
-    const token=++generation;consent=info;startedAt=now();lastSample=null;update({phase:'downloading',info,error:null,progress:{stage:'download',loaded:0,total:info.bytes||null,bytesPerSecond:null,path:''},canRetry:false});
-    try{const result=await downloadModel(info.variant);if(token!==generation)throw aborted();if(result?.modelReady!==true||result?.testOnly)throw new Error('模型下载后尚不可用于音乐识别，未将其标记为可用。');update({phase:'complete',error:null,canRetry:false,progress:{stage:'ready',loaded:info.bytes,total:info.bytes,downloadedBytes:info.bytes,downloadTotal:info.bytes,bytesPerSecond:null,path:''}});return result;}
+    const token=++generation;consent=info;startedAt=now();lastSample=null;update({phase:'downloading',info,error:null,progress:{stage:'download',loaded:0,total:info.bytes||null,bytesPerSecond:null,path:''},canRetry:false,concurrency});
+    try{const result=await downloadModel(info.variant,{concurrency});if(token!==generation)throw aborted();if(result?.modelReady!==true||result?.testOnly)throw new Error('模型下载后尚不可用于音乐识别，未将其标记为可用。');update({phase:'complete',error:null,canRetry:false,progress:{stage:'ready',loaded:info.bytes,total:info.bytes,downloadedBytes:info.bytes,downloadTotal:info.bytes,bytesPerSecond:null,path:''}});return result;}
     catch(error){if(token!==generation)throw aborted();update({phase:error.name==='AbortError'?'cancelled':'error',error:error.name==='AbortError'?null:error,canRetry:sameSource(consent,infoFor(info.variant))});throw error;}
   }
-  async function confirm(){if(state.phase!=='confirm')throw new Error('请先确认模型来源和下载体积。');return confirmedDownload();}
-  async function retry(){if(!state.canRetry||!sameSource(consent,infoFor(state.info?.variant)))throw new Error('模型来源已改变，请重新确认下载。');return confirmedDownload();}
+  async function confirm(options){if(state.phase!=='confirm')throw new Error('请先确认模型来源和下载体积。');return confirmedDownload(options);}
+  async function retry(options){if(!state.canRetry||!sameSource(consent,infoFor(state.info?.variant)))throw new Error('模型来源已改变，请重新确认下载。');return confirmedDownload(options);}
   async function cancel(){generation++;const active=state.phase==='downloading'||state.phase==='loadingCache';update({phase:'cancelled',error:null,canRetry:sameSource(consent,state.info)});if(active)await cancelDownload();return state;}
-  function reset(){generation++;consent=null;lastSample=null;return update({phase:'idle',info:null,cached:null,progress:null,error:null,canRetry:false});}
+  function reset(){generation++;consent=null;lastSample=null;return update({phase:'idle',info:null,cached:null,progress:null,error:null,canRetry:false,concurrency:null});}
   return {inspect,confirm,retry,useCached,cancel,reset,progress,getSnapshot:()=>state};
 }
 
@@ -178,6 +180,7 @@ export function installTranscriptionUI(h) {
     <input data-input="audio" type="file" accept="audio/*,.m4a,.ogg,.wav,.flac,.mp3,.aac,.aiff,.aif,.opus,.webm" hidden>
     <fieldset class="transcription-model"><legend>识别模型</legend><div class="transcription-model-row"><label>模型<select data-setting="model"><option value="small">small · 小型</option><option value="medium">medium · 中型</option><option value="large">large · 大型（外部模型包）</option></select></label><label>计算方式<select data-setting="backend"><option value="auto">自动选择</option><option value="webgpu">WebGPU</option><option value="webnn">WebNN</option><option value="wasm">WASM · CPU</option></select></label></div>
     <div class="transcription-actions"><button data-action="download">下载识别模型…</button><button data-action="capabilities">检查浏览器能力</button><button data-action="package">打开模型包…</button><button data-action="diagnose" disabled>模型自检</button></div><input data-input="package" type="file" accept=".zip,.nbsmodel,.json" hidden>
+    <label>模型下载并发<select data-setting="downloadConcurrency"><option value="1">1</option><option value="2">2（默认）</option><option value="3">3</option><option value="4">4</option></select></label><small>每段 40 MiB；下载开始后本次并发数固定。网络不稳定时可降低并发后重试。</small>
     <label>模型包地址<input data-setting="modelURL" type="url" placeholder="https://…/model.json" spellcheck="false" autocomplete="off"></label><button data-action="loadURL">从地址加载模型</button>
     <p data-output="capabilities" class="transcription-hint"></p><p data-output="model" class="transcription-hint">small 和 medium 首次下载后会在浏览器内自动准备并缓存，无需手动转换。</p>
     <label class="transcription-check"><input data-setting="allowSlow" type="checkbox">性能建议较低时仍尝试运行</label><small>不能绕过缺失的浏览器接口、模型不兼容或内存分配失败。</small>
@@ -190,7 +193,7 @@ export function installTranscriptionUI(h) {
     <p class="transcription-hint">录音只在主动点击后开启；最长 10 分钟。识别积压达到上限会停止录音。建议使用耳机，避免把正在播放的曲谱再次录入。</p></div>`;
   document.body.append(panel);
   const downloadDialog=document.createElement('dialog');downloadDialog.id='transcriptionDownloadDialog';downloadDialog.className='transcription-download-dialog';downloadDialog.setAttribute('aria-labelledby','transcriptionDownloadTitle');
-  downloadDialog.innerHTML=`<div class="transcription-heading"><strong id="transcriptionDownloadTitle">首次使用需要下载较大的模型</strong><button data-download-action="close" aria-label="关闭模型下载确认">×</button></div><div class="transcription-body"><p>识别在当前浏览器中进行。模型会由浏览器直接从 <strong>ModelScope</strong> 下载并保存在本机缓存；本站服务器不托管这些大权重，录音和音频不会上传处理。</p><div class="transcription-download-sizes" data-download-output="sizes"></div><label>本次下载<select data-download-setting="variant"><option value="small">small</option><option value="medium">medium</option><option value="large">large · 外部模型包</option></select></label><p data-download-output="selected"></p><p class="transcription-hint">首次使用还需加载浏览器推理组件，约 29 MB。模型转换及缓存会额外占用本机存储和内存，建议使用稳定网络；已有可用缓存时可直接使用。</p><p data-download-output="source" class="transcription-download-source"></p><p data-download-output="unavailable" class="transcription-error" hidden></p><div class="transcription-actions"><button data-download-action="close">暂不下载</button><button data-download-action="confirm" class="primary-button">确认下载</button></div></div>`;
+  downloadDialog.innerHTML=`<div class="transcription-heading"><strong id="transcriptionDownloadTitle">首次使用需要下载较大的模型</strong><button data-download-action="close" aria-label="关闭模型下载确认">×</button></div><div class="transcription-body"><p>识别在当前浏览器中进行。模型会由浏览器直接从 <strong>ModelScope</strong> 下载并保存在本机缓存；本站服务器不托管这些大权重，录音和音频不会上传处理。</p><div class="transcription-download-sizes" data-download-output="sizes"></div><label>本次下载<select data-download-setting="variant"><option value="small">small</option><option value="medium">medium</option><option value="large">large · 外部模型包</option></select></label><p data-download-output="selected"></p><label>模型下载并发<select data-download-setting="concurrency"><option value="1">1</option><option value="2">2（默认）</option><option value="3">3</option><option value="4">4</option></select></label><p class="transcription-hint">每段 40 MiB；下载开始后本次并发数固定，设置会保存在此浏览器。</p><p class="transcription-hint">首次使用还需加载浏览器推理组件，约 29 MB。模型转换及缓存会额外占用本机存储和内存，建议使用稳定网络；已有可用缓存时可直接使用。</p><p data-download-output="source" class="transcription-download-source"></p><p data-download-output="unavailable" class="transcription-error" hidden></p><div class="transcription-actions"><button data-download-action="close">暂不下载</button><button data-download-action="confirm" class="primary-button">确认下载</button></div></div>`;
   document.body.append(downloadDialog);
   const $=name=>panel.querySelector(`[data-output="${name}"]`),setting=name=>panel.querySelector(`[data-setting="${name}"]`),action=name=>panel.querySelector(`[data-action="${name}"]`),input=name=>panel.querySelector(`[data-input="${name}"]`);
   const processButton=group.querySelector('#transcriptionProcessBtn'),micButton=group.querySelector('#transcriptionMicBtn');
@@ -208,12 +211,18 @@ export function installTranscriptionUI(h) {
   const downloadGate=createTranscriptionDownloadGate({getInfo:downloadInfo,
     listModels:async()=>{const models=await controller.listModels();fillCache(models);return models;},
     loadModel:async(id,variant)=>{setting('model').value=variant;await configure();return controller.loadModel(id);},
-    downloadModel:async variant=>{setting('model').value=variant;await configure();const result=await controller.downloadModel(variant);await refreshCache();return result;},
+    downloadModel:async(variant,options)=>{setting('model').value=variant;await configure();const result=await controller.downloadModel(variant,options);await refreshCache();return result;},
     cancelDownload:()=>controller.cancel(),onChange:()=>render()});
-  const dialogOutput=name=>downloadDialog.querySelector(`[data-download-output="${name}"]`),dialogVariant=downloadDialog.querySelector('[data-download-setting="variant"]');
+  const dialogOutput=name=>downloadDialog.querySelector(`[data-download-output="${name}"]`),dialogVariant=downloadDialog.querySelector('[data-download-setting="variant"]'),dialogConcurrency=downloadDialog.querySelector('[data-download-setting="concurrency"]');
+  const savedConcurrency=h.preferences?.transcriptionDownloadConcurrency;
+  let selectedConcurrency=Number.isInteger(savedConcurrency)&&savedConcurrency>=1&&savedConcurrency<=4?savedConcurrency:2;
+  const syncDownloadConcurrency=()=>{setting('downloadConcurrency').value=String(selectedConcurrency);dialogConcurrency.value=String(selectedConcurrency);};
+  const changeDownloadConcurrency=value=>{if(['downloading','loadingCache'].includes(downloadGate.getSnapshot().phase)){syncDownloadConcurrency();return;}selectedConcurrency=checkedConcurrency(Number(value));syncDownloadConcurrency();if(h.preferences)h.preferences.transcriptionDownloadConcurrency=selectedConcurrency;h.onPreferencesChanged?.();};
+  syncDownloadConcurrency();
   function hideDownloadDialog(){if(downloadDialog.open)downloadDialog.close();}
   function showDownloadDialog(info){
     dialogVariant.value=info.variant;dialogOutput('sizes').replaceChildren();
+    syncDownloadConcurrency();
     for(const variant of ['small','medium']){const item=downloadInfo(variant),row=document.createElement('p');row.textContent=`${item.label||variant}：约 ${formatTranscriptionBytes(item.bytes)}`;dialogOutput('sizes').append(row);}
     dialogOutput('selected').textContent=`${info.label} · 权重下载约 ${formatTranscriptionBytes(info.bytes)}`;
     dialogOutput('source').textContent=info.url?`下载来源：${info.url}`:'此档位通过外部浏览器模型包加载。';
@@ -353,6 +362,7 @@ export function installTranscriptionUI(h) {
     action('mapping').disabled=typeof h.showMidiMapping!=='function';
     action('pick').disabled=inserted||!view.notes.length||recording||!!capture;action('insert').disabled=!view.canInsert||!anchor||inserted;
     const downloadPhase=downloadGate.getSnapshot().phase;
+    setting('downloadConcurrency').disabled=['downloading','loadingCache'].includes(downloadPhase);dialogConcurrency.disabled=setting('downloadConcurrency').disabled;
     $('status').textContent=downloadPhase==='error'?'模型准备失败':downloadPhase==='downloading'?'正在准备识别模型':downloadPhase==='loadingCache'?'正在读取已缓存模型':decodeBusy&&!view.busy?'正在解码本地音频':view.label;$('source').textContent=sourceLabel;
     const stats=[`已接收 ${view.receivedSeconds.toFixed(1)} 秒`,`已处理 ${view.processedSeconds.toFixed(1)} 秒`,`待处理 ${view.queuedSeconds.toFixed(1)} 秒`,`${view.notes.length.toLocaleString()} 个音符`];
     if(startedSession&&view.firstNoteLatencyMs!==null)stats.push(sessionLive?`录音开始至首批结果 ${(view.firstNoteLatencyMs/1000).toFixed(2)} 秒（含音频收集与计算）`:`文件首批结果计算用时 ${(view.firstNoteLatencyMs/1000).toFixed(2)} 秒（批量处理，非实时录音延迟）`);
@@ -373,6 +383,7 @@ export function installTranscriptionUI(h) {
     $('downloadStage').textContent=download.phase==='downloading'?(stages[progress?.stage]||'正在准备模型'):download.phase==='loadingCache'?'正在读取已缓存模型':download.phase==='complete'?'模型已就绪，下次可直接使用本机缓存':download.phase==='cancelled'?'已取消模型下载':'模型准备失败';
     if(progress?.total&&progress.loaded!==null)$('downloadProgress').value=Math.min(1,progress.loaded/progress.total);else if(download.phase==='complete')$('downloadProgress').value=1;else $('downloadProgress').removeAttribute('value');
     const downloadStats=[];
+    if(download.concurrency!==null)downloadStats.push(`每段 40 MiB · 本次 ${download.concurrency} 并发（已固定）`);
     if(progress?.stage==='download'&&progress.loaded!==null){downloadStats.push(`已下载 ${formatTranscriptionBytes(progress.loaded)}${progress.total?` / ${formatTranscriptionBytes(progress.total)}`:''}`);if(progress.bytesPerSecond!==null)downloadStats.push(`${formatTranscriptionBytes(progress.bytesPerSecond)}/s`);}
     else if(progress?.downloadedBytes)downloadStats.push(`模型权重已下载 ${formatTranscriptionBytes(progress.downloadedBytes)}${progress.downloadTotal?` / ${formatTranscriptionBytes(progress.downloadTotal)}`:''}`);
     if(progress?.stage!=='download'&&progress?.total&&progress.loaded!==null)downloadStats.push(`本阶段 ${Math.min(100,Math.round(progress.loaded/progress.total*100))}%`);
@@ -382,13 +393,15 @@ export function installTranscriptionUI(h) {
     schedulePreview();
   }
   listen(processButton,'click',run(toggleProcess));listen(processButton,'contextmenu',event=>{event.preventDefault();run(enter)();});listen(micButton,'click',run(toggleRecording));
-    const actions={close,file:()=>input('audio').click(),record:toggleRecording,process:toggleProcess,cancel,download:()=>requestDownload(),retryDownload:async()=>{localError='';await downloadGate.retry();await resumePendingAudio();render();},cancelDownload:()=>downloadGate.cancel(),capabilities,package:()=>input('package').click(),loadURL:()=>{const value=setting('modelURL').value.trim();if(!value)throw new Error('请填写模型包地址。');return loadPackage(value);},diagnose:async()=>{localError='';await configure();await controller.diagnose();render();},refreshCache,loadCache:async()=>{localError='';await configure();await controller.loadModel(setting('cache').value);if(['small','medium','large'].includes(snapshot.model))setting('model').value=snapshot.model;await resumePendingAudio();render();},clearCache:async()=>{const id=setting('cache').value;if(id)await controller.clearCache(id);await refreshCache();},mapping:()=>h.showMidiMapping?.(),pick,insert};
+    const actions={close,file:()=>input('audio').click(),record:toggleRecording,process:toggleProcess,cancel,download:()=>requestDownload(),retryDownload:async()=>{localError='';await downloadGate.retry({concurrency:selectedConcurrency});await resumePendingAudio();render();},cancelDownload:()=>downloadGate.cancel(),capabilities,package:()=>input('package').click(),loadURL:()=>{const value=setting('modelURL').value.trim();if(!value)throw new Error('请填写模型包地址。');return loadPackage(value);},diagnose:async()=>{localError='';await configure();await controller.diagnose();render();},refreshCache,loadCache:async()=>{localError='';await configure();await controller.loadModel(setting('cache').value);if(['small','medium','large'].includes(snapshot.model))setting('model').value=snapshot.model;await resumePendingAudio();render();},clearCache:async()=>{const id=setting('cache').value;if(id)await controller.clearCache(id);await refreshCache();},mapping:()=>h.showMidiMapping?.(),pick,insert};
   listen(panel,'click',run(event=>{const name=event.target.closest('[data-action]')?.dataset.action;if(name&&actions[name])return actions[name]();}));
   listen(input('audio'),'change',run(()=>{const file=input('audio').files?.[0];input('audio').value='';return importAudio(file);}));
   listen(input('package'),'change',run(()=>{const file=input('package').files?.[0];input('package').value='';if(file)return loadPackage(file);}));
   listen(panel,'keydown',event=>{event.stopPropagation();if(event.key==='Escape'){event.preventDefault();close();processButton.focus({preventScroll:true});}});
-  listen(downloadDialog,'click',run(async event=>{const name=event.target.closest('[data-download-action]')?.dataset.downloadAction;if(name==='close'){hideDownloadDialog();return;}if(name==='confirm'){hideDownloadDialog();localError='';await downloadGate.confirm();await resumePendingAudio();render();}}));
+  listen(downloadDialog,'click',run(async event=>{const name=event.target.closest('[data-download-action]')?.dataset.downloadAction;if(name==='close'){hideDownloadDialog();return;}if(name==='confirm'){hideDownloadDialog();localError='';await downloadGate.confirm({concurrency:selectedConcurrency});await resumePendingAudio();render();}}));
   listen(dialogVariant,'change',run(async()=>{setting('model').value=dialogVariant.value;const state=await downloadGate.inspect(dialogVariant.value,{checkCache:false});showDownloadDialog(state.info);}));
+  listen(setting('downloadConcurrency'),'change',run(()=>changeDownloadConcurrency(setting('downloadConcurrency').value)));
+  listen(dialogConcurrency,'change',run(()=>changeDownloadConcurrency(dialogConcurrency.value)));
   listen(downloadDialog,'keydown',event=>event.stopPropagation());
   listen(scope,'pagehide',()=>{session++;decodeAbort?.abort();decodeAbort=null;pendingAudio=null;capture?.destroy();capture=null;recording=false;controller.cancel();});
   const unsubscribe=controller.subscribe(next=>{

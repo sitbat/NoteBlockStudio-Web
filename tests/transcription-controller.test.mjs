@@ -45,7 +45,13 @@ test('controller construction and capabilities do not allocate a worker or claim
 
 test('downloadModel is explicit, supports only built-in variants, and applies actual ready state',async()=>{
   const f=fixture();assert.equal(f.workers.length,0);await assert.rejects(f.controller.downloadModel('large'),/small 和 medium/);assert.equal(f.workers.length,0);
-  await f.controller.downloadModel('medium');assert.equal(f.controller.getSnapshot().modelReady,true);assert.equal(f.controller.getSnapshot().model,'medium');assert.equal(f.workers[0].messages.filter(message=>message.type==='downloadModel').length,1);f.controller.destroy();
+  await f.controller.downloadModel('medium');assert.equal(f.controller.getSnapshot().modelReady,true);assert.equal(f.controller.getSnapshot().model,'medium');assert.equal(f.workers[0].messages.filter(message=>message.type==='downloadModel').length,1);assert.deepEqual(f.workers[0].messages.find(message=>message.type==='downloadModel').options,{concurrency:2});f.controller.destroy();
+});
+
+test('download concurrency is validated before allocating a worker and copied at RPC start',async()=>{
+  const f=fixture();for(const concurrency of [0,5,2.5,null,'4',NaN,Infinity])await assert.rejects(f.controller.downloadModel('small',{concurrency}),/1–4/);
+  assert.equal(f.workers.length,0);const options={concurrency:4},pending=f.controller.downloadModel('small',options);options.concurrency=1;await pending;
+  assert.deepEqual(f.workers[0].messages.find(message=>message.type==='downloadModel').options,{concurrency:4});f.controller.destroy();
 });
 
 test('a cache RPC must report actual runtime readiness and worker termination clears stale backend claims',async()=>{

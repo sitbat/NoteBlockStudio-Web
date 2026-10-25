@@ -50,6 +50,17 @@ test('an unavailable catalog entry fails before cache lookup, installation or ru
   assert.equal(response.ok,false);assert.equal(response.error.code,'MODEL_SOURCE_UNAVAILABLE');assert.equal(response.error.message,'No browser graph for this variant');assert.equal(h.calls.length,0);
 });
 
+test('download concurrency defaults to two, propagates the selected value and rejects invalid values before storage or network',async t=>{
+  for(const concurrency of [undefined,1,4]){
+    const h=harness();t.after(()=>h.host.dispose());assert.equal((await h.rpc({type:'downloadModel',variant:'small',options:{concurrency}})).ok,true);
+    assert.equal(h.calls.find(call=>call[0]==='download')[2].concurrency,concurrency===undefined?2:concurrency);
+  }
+  for(const concurrency of [0,5,1.5,null,'4',NaN,Infinity]){
+    const h=harness();t.after(()=>h.host.dispose());const response=await h.rpc({type:'downloadModel',variant:'small',options:{concurrency}});
+    assert.equal(response.ok,false);assert.equal(response.error.code,'INVALID_OPTIONS');assert.equal(h.calls.length,0);
+  }
+});
+
 test('explicit download reuses a real cached variant and reads weights only from local storage',async t=>{
   const cached=model('medium-official','medium'),h=harness({models:[model('random-test','medium',true),cached]});t.after(()=>h.host.dispose());
   const response=await h.rpc({type:'downloadModel',variant:'medium'});

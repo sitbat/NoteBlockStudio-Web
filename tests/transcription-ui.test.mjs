@@ -38,7 +38,7 @@ test('random-weight packages never enable music capture, import or project inser
 
 function downloadFixture({models=[],available=true,download,load,cancel}={}) {
   let clock=0;const calls=[],source={small:{variant:'small',label:'small',url:'https://www.modelscope.cn/models/small/model.safetensors',packageURL:'https://localhost/models/small/model.json',bytes:412000000,available,unavailableReason:'缺少浏览器转换图'},medium:{variant:'medium',label:'medium',url:'https://www.modelscope.cn/models/medium/model.safetensors',bytes:1230000000,available}};
-  const gate=createTranscriptionDownloadGate({getInfo:variant=>source[variant],now:()=>clock,listModels:async()=>{calls.push('list');return models;},loadModel:async id=>{calls.push(`cache:${id}`);return load?load(id):{modelReady:true,testOnly:false};},downloadModel:async variant=>{calls.push(`download:${variant}`);return download?download(variant):{modelReady:true,testOnly:false};},cancelDownload:async()=>{calls.push('cancel');return cancel?.();}});
+  const gate=createTranscriptionDownloadGate({getInfo:variant=>source[variant],now:()=>clock,listModels:async()=>{calls.push('list');return models;},loadModel:async id=>{calls.push(`cache:${id}`);return load?load(id):{modelReady:true,testOnly:false};},downloadModel:async(variant,options)=>{calls.push(`download:${variant}`);return download?download(variant,options):{modelReady:true,testOnly:false};},cancelDownload:async()=>{calls.push('cancel');return cancel?.();}});
   return {gate,calls,source,time:value=>clock=value};
 }
 
@@ -54,6 +54,14 @@ test('usable cached models bypass weight downloads while test-only caches cannot
   const f=downloadFixture({models:[{id:'real-small',variant:'small',testOnly:false}]});await f.gate.inspect('small');assert.equal(f.gate.getSnapshot().phase,'cached');await f.gate.useCached();
   assert.deepEqual(f.calls,['list','cache:real-small']);assert.equal(f.gate.getSnapshot().phase,'complete');
   const testOnly=downloadFixture({models:[{id:'random-small',variant:'small',testOnly:true}]});await testOnly.gate.inspect('small');assert.equal(testOnly.gate.getSnapshot().phase,'confirm');assert.deepEqual(testOnly.calls,['list']);
+});
+
+test('download consent freezes concurrency for this attempt and a later retry can select another value',async()=>{
+  let reject;const received=[],f=downloadFixture({download:(_variant,options)=>{received.push(options.concurrency);return received.length===1?new Promise((_resolve,no)=>{reject=no;}):Promise.resolve({modelReady:true,testOnly:false});}});
+  await f.gate.inspect('small');for(const concurrency of [0,5,1.5,null,'4',Infinity])await assert.rejects(f.gate.confirm({concurrency}),/1–4/);
+  assert.equal(received.length,0);assert.equal(f.gate.getSnapshot().phase,'confirm');const options={concurrency:4},pending=f.gate.confirm(options);options.concurrency=1;
+  assert.equal(f.gate.getSnapshot().concurrency,4);assert.deepEqual(received,[4]);reject(new Error('network stopped'));await assert.rejects(pending,/network/);
+  await f.gate.retry({concurrency:1});assert.deepEqual(received,[4,1]);assert.equal(f.gate.getSnapshot().concurrency,1);
 });
 
 test('missing browser graphs leave download unavailable instead of pretending raw weights are usable',async()=>{
