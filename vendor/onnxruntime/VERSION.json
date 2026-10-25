@@ -3,5 +3,43 @@
   "version": "1.30.0",
   "license": "MIT",
   "source": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.30.0.tgz",
-  "integrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ=="
+  "integrity": "sha512-q0y+JrrtukXSzsBWEMccVfqX25LRmosXHF+CaRJmg8pZClzcV7svNc4rKY3jL02Vb7QmRMDs1SigqR4CXAfKYQ==",
+  "localPackaging": {
+    "reason": "Serve ES modules with the existing JavaScript MIME mapping on generic static hosts; no server configuration required.",
+    "renamedModules": {
+      "ort.all.min.mjs": "ort.all.min.js",
+      "ort-wasm-simd-threaded.jsep.mjs": "ort-wasm-simd-threaded.jsep.js"
+    },
+    "loaderStringReplacements": {
+      "ort.all.min.mjs": "ort.all.min.js",
+      "ort-wasm-simd-threaded.jsep.mjs": "ort-wasm-simd-threaded.jsep.js"
+    },
+    "runtimeMathChanged": false,
+    "explicitWasmPaths": {
+      "mjs": "ort-wasm-simd-threaded.jsep.js",
+      "wasm": "ort-wasm-simd-threaded.jsep.wasm"
+    },
+    "pthreadWorkerURL": "The upstream helper uses new Worker(new URL(import.meta.url), {type: module}); after rename it loads its own .js URL."
+  },
+  "files": [
+    {
+      "path": "ort-wasm-simd-threaded.jsep.js",
+      "bytes": 46851,
+      "sha256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947",
+      "upstreamPath": "ort-wasm-simd-threaded.jsep.mjs",
+      "upstreamSHA256": "709853412fd1ffc34247af1e73569227b5b79629c5ca3f59cc39cf7e500e4947"
+    },
+    {
+      "path": "ort-wasm-simd-threaded.jsep.wasm",
+      "bytes": 28312028,
+      "sha256": "3ad23231b5bd6d9dda55a7f84606315e0bf35b6750c28ee993c987c54cacab0f"
+    },
+    {
+      "path": "ort.all.min.js",
+      "bytes": 819535,
+      "sha256": "d186306de40d87a7e086d329c0141e32eaf4c2f7586ee353eada0801ec6213af",
+      "upstreamPath": "ort.all.min.mjs",
+      "upstreamSHA256": "2e4a0eae53c3f246e26423aaca493d3bfc22ce524894f27519a9ec4a14e6397a"
+    }
+  ]
 }

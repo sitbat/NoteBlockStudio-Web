@@ -2,6 +2,12 @@
 
 普通用户在网页内确认下载、等待准备完成后即可使用，不需要安装 Python、PyTorch、Node 或任何本机推理服务。网站服务器只提供静态页面、ONNX 小图、前处理系数和浏览器运行时；音频处理和模型计算均在客户端完成。
 
+## 静态服务器模块兼容
+
+ONNX Runtime Web 1.30.0 的两个 ES 模块在本项目中分别使用 `vendor/onnxruntime/ort.all.min.js` 与 `ort-wasm-simd-threaded.jsep.js` 文件名，适配已有 `.js` JavaScript MIME 映射。某些静态服务器把 `.mjs` 当作 `application/octet-stream`，浏览器会拒绝把它加载为模块；此修复不要求修改服务器或反代配置。
+
+`ort.env.wasm.wasmPaths` 使用官方支持的 `{mjs: URL, wasm: URL}` 格式，明确指向上述 helper `.js` 和原 `.wasm`，不依赖根据文件名猜测路径。上游 pthread helper 使用 `new Worker(new URL(import.meta.url), {type: 'module'})`，因此线程也从同一 helper `.js` 启动；运行时自身的两个默认文件名引用已同步改名。`env.wasm.proxy` 保持关闭。只有文件名与加载路径改变，WASM 二进制、模型数学和默认推理模式保持原样；打包差异与文件校验和记录在 `vendor/onnxruntime/VERSION.json`。
+
 ## 首次使用与资源来源
 
 首次点转录功能时，界面先说明模型体积和来源，由用户确认后才下载，并显示下载及准备进度。small 与 medium 的原始 `model.safetensors` 分别直接从用户指定的 ModelScope 地址获取，网站服务器不转存、不代理这些完整权重。后续使用浏览器本地缓存；清除站点数据或更换浏览器后可能需要重新准备。

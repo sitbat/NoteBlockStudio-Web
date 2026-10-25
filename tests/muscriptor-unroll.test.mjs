@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import * as ort from '../vendor/onnxruntime/ort.all.min.mjs';
+import * as ort from '../vendor/onnxruntime/ort.all.min.js';
 import {MuscriptorONNX,greedyMuscriptorToken} from '../js/muscriptor-onnx.js';
 import {CHUNK_SAMPLES} from '../js/transcription-dsp.js';
 const close=values=>{for(const tensor of Object.values(values||{}))tensor?.dispose?.();};

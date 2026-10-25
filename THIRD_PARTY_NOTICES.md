@@ -51,7 +51,7 @@ v4 在浏览器 Worker 中使用随包 FFmpeg/WASM，不使用服务器 Node 或
 
 ## 浏览器音频转录
 
-浏览器模型推理使用 Microsoft ONNX Runtime Web 1.30.0（MIT），完整许可见 [licenses/onnxruntime-LICENSE.txt](licenses/onnxruntime-LICENSE.txt)，[上游源码](https://github.com/microsoft/onnxruntime/tree/v1.30.0)。运行时来自固定版本的官方 npm 包，随静态文件提供；不通过外部 CDN 加载脚本。
+浏览器模型推理使用 Microsoft ONNX Runtime Web 1.30.0（MIT），完整许可见 [licenses/onnxruntime-LICENSE.txt](licenses/onnxruntime-LICENSE.txt)，[上游源码](https://github.com/microsoft/onnxruntime/tree/v1.30.0)。运行时来自固定版本的官方 npm 包，随静态文件提供；不通过外部 CDN 加载脚本。 为兼容已有静态服务器的 JavaScript MIME 映射，两个 ES 模块使用 `.js` 文件名，并同步其默认加载文件名；运算代码与 WASM 二进制保持原样。具体本地打包差异及 SHA-256 见 `vendor/onnxruntime/VERSION.json`。
 
 MuScriptor 推理结构、MT3 音符令牌协议、预处理和重采样适配参考 [MuScriptor 上游](https://github.com/muscriptor/muscriptor)，源码版本 `8a1ef88672cc23c26619adaff37ec48d82c0b906`，采用 MIT 许可，原许可见 [licenses/muscriptor-LICENSE.txt](licenses/muscriptor-LICENSE.txt)。开发期 Python 导出器不进入网站运行环境。STFT / HTK 滤波组与 Julius 风格的窗化 sinc 重采样在本机模型 Worker 中执行。
 

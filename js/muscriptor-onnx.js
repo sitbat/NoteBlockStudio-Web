@@ -1,6 +1,6 @@
 import {MuscriptorLogMel,MuscriptorTokenDecoder,CHUNK_SAMPLES,MT3} from './transcription-dsp.js';
 const wasmRuntimeSettings=new WeakMap();
-const runtimeURL=new URL('../vendor/onnxruntime/ort.all.min.mjs',import.meta.url).href;
+const runtimeURL=new URL('../vendor/onnxruntime/ort.all.min.js',import.meta.url).href;
 const fail=(message,code)=>Object.assign(new Error(message),{code});
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
 const dispose=value=>{try{value?.dispose?.();}catch{/* The runtime can already have released a failed device. */}};
@@ -32,7 +32,7 @@ export class MuscriptorONNX {
     const m=this.manifest;this.preprocessingInfo={preprocessingRevision:m.preprocessingRevision??m.preprocessingVersion??1,preprocessing:Object.fromEntries(['window','melFilter'].map(role=>{const path=m.preprocessing?.[role];return [role,{path,sha256:m.files?.find(file=>file.path===path)?.sha256}];}))};this.backend=await chooseTranscriptionBackend(backend,m,navigator);
     const unroll=gpuUnrollSteps===8&&this.backend==='webgpu'&&m.precision==='fp32',batch=unroll?1:Math.max(1,Math.min(8,Math.trunc(gpuTokenBatchSize)||1));this.optimization={requestedBatchSize:batch,activeBatchSize:1,requestedUnrollSteps:gpuUnrollSteps===8?8:1,activeUnrollSteps:1,fallbackReason:gpuUnrollSteps===8&&!unroll?'GPU step8 requires the WebGPU backend and the compatible FP32 graph layout.':batch>1&&this.backend!=='webgpu'?'GPU token batching requires the WebGPU backend.':null};
     const ort=this.ort||await import(runtimeURL);this.ort=ort;
-    ort.env.wasm.wasmPaths=new URL('../vendor/onnxruntime/',import.meta.url).href;
+    ort.env.wasm.wasmPaths={mjs:new URL('../vendor/onnxruntime/ort-wasm-simd-threaded.jsep.js',import.meta.url),wasm:new URL('../vendor/onnxruntime/ort-wasm-simd-threaded.jsep.wasm',import.meta.url)};
     const requestedCPUThreads=this.backend==='wasm'?Math.max(1,Math.min(4,Math.trunc(cpuThreads)||1)):1,bootSettings=wasmRuntimeSettings.get(ort);
     // ORT initializes its global pool once per Worker; assigning env afterwards
     // cannot resize it. Preserve the initialized value and report a fresh-Worker

@@ -51,6 +51,7 @@ test('actual ONNX Runtime Web WASM matches official prefix logits and cached dec
   const engine=new MuscriptorONNX(manifest,{readAsset});
   t.after(async()=>engine.release());
   const loaded=await engine.load({backend:'wasm',cpuThreads:1,navigator:{}});
+  assert.equal(loaded.actualCPUThreads,1);
   assert.equal(loaded.backend,'wasm');assert.equal(loaded.actualBackend,'wasm');assert.equal(loaded.testOnly,true);
   const Tensor=engine.ort.Tensor;
   const mel=await floats('validation/log-mel.f32');

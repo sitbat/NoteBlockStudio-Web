@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-import * as ort from '../vendor/onnxruntime/ort.all.min.mjs';
+import * as ort from '../vendor/onnxruntime/ort.all.min.js';
 import {MuscriptorONNX,greedyMuscriptorToken} from '../js/muscriptor-onnx.js';
 import {CHUNK_SAMPLES} from '../js/transcription-dsp.js';
 
-ort.env.wasm.wasmPaths=new URL('../vendor/onnxruntime/',import.meta.url).href;
+ort.env.wasm.wasmPaths={mjs:new URL('../vendor/onnxruntime/ort-wasm-simd-threaded.jsep.js',import.meta.url),wasm:new URL('../vendor/onnxruntime/ort-wasm-simd-threaded.jsep.wasm',import.meta.url)};
 ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;
 const helperURL=new URL('../assets/transcription/common/decoder-argmax.onnx',import.meta.url);
 const helperBytes=new Uint8Array(await readFile(helperURL));
