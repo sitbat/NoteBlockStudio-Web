@@ -1,7 +1,12 @@
-import test from 'node:test';
+import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
-import {createHash} from 'node:crypto';
+import {createHash,webcrypto} from 'node:crypto';
 import {downloadTranscriptionBlob,sha256Blob} from '../js/transcription-download.js';
+
+// Node 18 exposes Web Crypto through node:crypto; browsers provide the global.
+const originalCrypto=Object.getOwnPropertyDescriptor(globalThis,'crypto');
+before(()=>{if(globalThis.crypto===undefined)Object.defineProperty(globalThis,'crypto',{value:webcrypto,configurable:true});});
+after(()=>{if(originalCrypto)Object.defineProperty(globalThis,'crypto',originalCrypto);else delete globalThis.crypto;});
 
 function response(parts,{status=200,length,readHook}={}){
   return new Response(new ReadableStream({pull(controller){readHook?.();const next=parts.shift();if(next)controller.enqueue(Uint8Array.from(next));else controller.close();}}),{status,headers:length===undefined?{}:{'content-length':String(length)}});

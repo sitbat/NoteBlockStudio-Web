@@ -1,10 +1,16 @@
-import test from 'node:test';
+import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
+import {File} from 'node:buffer';
 import {installFeatureUI,loadMidiImportPreferences,saveMidiImportPreferences,remapMidiDeviceInstruments,MIDI_IMPORT_STORAGE_KEY,resolveMidiImportOptions} from '../js/feature-ui.js';
 import {MidiInputController} from '../js/midi-input.js';
 import {parseMIDI} from '../js/formats.js';
 import {createBlankSong} from '../js/model.js';
 import {normalizePreferences} from '../js/editor-preferences.js';
+
+// Node 18 exposes File through node:buffer; browsers provide the global.
+const originalFile=Object.getOwnPropertyDescriptor(globalThis,'File');
+before(()=>{if(globalThis.File===undefined)Object.defineProperty(globalThis,'File',{value:File,configurable:true});});
+after(()=>{if(originalFile)Object.defineProperty(globalThis,'File',originalFile);else delete globalThis.File;});
 
 const definitions=()=>[{name:'A',file:'Custom/a.ogg',key:45,pressKey:true},{name:'B',file:'Custom/b.ogg',key:57,pressKey:false}];
 const storage=()=>{const items=new Map();return{getItem:key=>items.get(key)??null,setItem:(key,value)=>items.set(key,String(value)),removeItem:key=>items.delete(key)};};
