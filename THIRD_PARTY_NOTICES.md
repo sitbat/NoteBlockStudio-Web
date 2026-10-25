@@ -48,3 +48,11 @@ Web 版本没有复用归档中的原生 DLL 或 Python 模块。采样播放、
 v4 在浏览器 Worker 中使用随包 FFmpeg/WASM，不使用服务器 Node 或本机 FFmpeg 可执行文件。JavaScript 包装器 `@ffmpeg/ffmpeg` 为 0.12.15、MIT；`@ffmpeg/core` 为 0.12.10，采用其上游所声明的 GPL-2.0-or-later。FFmpeg 核心及其编译组件的许可独立于编辑器 MIT 许可。完整许可证、源码来源和固定校验记录随 `vendor/ffmpeg/` 一起提供，不从第三方 CDN 运行脚本。
 
 此前 v1–v3 本地安装包的运行时说明属于历史版本；v4 静态包不分发这些 Node/FFmpeg 原生可执行文件。
+
+## 浏览器音频转录
+
+浏览器模型推理使用 Microsoft ONNX Runtime Web 1.30.0（MIT），完整许可见 [licenses/onnxruntime-LICENSE.txt](licenses/onnxruntime-LICENSE.txt)，[上游源码](https://github.com/microsoft/onnxruntime/tree/v1.30.0)。运行时来自固定版本的官方 npm 包，随静态文件提供；不通过外部 CDN 加载脚本。
+
+MuScriptor 推理结构、MT3 音符令牌协议、预处理和重采样适配参考 [MuScriptor 上游](https://github.com/muscriptor/muscriptor)，源码版本 `8a1ef88672cc23c26619adaff37ec48d82c0b906`，采用 MIT 许可，原许可见 [licenses/muscriptor-LICENSE.txt](licenses/muscriptor-LICENSE.txt)。开发期 Python 导出器不进入网站运行环境。STFT / HTK 滤波组与 Julius 风格的窗化 sinc 重采样在本机模型 Worker 中执行。
+
+模型权重与源码的许可分别适用。MuScriptor small / medium 权重采用 CC BY-NC 4.0，相关说明由模型源提供。本项目的静态发布目录不包含原始或转换后的大型权重。用户明确确认后，浏览器从 MuScriptor 的 [ModelScope small](https://www.modelscope.cn/models/MuScriptor/muscriptor-small) 或 [medium](https://www.modelscope.cn/models/MuScriptor/muscriptor-medium) 仓库直接下载，校验后在本地适配并缓存；音频和识别结果不上传到模型源或网站服务器。

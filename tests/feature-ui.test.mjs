@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {installFeatureUI,loadMidiImportPreferences,saveMidiImportPreferences,remapMidiDeviceInstruments,MIDI_IMPORT_STORAGE_KEY} from '../js/feature-ui.js';
+import {installFeatureUI,loadMidiImportPreferences,saveMidiImportPreferences,remapMidiDeviceInstruments,MIDI_IMPORT_STORAGE_KEY,resolveMidiImportOptions} from '../js/feature-ui.js';
 import {MidiInputController} from '../js/midi-input.js';
 import {parseMIDI} from '../js/formats.js';
 import {createBlankSong} from '../js/model.js';
@@ -65,6 +65,20 @@ test('MIDI import dialog sends 16 channel overrides to the real parser and remem
   await get('midiImportApply').onclick();assert.deepEqual(fixture.errors,[]);assert.deepEqual(fixture.song.notes.map(note=>[note.instrument,note.key]),[[5,27],[16,51]]);assert.equal(fixture.song.tempo,24);assert.deepEqual(fixture.engine.customSamples,oldBank);assert.equal(env.closed,1);
   const remembered=loadMidiImportPreferences(env.store,fixture.song.customInstruments);assert.equal(remembered.remember,true);assert.deepEqual(remembered.options.channelMap,{0:{instrument:5,octave:-1},1:{instrument:16,octave:1}});assert.deepEqual(remembered.options.programMap,{0:{instrument:7,octave:2}});
   api.importMidi(file);assert.equal(get('midiImportTempo').value,'12');assert.equal(get('midiImportGrid').value,'2');assert.equal(get('midiImportNaming').value,'channel');assert.equal(channel(1).value,'16');assert.equal(octave(1).value,'1');assert.equal(get('midiImportRemember').checked,true);
+});
+
+test('transcription reuses the existing MIDI mapping dialog with its current settings and remaps custom sound identities',async t=>{
+  const env=formEnvironment(t),fixture=host(env),api=installFeatureUI(fixture.h),before=fixture.song,bank=new Map(fixture.engine.customSamples);let applied,parses=0;fixture.h.store.parse=async()=>{parses++;throw Error('settings must not parse');};
+  const initial={customInstruments:[definitions()[1],definitions()[0]],channelMap:{0:{instrument:16,octave:1}},programMap:{1:{instrument:17,octave:-1}},keepVelocity:false,octaveOffset:2};
+  api.configureMidiImport(options=>{applied=options;},initial);
+  assert.equal(env.doc.querySelector('[data-midi-import-channel="0"]').value,'17');assert.equal(env.doc.getElementById('midiImportOctave').value,'2');assert.equal(env.doc.getElementById('midiImportVelocity').checked,false);assert.equal(env.doc.getElementById('midiImportTempo').disabled,true);assert.equal(env.doc.getElementById('midiImportGrid').disabled,true);
+  await env.doc.getElementById('midiImportApply').onclick();assert.deepEqual(fixture.errors,[]);assert.equal(parses,0);assert.equal(fixture.song,before);assert.deepEqual(fixture.engine.customSamples,bank);assert.deepEqual(applied.channelMap,{0:{instrument:17,octave:1}});assert.deepEqual(applied.programMap,{1:{instrument:16,octave:-1}});
+  const reordered=resolveMidiImportOptions(applied,[definitions()[1],definitions()[0]]);assert.deepEqual(reordered.channelMap,{0:{instrument:16,octave:1}});assert.deepEqual(reordered.programMap,{1:{instrument:17,octave:-1}});
+});
+
+test('URL import passes the downloaded audio File and MIME to the shared open route without replacing the score',async t=>{
+  const env=formEnvironment(t),fixture=host(env),before=fixture.song,received=[],originalFetch=globalThis.fetch;globalThis.fetch=async()=>new Response(new Uint8Array([1,2,3]),{headers:{'Content-Type':'audio/flac'}});t.after(()=>{globalThis.fetch=originalFetch;});fixture.h.loadFile=async file=>received.push(file);
+  const api=installFeatureUI(fixture.h);await api.actions.openURL();env.doc.getElementById('songURL').value='https://source.example/audio';await env.doc.getElementById('urlApply').onclick();assert.deepEqual(fixture.errors,[]);assert.equal(received.length,1);assert.equal(received[0].name,'audio.flac');assert.equal(received[0].type,'audio/flac');assert.deepEqual([...new Uint8Array(await received[0].arrayBuffer())],[1,2,3]);assert.equal(fixture.song,before);
 });
 
 test('invalid channel octave never parses or commits a MIDI project, and cancellation never stores preferences',async t=>{

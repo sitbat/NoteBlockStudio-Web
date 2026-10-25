@@ -23,3 +23,6 @@
 *.ico binary
 *.zip binary
 /vendor/ffmpeg/** -text -whitespace
+
+# Hash-bound model assets must retain exact checkpoint/template bytes.
+/assets/transcription/** -text -whitespace

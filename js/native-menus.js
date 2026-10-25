@@ -23,7 +23,7 @@ export function buildNativeMenuModel(state={},instruments=[]) {
     {name:'file',trigger:'fileMenuBtn',label:'文件',items:[
       write('new','新文件','Ctrl+N','00-new'),item('open','打开歌曲…','Ctrl+O','01-open'),item('recent','最近歌曲…','','01-open'),null,
       write('save','保存歌曲','Ctrl+S','02-save'),write('saveAs','另存为…','','03-save-as'),write('saveProject','连带自定义音色保存完整工程包…','','42-instruments'),write('saveOptions','保存选项…'),item('backups','备份与恢复…'),null,
-      write('importPattern','导入片段 NBP…'),edit('exportPattern','导出选区为片段 NBP…'),item('importMidiFile','从 MIDI 文件导入…'),item('importSchematic','从 Schematic / NBT 文件导入…'),null,
+      write('importPattern','导入片段 NBP…'),edit('exportPattern','导出选区为片段 NBP…'),item('importMidiFile','从 MIDI 文件导入…'),item('transcribeAudio','从音频识别音符…','Ctrl+Alt+A'),item('recordHumming','录制哼唱…','Ctrl+Alt+H'),item('transcription','音频转音符面板…','Ctrl+Alt+T'),item('importSchematic','从 Schematic / NBT 文件导入…'),null,
       ...[['audioExport','导出音频…'],['minecraftSchematic','导出为 Schematic…'],['minecraftTrack','导出为直轨 Schematic…'],['minecraftBranch','导出为分支 Schematic…'],['minecraftDatapack','导出为数据包…']].map(([a,l])=>item(a,l,'','',{disabled:empty||!!state.busy})),null,
       item('export','更多导出（MIDI / JSON / WAV）…','','03-save-as'),item('minecraft','Minecraft 导入、导出与资源包…'),item('openURL','从链接打开…','','01-open')
     ]},

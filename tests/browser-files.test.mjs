@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {songURL,fetchSongInBrowser} from '../js/browser-files.js';
+import {songURL,fetchSongInBrowser,isTranscriptionAudioFile,BROWSER_OPEN_ACCEPT} from '../js/browser-files.js';
 
 test('URL validation handles native wrappers and rejects unsafe schemes and credentials before fetching',async()=>{
   assert.equal(songURL('nbs://https//example.com/my%20song.mid?x=%2F').href,'https://example.com/my%20song.mid?x=%2F');
@@ -44,4 +44,15 @@ test('download timeout aborts the browser request and reports a local-file fallb
 test('a broken streaming body rejects with a file-import fallback rather than partial success',async()=>{
   const stream=new ReadableStream({start(controller){controller.enqueue(new Uint8Array([1]));controller.error(new Error('connection interrupted'));}});
   await assert.rejects(fetchSongInBrowser('https://source.example/a.nbs',{fetchImpl:async()=>new Response(stream)}),/connection interrupted.*打开文件/);
+});
+
+test('ordinary open/drop audio detection respects project files and MIDI before generic audio MIME',()=>{
+  for(const name of ['melody.WAV','piano.flac','voice.m4a','song.ogg','track.mp3','audio.aiff','audio.opus','voice.webm']){assert.equal(isTranscriptionAudioFile({name}),true,name);assert.ok(BROWSER_OPEN_ACCEPT.includes(`.${name.split('.').at(-1).toLowerCase()}`));}
+  for(const name of ['notes.mid','notes.midi','song.nbs','project.json','project.nbpz','pack.zip'])assert.equal(isTranscriptionAudioFile({name,type:'audio/mpeg'}),false,name);
+  assert.equal(isTranscriptionAudioFile({name:'download',type:'audio/flac'}),true);assert.equal(isTranscriptionAudioFile({name:'download',type:'audio/x-midi'}),false);assert.equal(isTranscriptionAudioFile({name:'download',type:'application/ogg'}),true);
+});
+
+test('URL audio filenames and exposed MIME survive generic endpoints and redirects for transcription routing',async()=>{
+  for(const [mime,suffix]of [['audio/mpeg','.mp3'],['audio/mp4','.m4a'],['audio/flac','.flac'],['audio/ogg','.ogg'],['audio/x-aiff','.aiff']]){const result=await fetchSongInBrowser('https://source.example/download',{fetchImpl:async()=>new Response(new Uint8Array([1,2]),{headers:{'Content-Type':mime}})});assert.equal(result.filename,`download${suffix}`);assert.equal(isTranscriptionAudioFile({name:result.filename,type:result.mime}),true);}
+  const result=await fetchSongInBrowser('https://source.example/voice.m4a',{fetchImpl:async()=>new Response(new Uint8Array([1]),{headers:{'Content-Type':'application/octet-stream'}})});assert.equal(result.filename,'voice.m4a');
 });

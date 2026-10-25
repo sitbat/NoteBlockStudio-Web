@@ -31,10 +31,14 @@ function applyParameters() {
   if (revision === lastRevision || revision & 1) return;
   for (let i = 0; i < paramBits.length; i++) parameterBits[i] = Atomics.load(paramBits, i);
   if (revision !== Atomics.load(header, HEADER.PARAM_REV)) return;
+  let reverbTracks=0;
   for (let track = 0; track < tracks; track++) {
     const p = track * PARAM_STRIDE;
     if (!api.track(handle, track, parameterCopy[p], parameterCopy[p + 1], parameterCopy[p + 2], parameterCopy[p + 3] > .5 ? 1 : 0)) throw new Error(`Rust track 参数更新失败：${track}`);
+    if(parameterCopy[p+2]>0&&parameterCopy[p+3]>.5)reverbTracks++;
   }
+  Atomics.store(header,HEADER.REVERB_TRACKS,reverbTracks);
+  Atomics.store(header,HEADER.REVERB_BYTES,api.reverb_bytes?.(handle)||0);
   lastRevision = revision;
   Atomics.store(header, HEADER.APPLIED_SEQ, nextSequence);
   Atomics.store(header, HEADER.APPLIED_REV, revision);
@@ -111,7 +115,7 @@ self.onmessage = async ({data}) => {
     if (data.type === 'init') {
       const instance = new WebAssembly.Instance(data.module, {}), exports = instance.exports;
       api = {memory: exports.memory, engine_create: exports.engine_create, engine_destroy: exports.engine_destroy};
-      for (const name of ['sample_alloc', 'track', 'voice', 'render', 'reset', 'active_voices', 'dropped_voices', 'peak', 'wasm_simd']) api[name] = exports[`engine_${name}`] || exports[name];
+      for (const name of ['sample_alloc', 'track', 'voice', 'render', 'reset', 'active_voices', 'dropped_voices', 'peak', 'wasm_simd', 'reverb_bytes']) api[name] = exports[`engine_${name}`] || exports[name];
       for (const name of ['engine_create', 'engine_destroy', 'sample_alloc', 'track', 'voice', 'render', 'reset', 'active_voices']) if (typeof api[name] !== 'function') throw new Error(`WASM 缺少导出：${name}`);
       blockFrames = data.blockFrames; leadBlocks = data.leadBlocks; tracks = data.tracks; outputSampleRate = data.sampleRate;
       ring = data.ring; header = new Int32Array(ring.header); stamps = new Int32Array(ring.stamps); pcm = new Float32Array(ring.pcm);
@@ -141,6 +145,7 @@ self.onmessage = async ({data}) => {
       if (data.transport) { timeline = new EventTimeline(data.events, data.transport); if (metronomeEnabled) metronomeTimeline = new MetronomeTimeline(data.transport, nextSequence * blockFrames); }
       else timeline.replace(data.events, nextSequence * blockFrames);
       if (data.timeSignature !== undefined) metronomeSignature = Math.max(1, Math.min(16, Number(data.timeSignature) || 4));
+      if(Number.isSafeInteger(data.revision)&&data.revision>0)self.postMessage({type:'eventsApplied',epoch,revision:data.revision,sequence:nextSequence,eventCount:data.events.length});
     } }
     else if (data.type === 'metronome') { if (data.epoch === epoch) {
       setMetronome(data, nextSequence * blockFrames);

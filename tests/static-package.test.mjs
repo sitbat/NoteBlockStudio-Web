@@ -70,6 +70,15 @@ test('invalid DSP or codec WASM rejects before replacing the old dist',async t=>
     await assert.rejects(buildStatic(root),/Invalid WebAssembly payload/);assert.deepEqual(await filesUnder(output),['previous.txt']);
   }
 });
+
+test('large original or converted transcription weights cannot enter the static website',async t=>{
+  for(const name of ['model.safetensors','weights.bin']){
+    const root=await fixture(t),output=await preservedDist(root),target=path.join(root,'assets','transcription','small',name);
+    await mkdir(path.dirname(target),{recursive:true});await writeFile(target,'must remain browser-local');
+    await assert.rejects(buildStatic(root),/Large model weights must not be hosted/);
+    assert.equal(await readFile(path.join(output,'previous.txt'),'utf8'),'old deploy remains intact');
+  }
+});
 test('source directory links cannot add private files and preserve the prior build',async t=>{
   const root=await fixture(t),output=await preservedDist(root),target=path.join(root,'private-source');await mkdir(target);await writeFile(path.join(target,'secret.txt'),'PRIVATE');
   if(!await createLink(t,target,path.join(root,'assets','linked-private')))return;

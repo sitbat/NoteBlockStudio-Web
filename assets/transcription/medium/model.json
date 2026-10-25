@@ -1,0 +1,137 @@
+{
+  "kind": "nbs-muscriptor-source-onnx",
+  "version": 1,
+  "variant": "medium",
+  "mapping": "source-map.json",
+  "runtimeTemplate": {
+    "kind": "nbs-muscriptor-onnx",
+    "version": 1,
+    "id": "muscriptor-medium-fp32-source",
+    "variant": "medium",
+    "sampleRate": 16000,
+    "chunkSamples": 80000,
+    "melFrames": 501,
+    "melBins": 512,
+    "prefixLength": 503,
+    "card": 1395,
+    "layers": 24,
+    "heads": 16,
+    "headDim": 64,
+    "maxTokens": 2000,
+    "bos": 1395,
+    "validTokenUpperExclusive": 1393,
+    "graphs": {
+      "prefill": "prefill.onnx",
+      "step": "step.onnx"
+    },
+    "externalData": [
+      "weights.bin"
+    ],
+    "preprocessing": {
+      "window": "window-v2.f32",
+      "melFilter": "mel-filter-v2.f32"
+    },
+    "precision": "fp32",
+    "eligibleBackends": [
+      "webgpu",
+      "webnn",
+      "wasm"
+    ],
+    "validatedBackends": [],
+    "nativeCPUVerified": true,
+    "testOnly": false,
+    "onnxVerified": true,
+    "upstream": {
+      "repository": "https://github.com/muscriptor/muscriptor",
+      "revision": "8a1ef88672cc23c26619adaff37ec48d82c0b906"
+    },
+    "weightsSHA256": null,
+    "files": [
+      {
+        "path": "LICENSE-upstream.txt",
+        "bytes": 1093,
+        "sha256": "4b804dabf51f1d2c3312c3bc602b89c6663ac589f379fcdc329bf7b55c323d03"
+      },
+      {
+        "path": "MODEL-LICENSE.txt",
+        "bytes": 199,
+        "sha256": "dad2e5468d5e896f0413d0c4f0b39b2c2f5d38cda25400928c09d292e1d8be49"
+      },
+      {
+        "path": "mel-filter-v2.f32",
+        "bytes": 2099200,
+        "sha256": "a18c6e6e401ede017e9a95400b3742d87073f60df52c92822c18bcb1e86f4fdb"
+      },
+      {
+        "path": "prefill.onnx",
+        "bytes": 154065,
+        "sha256": "5078a0e9993f21a45d4b28e1552a6123a26a8688fd5acf2ff3d2f49fa9964ab1"
+      },
+      {
+        "path": "source-map.json",
+        "bytes": 91179,
+        "sha256": "7a7ee24ff827ee5e585daff9cb4e64a5768e050450fd3b12b3bfb7b7cfcf7388"
+      },
+      {
+        "path": "step.onnx",
+        "bytes": 132370,
+        "sha256": "041188b5e85928ef6bfe0e209e43ef3a0409d0470562e7177e53839269e30f07"
+      },
+      {
+        "path": "window-v2.f32",
+        "bytes": 8192,
+        "sha256": "0c84bb4f4654fb07efc1d59ed47f697c95a2d242fe19025791d5211265abed8b"
+      }
+    ],
+    "graphValidationUsedRandomWeights": true,
+    "preprocessingVersion": 2,
+    "preprocessingProvenance": "Exact F32 buffers saved in the official ModelScope checkpoint; these buffers contain checkpoint precision rounding.",
+    "preprocessingRevision": 2
+  },
+  "files": [
+    {
+      "path": "LICENSE-upstream.txt",
+      "bytes": 1093,
+      "sha256": "4b804dabf51f1d2c3312c3bc602b89c6663ac589f379fcdc329bf7b55c323d03"
+    },
+    {
+      "path": "MODEL-LICENSE.txt",
+      "bytes": 199,
+      "sha256": "dad2e5468d5e896f0413d0c4f0b39b2c2f5d38cda25400928c09d292e1d8be49"
+    },
+    {
+      "path": "mel-filter-v2.f32",
+      "bytes": 2099200,
+      "sha256": "a18c6e6e401ede017e9a95400b3742d87073f60df52c92822c18bcb1e86f4fdb"
+    },
+    {
+      "path": "prefill.onnx",
+      "bytes": 154065,
+      "sha256": "5078a0e9993f21a45d4b28e1552a6123a26a8688fd5acf2ff3d2f49fa9964ab1"
+    },
+    {
+      "path": "source-map.json",
+      "bytes": 91179,
+      "sha256": "7a7ee24ff827ee5e585daff9cb4e64a5768e050450fd3b12b3bfb7b7cfcf7388"
+    },
+    {
+      "path": "step.onnx",
+      "bytes": 132370,
+      "sha256": "041188b5e85928ef6bfe0e209e43ef3a0409d0470562e7177e53839269e30f07"
+    },
+    {
+      "path": "window-v2.f32",
+      "bytes": 8192,
+      "sha256": "0c84bb4f4654fb07efc1d59ed47f697c95a2d242fe19025791d5211265abed8b"
+    }
+  ],
+  "derivedAssets": [
+    {
+      "path": "weights.bin",
+      "bytes": 1221902336
+    }
+  ],
+  "testOnly": false,
+  "graphValidationUsedRandomWeights": true,
+  "preprocessingRevision": 2
+}

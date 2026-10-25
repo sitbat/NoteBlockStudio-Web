@@ -9,7 +9,18 @@ export function songURL(value) {
   return url;
 }
 
-const LOCAL_IMPORT = '可先在浏览器下载该曲谱，再通过“打开文件”导入。';
+export const TRANSCRIPTION_AUDIO_EXTENSIONS='.wav,.flac,.mp3,.ogg,.oga,.m4a,.aac,.aiff,.aif,.opus,.webm,.weba,.mp4';
+const AUDIO_EXTENSION=/\.(wav|flac|mp3|ogg|oga|m4a|aac|aiff|aif|opus|webm|weba|mp4)$/i;
+const PROJECT_EXTENSION=/\.(nbs|midi?|json|nbp|nbpz|zip)$/i;
+const AUDIO_MIME_EXTENSIONS=Object.freeze({'audio/wav':'.wav','audio/x-wav':'.wav','audio/wave':'.wav','audio/vnd.wave':'.wav','audio/flac':'.flac','audio/x-flac':'.flac','audio/mpeg':'.mp3','audio/mp3':'.mp3','audio/ogg':'.ogg','application/ogg':'.ogg','audio/opus':'.opus','audio/mp4':'.m4a','audio/x-m4a':'.m4a','audio/aac':'.aac','audio/x-aac':'.aac','audio/aiff':'.aiff','audio/x-aiff':'.aiff','audio/webm':'.webm','video/webm':'.webm','video/mp4':'.mp4'});
+/** MIDI and project files retain their own import flow, even with a misleading generic audio MIME. */
+export function isTranscriptionAudioFile(file){
+  const name=String(file?.name||''),type=String(file?.type||'').split(';')[0].trim().toLowerCase();
+  if(PROJECT_EXTENSION.test(name)||/^(audio\/(?:x-)?midi|application\/(?:x-)?midi)$/.test(type))return false;
+  return AUDIO_EXTENSION.test(name)||Object.hasOwn(AUDIO_MIME_EXTENSIONS,type)||type.startsWith('audio/');
+}
+export const BROWSER_OPEN_ACCEPT=`.nbs,.mid,.midi,.json,.nbp,.nbpz,.zip,${TRANSCRIPTION_AUDIO_EXTENSIONS},audio/*`;
+const LOCAL_IMPORT = '可先在浏览器下载该文件，再通过“打开文件”导入。';
 function filenameFor(response, url) {
   const type = (response.headers.get('content-type') || '').split(';')[0].toLowerCase();
   const disposition = response.headers.get('content-disposition') || '';
@@ -18,7 +29,7 @@ function filenameFor(response, url) {
   let candidate = response.headers.get('x-nbs-filename') || encoded || simple || url.pathname.split('/').at(-1) || 'song';
   try { candidate = decodeURIComponent(candidate.trim()); } catch { /* Keep literal malformed escapes in the display filename. */ }
   candidate = candidate.split(/[\\/]/).at(-1).replace(/[<>:"|?*\x00-\x1f\x7f]/g, '_').replace(/[. ]+$/, '').slice(0, 240) || 'song';
-  if (!/\.(nbs|midi?|json|nbp|nbpz|zip)$/i.test(candidate)) candidate += /midi/.test(type) ? '.mid' : /json/.test(type) ? '.json' : '.nbs';
+  if (!PROJECT_EXTENSION.test(candidate)&&!AUDIO_EXTENSION.test(candidate)) candidate += /midi/.test(type) ? '.mid' : /json/.test(type) ? '.json' : AUDIO_MIME_EXTENSIONS[type]||'.nbs';
   return {filename: candidate, mime: type || 'application/octet-stream'};
 }
 

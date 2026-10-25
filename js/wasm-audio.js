@@ -20,6 +20,7 @@ export class WasmAudioEngine extends AudioEngine {
     this._pool = null; this._poolPromise = null; this._pcmCache = new WeakMap();
     this._lastStats = null; this._transport = null; this._benchmarking = false;
     this._recordedMonitors = new Map(); this._songRevision = 0;
+    this._eventRevision=0;this._eventUpdates=new Map();this._eventMetrics={changeCount:0,maxAckMs:0,maxPipelineMs:0,latestAppliedRevision:0};
   }
 
   async init() {
@@ -323,6 +324,7 @@ export class WasmAudioEngine extends AudioEngine {
         if (data.type === 'ready') { ready = true; clearTimeout(timeout); pool.simd &&= data.simd; resolve(); }
         else if (data.type === 'prepared') pool.prepared?.get(index)?.(data.epoch);
         else if (data.type === 'paramsApplied') this._acknowledgeControl(pool, index, data.revision, data.sequence);
+        else if(data.type==='eventsApplied')this._acknowledgeEvents(pool,index,data);
         else if (data.type === 'sampleLoaded') pool.sampleRequests?.get(data.request)?.(index);
         else if (data.type === 'triggered') pool.triggerRequests?.get(data.request)?.(data);
         else if (data.type === 'error') {
@@ -405,7 +407,7 @@ export class WasmAudioEngine extends AudioEngine {
     if (pool !== this._pool) return;
     const ring = pool.rings[index], pending = ring.pendingControl;
     if (!pending || revision < pending.revision) return;
-    ring.lastControl = {controlAckMs: performance.now() - pending.time, controlPipelineMs: Math.max(0, sequence * this.config.blockFrames - pending.frame) / this.context.sampleRate * 1000};
+    ring.lastControl = {revision,sequence,controlAckMs: performance.now() - pending.time, controlPipelineMs: Math.max(0, sequence * this.config.blockFrames - pending.frame) / this.context.sampleRate * 1000};
     if (this._benchmarkMetrics) {
       this._benchmarkMetrics.maxControlAckMs = Math.max(this._benchmarkMetrics.maxControlAckMs, ring.lastControl.controlAckMs);
       this._benchmarkMetrics.maxControlPipelineMs = Math.max(this._benchmarkMetrics.maxControlPipelineMs, ring.lastControl.controlPipelineMs);
@@ -414,6 +416,19 @@ export class WasmAudioEngine extends AudioEngine {
   }
 
   /** Membership edits replace only future event lists, preserving the live reverb states. */
+  _acknowledgeEvents(pool,index,data){
+    if(pool!==this._pool||data.epoch!==Atomics.load(pool.control,GLOBAL.EPOCH))return;
+    const update=this._eventUpdates.get(data.revision);if(!update||update.cancelled||!update.pending.has(index))return;
+    update.pending.delete(index);update.ackMs=Math.max(update.ackMs,performance.now()-update.time);update.pipelineMs=Math.max(update.pipelineMs,Math.max(0,data.sequence*this.config.blockFrames-update.frame)/this.context.sampleRate*1000);
+    update.appliedFrames[index]=data.sequence*this.config.blockFrames;
+    if(!update.pending.size){update.applied=true;this._eventMetrics.changeCount++;this._eventMetrics.maxAckMs=Math.max(this._eventMetrics.maxAckMs,update.ackMs);this._eventMetrics.maxPipelineMs=Math.max(this._eventMetrics.maxPipelineMs,update.pipelineMs);this._eventMetrics.latestAppliedRevision=Math.max(this._eventMetrics.latestAppliedRevision,update.revision);}
+  }
+
+  /** Actual shard acceptance of an event-list edit, independently of UI state. */
+  getEventUpdateStatus(revision=this._eventRevision){
+    const update=this._eventUpdates.get(revision);return update?{revision:update.revision,applied:update.applied,cancelled:!!update.cancelled,pendingShards:[...update.pending],ackMs:update.ackMs,pipelineMs:update.pipelineMs,appliedFrames:[...update.appliedFrames]}:null;
+  }
+
   updateSong(song) {
     this._songRevision++;
     this._song = song; this.customInstruments = song.customInstruments || [];
@@ -432,7 +447,10 @@ export class WasmAudioEngine extends AudioEngine {
           rainbowBaseParity: rainbowAtFrame(frame - 1, current)}, this.context.sampleRate);
         this._transport = transport;
       } else this._transport = {...current, rainbowEvents: next.rainbowEvents};
-      this._pool.workers.forEach((worker, index) => worker.postMessage({type: 'events', events: events[index], epoch, transport, timeSignature: song.timeSignature}));
+      const revision=++this._eventRevision;
+      this._eventUpdates.set(revision,{revision,epoch,frame:this._playedFrames(),time:performance.now(),pending:new Set(this._pool.workers.map((_,index)=>index)),applied:false,ackMs:0,pipelineMs:0,appliedFrames:[]});
+      while(this._eventUpdates.size>64)this._eventUpdates.delete(this._eventUpdates.keys().next().value);
+      this._pool.workers.forEach((worker, index) => worker.postMessage({type: 'events', events: events[index], epoch, transport, timeSignature: song.timeSignature,revision}));
     }
     return true;
   }
@@ -440,6 +458,7 @@ export class WasmAudioEngine extends AudioEngine {
   async play(song, options = {}) {
     const generation = ++this._generation;
     this._halt(false);
+    this._eventUpdates.clear();this._eventMetrics={changeCount:0,maxAckMs:0,maxPipelineMs:0,latestAppliedRevision:0};
     this._song = song; this.customInstruments = song.customInstruments || []; this._playOptions = options;
     this._metronome = options.metronome === undefined ? !!this._metronome : !!options.metronome;
     if (options.mono !== undefined) this.setMono(!!options.mono);
@@ -551,6 +570,7 @@ export class WasmAudioEngine extends AudioEngine {
 
   _halt(resetTick) {
     clearInterval(this._timer); this._timer = null;
+    for(const update of this._eventUpdates.values())if(!update.applied)update.cancelled=true;
     if (this._pool) {
       Atomics.store(this._pool.control, GLOBAL.MODE, STOPPED);
       Atomics.add(this._pool.control, GLOBAL.EPOCH, 1);
@@ -582,8 +602,8 @@ export class WasmAudioEngine extends AudioEngine {
   getStats() {
     const pool = this._pool;
     const empty = {workers: 0, blockFrames: this.config.blockFrames, leadFrames: 0, underruns: 0, activeVoices: 0, droppedVoices: 0, maxWorkerMs: 0, p95WorkerMs: 0, rtRatio: 0, latencyMs: 0, renderAheadMs: 0, controlPipelineMs: 0, controlAckMs: 0, outputPeak: 0, outputRms: 0, baseLatencyMs: (this.context?.baseLatency || 0) * 1000, outputLatencyMs: (this.context?.outputLatency || 0) * 1000, sampleRate: this.context?.sampleRate || 0, simd: false, tracks: 0, reverbTracks: 0, backend: 'Rust/WASM SIMD worker pool'};
-    if (!pool) return this._lastStats ? {...this._lastStats, activeVoices: 0} : empty;
-    const stats = {...empty, workers: pool.workers.length, simd: pool.simd, tracks: pool.tracks, reverbTracks: (this._song?.layers || []).filter(layer => Number(layer.reverb) > 0 && !layer.muted).length};
+    if (!pool) return this._lastStats ? {...this._lastStats, activeVoices: 0,verifiedReverbTracks:0,reverbStateBytes:0} : empty;
+    const stats = {...empty, workers: pool.workers.length, simd: pool.simd, tracks: pool.tracks, reverbTracks: (this._song?.layers || []).filter(layer => Number(layer.reverb) > 0 && !layer.muted).length,verifiedReverbTracks:0,reverbStateBytes:0,eventChangeCount:this._eventMetrics.changeCount,maxEventAckMs:this._eventMetrics.maxAckMs,maxEventPipelineMs:this._eventMetrics.maxPipelineMs,latestEventRevision:this._eventMetrics.latestAppliedRevision};
     const read = Atomics.load(pool.control, GLOBAL.READ), timing = [];
     stats.underruns = Atomics.load(pool.control, GLOBAL.UNDERRUNS);
     stats.outputPeak = Atomics.load(pool.control, GLOBAL.OUTPUT_PEAK) / 1000000;
@@ -591,6 +611,7 @@ export class WasmAudioEngine extends AudioEngine {
     for (const ring of pool.rings) {
       const h = ring.headerView, count = Atomics.load(h, HEADER.BLOCKS);
       stats.activeVoices += Atomics.load(h, HEADER.ACTIVE); stats.droppedVoices += Atomics.load(h, HEADER.DROPPED);
+      stats.verifiedReverbTracks+=Atomics.load(h,HEADER.REVERB_TRACKS);stats.reverbStateBytes+=Atomics.load(h,HEADER.REVERB_BYTES);
       stats.maxWorkerMs = Math.max(stats.maxWorkerMs, Atomics.load(h, HEADER.MAX_US) / 1000);
       if (count) stats.rtRatio = Math.max(stats.rtRatio, (Atomics.load(h, HEADER.TOTAL_US) >>> 0) / 1000 / count / (this.config.blockFrames / this.context.sampleRate * 1000));
       stats.leadFrames = Math.max(stats.leadFrames, Math.max(0, Atomics.load(h, HEADER.WRITE) - read) * this.config.blockFrames - Atomics.load(pool.control, GLOBAL.OFFSET));
@@ -602,11 +623,34 @@ export class WasmAudioEngine extends AudioEngine {
     stats.renderAheadMs = stats.leadFrames / this.context.sampleRate * 1000;
     stats.latencyMs = stats.renderAheadMs + stats.baseLatencyMs + stats.outputLatencyMs;
     if (this._benchmarking && this._benchmarkMetrics) { stats.controlChangeCount = this._benchmarkMetrics.liveControlChanges; stats.maxControlPipelineMs = this._benchmarkMetrics.maxControlPipelineMs; stats.maxControlAckMs = this._benchmarkMetrics.maxControlAckMs; }
-    if (Atomics.load(pool.control, GLOBAL.MODE) === STOPPED) stats.activeVoices = 0;
+    if (Atomics.load(pool.control, GLOBAL.MODE) === STOPPED) {stats.activeVoices = 0;stats.verifiedReverbTracks=0;}
     return stats;
   }
 
   getBenchmarkInfo() { return this._benchmarkSong ? {tracks: this._benchmarkSong.layers.length, running: this._benchmarking} : null; }
+
+  getBenchmarkReverbs(){return this._benchmarkSong?.layers.map(layer=>Number(layer.reverb)||0)||[];}
+
+  getBenchmarkTrackUpdateStatus(index){
+    const pool=this._pool;if(!this._benchmarking||!pool||!Number.isInteger(index)||index<0||index>=pool.tracks)return null;
+    const shard=pool.ranges.findIndex(range=>index>=range.start&&index<range.end),ring=pool.rings[shard],revision=Atomics.load(ring.headerView,HEADER.PARAM_REV),appliedRevision=Atomics.load(ring.headerView,HEADER.APPLIED_REV),ack=ring.lastControl;
+    return {index,revision,applied:!(revision&1)&&appliedRevision>=revision&&!!ack&&ack.revision>=revision,ackMs:ack?.revision>=revision?ack.controlAckMs:null,pipelineMs:ack?.revision>=revision?ack.controlPipelineMs:null,appliedSequence:Atomics.load(ring.headerView,HEADER.APPLIED_SEQ)};
+  }
+
+  /** A scheduled edit on an existing stress track; the DSP acknowledges and plays it normally. */
+  addBenchmarkNote({track,key=52,instrument=0,velocity=80,aheadTicks=3}={}){
+    const song=this._benchmarkSong;if(!song||!this._benchmarking)throw new Error('当前没有运行万轨测试。');
+    if(!Number.isInteger(track)||track<0||track>=song.layers.length||!Number.isInteger(key)||key<0||key>87||!Number.isInteger(instrument)||instrument<0||instrument>15||!Number.isFinite(velocity)||velocity<=0||velocity>100||!Number.isInteger(aheadTicks)||aheadTicks<1||aheadTicks>100)throw new Error('测试音符参数无效。');
+    const note={id:`benchmark-edit-${this._eventRevision+1}`,tick:Math.ceil(this.getTick())+aheadTicks,layer:track,key,instrument,velocity,pan:0,pitch:0};
+    if(note.tick>=song.length)throw new Error('测试音符超出当前播放区间。');song.notes.push(note);
+    const accepted=this.updateSong(song);return {note:{...note},accepted,eventRevision:this.getEventUpdateStatus()?.revision};
+  }
+
+  /** Release private audio workers; closing a shared AudioContext is explicitly opt-in. */
+  async dispose({closeContext=false}={}){
+    this.stop();this._destroyPool();await this._previewEngine?.dispose({closeContext:false});this._previewEngine=null;
+    if(closeContext&&this.context?.state!=='closed')await this.context?.close?.();
+  }
 
   updateBenchmarkTrack(index, {reverb} = {}) {
     const song = this._benchmarkSong;

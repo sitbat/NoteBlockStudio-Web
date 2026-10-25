@@ -1,0 +1,3 @@
+No pretrained model weights are included in this source template. Downloaded MuScriptor weights are CC BY-NC 4.0.
+https://huggingface.co/MuScriptor
+https://creativecommons.org/licenses/by-nc/4.0/

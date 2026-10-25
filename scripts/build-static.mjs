@@ -18,7 +18,10 @@ async function publicFiles(root,relative,files){
       if(child.startsWith('.'))throw new Error(`Hidden file in static payload: ${relative}/${child}`);
       await publicFiles(root,path.posix.join(relative,child),files);
     }
-  }else if(info.isFile())files.push(relative);
+  }else if(info.isFile()){
+    if(relative.startsWith('assets/transcription/')&&(/\.(safetensors|bin)$/i.test(relative)||info.size>16*1024*1024))throw new Error(`Large model weights must not be hosted in the static website: ${relative}`);
+    files.push(relative);
+  }
   else throw new Error(`Unsupported static entry: ${relative}`);
 }
 export async function buildStatic(root=projectRoot){

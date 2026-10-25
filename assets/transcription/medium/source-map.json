@@ -1,0 +1,4334 @@
+{
+  "kind": "nbs-muscriptor-weight-map",
+  "version": 1,
+  "target": {
+    "path": "weights.bin",
+    "bytes": 1221902336
+  },
+  "source": {
+    "format": "safetensors",
+    "tensors": {
+      "condition_provider.conditioners.self_wav.output_proj.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "emb.weight": {
+        "dtype": "F32",
+        "shape": [
+          1396,
+          1024
+        ],
+        "aliases": [
+          "emb.0.weight"
+        ]
+      },
+      "transformer.layers.0.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.0.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.0.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.0.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.1.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.1.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.1.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.1.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.2.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.2.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.2.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.2.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.3.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.3.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.3.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.3.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.4.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.4.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.4.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.4.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.5.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.5.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.5.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.5.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.6.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.6.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.6.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.6.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.7.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.7.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.7.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.7.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.8.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.8.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.8.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.8.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.9.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.9.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.9.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.9.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.10.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.10.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.10.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.10.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.11.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.11.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.11.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.11.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.12.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.12.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.12.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.12.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.13.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.13.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.13.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.13.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.14.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.14.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.14.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.14.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.15.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.15.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.15.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.15.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.16.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.16.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.16.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.16.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.17.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.17.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.17.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.17.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.18.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.18.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.18.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.18.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.19.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.19.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.19.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.19.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.20.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.20.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.20.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.20.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.21.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.21.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.21.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.21.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.22.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.22.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.22.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.22.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.23.norm1.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.23.norm1.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.23.norm2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "transformer.layers.23.norm2.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "out_norm.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "out_norm.bias": {
+        "dtype": "F32",
+        "shape": [
+          1024
+        ]
+      },
+      "condition_provider.conditioners.self_wav.output_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      "condition_provider.conditioners.dataset_name.embed.weight": {
+        "dtype": "F32",
+        "shape": [
+          5,
+          1024
+        ]
+      },
+      "condition_provider.conditioners.instrument_group.embed.weight": {
+        "dtype": "F32",
+        "shape": [
+          1001,
+          1024
+        ]
+      },
+      "transformer.layers.0.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.0.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.0.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.0.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.1.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.1.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.1.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.1.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.2.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.2.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.2.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.2.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.3.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.3.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.3.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.3.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.4.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.4.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.4.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.4.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.5.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.5.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.5.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.5.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.6.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.6.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.6.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.6.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.7.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.7.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.7.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.7.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.8.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.8.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.8.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.8.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.9.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.9.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.9.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.9.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.10.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.10.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.10.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.10.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.11.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.11.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.11.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.11.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.12.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.12.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.12.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.12.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.13.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.13.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.13.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.13.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.14.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.14.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.14.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.14.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.15.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.15.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.15.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.15.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.16.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.16.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.16.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.16.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.17.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.17.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.17.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.17.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.18.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.18.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.18.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.18.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.19.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.19.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.19.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.19.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.20.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.20.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.20.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.20.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.21.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.21.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.21.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.21.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.22.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.22.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.22.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.22.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "transformer.layers.23.self_attn.in_proj_weight": {
+        "dtype": "F32",
+        "shape": [
+          3072,
+          1024
+        ]
+      },
+      "transformer.layers.23.self_attn.out_proj.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          1024
+        ]
+      },
+      "transformer.layers.23.linear1.weight": {
+        "dtype": "F32",
+        "shape": [
+          4096,
+          1024
+        ]
+      },
+      "transformer.layers.23.linear2.weight": {
+        "dtype": "F32",
+        "shape": [
+          1024,
+          4096
+        ]
+      },
+      "linear.weight": {
+        "dtype": "F32",
+        "shape": [
+          1395,
+          1024
+        ],
+        "aliases": [
+          "linears.0.weight"
+        ]
+      }
+    }
+  },
+  "segments": [
+    {
+      "sourceKey": "condition_provider.conditioners.self_wav.output_proj.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 0,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "emb.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1396,
+        1024
+      ],
+      "op": "copy",
+      "offset": 4096,
+      "bytes": 5718016,
+      "shape": [
+        1396,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5722112,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5726208,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5730304,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5734400,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5738496,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5742592,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5746688,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5750784,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5754880,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5758976,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5763072,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5767168,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5771264,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5775360,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5779456,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5783552,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5787648,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5791744,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5795840,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5799936,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5804032,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5808128,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5812224,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5816320,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5820416,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5824512,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5828608,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5832704,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5836800,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5840896,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5844992,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5849088,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5853184,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5857280,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5861376,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5865472,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5869568,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5873664,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5877760,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5881856,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5885952,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5890048,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5894144,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5898240,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5902336,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5906432,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5910528,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5914624,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5918720,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5922816,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5926912,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5931008,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5935104,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5939200,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5943296,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5947392,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5951488,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5955584,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5959680,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5963776,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5967872,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5971968,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5976064,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5980160,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5984256,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5988352,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5992448,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 5996544,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6000640,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6004736,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6008832,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6012928,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6017024,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6021120,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6025216,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6029312,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6033408,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6037504,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6041600,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6045696,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6049792,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6053888,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6057984,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6062080,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6066176,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6070272,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6074368,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6078464,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6082560,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6086656,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6090752,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6094848,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.norm1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6098944,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.norm1.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6103040,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.norm2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6107136,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.norm2.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6111232,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "out_norm.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6115328,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "out_norm.bias",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024
+      ],
+      "op": "copy",
+      "offset": 6119424,
+      "bytes": 4096,
+      "shape": [
+        1024
+      ]
+    },
+    {
+      "sourceKey": "condition_provider.conditioners.self_wav.output_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        512
+      ],
+      "op": "transpose2d",
+      "offset": 6123520,
+      "bytes": 2097152,
+      "shape": [
+        512,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "condition_provider.conditioners.dataset_name.embed.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        5,
+        1024
+      ],
+      "op": "slice",
+      "slice": {
+        "start": 1024,
+        "count": 1024
+      },
+      "offset": 8220672,
+      "bytes": 4096,
+      "shape": [
+        1,
+        1,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "condition_provider.conditioners.instrument_group.embed.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1001,
+        1024
+      ],
+      "op": "slice",
+      "slice": {
+        "start": 1024,
+        "count": 1024
+      },
+      "offset": 8224768,
+      "bytes": 4096,
+      "shape": [
+        1,
+        1,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 8228864,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 20811776,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 25006080,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.0.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 41783296,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 58560512,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 71143424,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 75337728,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.1.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 92114944,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 108892160,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 121475072,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 125669376,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.2.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 142446592,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 159223808,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 171806720,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 176001024,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.3.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 192778240,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 209555456,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 222138368,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 226332672,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.4.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 243109888,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 259887104,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 272470016,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 276664320,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.5.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 293441536,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 310218752,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 322801664,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 326995968,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.6.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 343773184,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 360550400,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 373133312,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 377327616,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.7.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 394104832,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 410882048,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 423464960,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 427659264,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.8.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 444436480,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 461213696,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 473796608,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 477990912,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.9.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 494768128,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 511545344,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 524128256,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 528322560,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.10.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 545099776,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 561876992,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 574459904,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 578654208,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.11.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 595431424,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 612208640,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 624791552,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 628985856,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.12.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 645763072,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 662540288,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 675123200,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 679317504,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.13.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 696094720,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 712871936,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 725454848,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 729649152,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.14.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 746426368,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 763203584,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 775786496,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 779980800,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.15.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 796758016,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 813535232,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 826118144,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 830312448,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.16.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 847089664,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 863866880,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 876449792,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 880644096,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.17.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 897421312,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 914198528,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 926781440,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 930975744,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.18.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 947752960,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 964530176,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 977113088,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 981307392,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.19.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 998084608,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1014861824,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1027444736,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1031639040,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.20.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 1048416256,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1065193472,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1077776384,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1081970688,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.21.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 1098747904,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1115525120,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1128108032,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1132302336,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.22.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 1149079552,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.self_attn.in_proj_weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        3072,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1165856768,
+      "bytes": 12582912,
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.self_attn.out_proj.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1178439680,
+      "bytes": 4194304,
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.linear1.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        4096,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1182633984,
+      "bytes": 16777216,
+      "shape": [
+        1024,
+        4096
+      ]
+    },
+    {
+      "sourceKey": "transformer.layers.23.linear2.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1024,
+        4096
+      ],
+      "op": "transpose2d",
+      "offset": 1199411200,
+      "bytes": 16777216,
+      "shape": [
+        4096,
+        1024
+      ]
+    },
+    {
+      "sourceKey": "linear.weight",
+      "sourceDtype": "F32",
+      "targetDtype": "F32",
+      "sourceShape": [
+        1395,
+        1024
+      ],
+      "op": "transpose2d",
+      "offset": 1216188416,
+      "bytes": 5713920,
+      "shape": [
+        1024,
+        1395
+      ]
+    }
+  ]
+}

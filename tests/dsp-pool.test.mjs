@@ -101,6 +101,8 @@ test('worker/Wasm/shared-ring/worklet integration sustains all voices and respon
   }
   assert.ok(energy > .01);
   assert.equal(rings.reduce((sum, ring) => sum + Atomics.load(new Int32Array(ring.header), HEADER.ACTIVE), 0), 8);
+  assert.equal(rings.reduce((sum,ring)=>sum+Atomics.load(new Int32Array(ring.header),HEADER.REVERB_TRACKS),0),8,'every Rust track accepted a nonzero enabled reverb');
+  assert.ok(rings.every(ring=>Atomics.load(new Int32Array(ring.header),HEADER.REVERB_BYTES)>0),'each actual WASM heap allocated its own reverb state');
   assert.equal(Atomics.load(control, GLOBAL.UNDERRUNS), 0);
   for (const ring of rings) {
     const header = new Int32Array(ring.header), params = new Float32Array(ring.params);
@@ -113,6 +115,7 @@ test('worker/Wasm/shared-ring/worklet integration sustains all voices and respon
     processor.process([], [[left, right]]);
   }
   assert.ok(left.every(value => Math.abs(value) < 1e-8));
+  assert.equal(rings.reduce((sum,ring)=>sum+Atomics.load(new Int32Array(ring.header),HEADER.REVERB_TRACKS),0),0,'disabled wet tracks are not counted as processing the target load');
   Atomics.store(control, GLOBAL.MODE, STOPPED); workers.forEach(worker => worker.postMessage({type: 'stop'}));
   processor.process([], [[left, right]]); assert.ok(left.every(value => value === 0));
 });
@@ -172,6 +175,15 @@ test('full WasmAudioEngine reuses workers across pause/seek, exposes PCM and par
   audio._pool.node.processor.process([], [[left, right]]);
   assert.equal(audio.getStats().activeVoices, 8);
   assert.ok(audio.getStats().outputRms > 0);
+  assert.equal(audio.getStats().verifiedReverbTracks,8);assert.ok(audio.getStats().reverbStateBytes>0);
+  song.notes.push({id:'edited-future',tick:1,layer:0,key:52,instrument:0,velocity:90,pan:0});
+  assert.equal(audio.updateSong(song),true);
+  const eventRevision=audio.getEventUpdateStatus().revision;
+  assert.equal(audio.getEventUpdateStatus(eventRevision).applied,false);
+  await until(()=>audio.getEventUpdateStatus(eventRevision).applied);
+  const eventAck=audio.getEventUpdateStatus(eventRevision);assert.deepEqual(eventAck.pendingShards,[]);assert.equal(eventAck.appliedFrames.length,2);assert.ok(eventAck.ackMs>0);assert.ok(eventAck.pipelineMs>=0);assert.equal(audio.getStats().eventChangeCount,1);
+  for(let seq=1;seq<42;seq++){await until(()=>audio._pool.rings.every(ring=>Atomics.load(ring.headerView,HEADER.WRITE)>seq));audio._pool.node.processor.process([],[[left,right]]);}
+  assert.equal(audio.getStats().activeVoices,9,'the accepted future edit actually starts a new Rust voice without replaying the original eight');
   const mainPool = audio._pool, mainFrame = audio._playedFrames();
   const [liveFirst, liveSecond] = await Promise.all([
     audio.triggerLive({key: 45, instrument: 0, velocity: 90}, {channel: 0, layer: {volume: 70, pan: -10, reverb: 35}}),

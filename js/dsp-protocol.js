@@ -1,7 +1,7 @@
 /** Fixed shared-memory wire layout. All counters publish with Atomics. */
 import {compileSongControls, createTempoMap, secondsAtTick, tickAtSeconds, tempoAtTick} from './tempo-map.js';
 export const GLOBAL = Object.freeze({MODE: 0, EPOCH: 1, READ: 2, OFFSET: 3, UNDERRUNS: 4, QUANTA: 5, OUTPUT_PEAK: 6, OUTPUT_RMS: 7, MONO: 8});
-export const HEADER = Object.freeze({WRITE: 0, WAKE: 1, PARAM_REV: 2, ACTIVE: 3, DROPPED: 4, MAX_US: 5, TOTAL_US: 6, BLOCKS: 7, TIMING_COUNT: 8, PEAK_MILLI: 9, UNDERRUNS: 10, RENDER_SEQ: 11, APPLIED_REV: 12, APPLIED_SEQ: 13});
+export const HEADER = Object.freeze({WRITE: 0, WAKE: 1, PARAM_REV: 2, ACTIVE: 3, DROPPED: 4, MAX_US: 5, TOTAL_US: 6, BLOCKS: 7, TIMING_COUNT: 8, PEAK_MILLI: 9, UNDERRUNS: 10, RENDER_SEQ: 11, APPLIED_REV: 12, APPLIED_SEQ: 13, REVERB_TRACKS: 14, REVERB_BYTES: 15});
 export const STOPPED = 0, PREROLL = 1, RUNNING = 2;
 export const PARAM_STRIDE = 4;
 export const TIMING_SLOTS = 256;

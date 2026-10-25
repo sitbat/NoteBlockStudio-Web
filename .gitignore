@@ -3,6 +3,8 @@ node_modules/
 target/
 coverage/
 *.log
+__pycache__/
+*.pyc
 .DS_Store
 Thumbs.db
 .idea/

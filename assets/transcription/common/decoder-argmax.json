@@ -1,0 +1,12 @@
+{
+  "kind": "nbs-muscriptor-gpu-token-decoder",
+  "version": 1,
+  "graph": "decoder-argmax.onnx",
+  "validTokenUpperExclusive": 1393,
+  "historyRecord": [
+    "token",
+    "hasFiniteLegalLogit"
+  ],
+  "bytes": 780,
+  "sha256": "856c63f83b8d3c746afcb31d7ed66799ac8e6fddc3821f97d70c326bc30598b0"
+}

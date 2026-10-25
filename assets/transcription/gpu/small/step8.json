@@ -1,0 +1,16 @@
+{
+  "kind": "nbs-muscriptor-step-unroll",
+  "version": 1,
+  "steps": 8,
+  "graph": "step8.onnx",
+  "bytes": 760645,
+  "sha256": "c57fda5b93ff575717022143da732805555da97c77203d762827525422dd7cfc",
+  "sourceGraphSHA256": "27ab547d47a7748eef1e166766659678a2ba004042e4506a540045df8f241302",
+  "externalInitializerCount": 116,
+  "externalInitializerMetadataSHA256": "c9a15309d128b9c4fccaf96f0115d75df41377ef65429cb19ca255591bd6d896",
+  "weightFilesCopied": false,
+  "historyRecord": [
+    "token",
+    "hasFiniteLegalLogit"
+  ]
+}

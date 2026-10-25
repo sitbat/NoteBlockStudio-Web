@@ -17,6 +17,11 @@ test('mode actions carry native coarse/fine units and set/reset only for non-key
   const pitch=buildNativeMenuModel({selectedCount:0,editMode:'pitch'});assert.match(find(pitch,'decreaseCoarse').label,/10 音分/);assert.equal(find(pitch,'resetModeProperty').disabled,true);
 });
 
+test('audio recognition actions are discoverable from File with the actual capture-phase shortcut labels',()=>{
+  const file=buildNativeMenuModel({selectedCount:0,noteCount:0}).find(menu=>menu.name==='file');
+  assert.equal(find([file],'transcribeAudio').shortcut,'Ctrl+Alt+A');assert.equal(find([file],'recordHumming').shortcut,'Ctrl+Alt+H');assert.equal(find([file],'transcription').shortcut,'Ctrl+Alt+T');
+});
+
 test('large custom instrument menus retain every instrument once per action and only mark the selected choice',()=>{
   const instruments=Array.from({length:256},(_,id)=>({id,name:id<16?`原生${id}`:`自定义${id}`}));
   const model=buildNativeMenuModel({selectedCount:10,noteCount:12,instrument:250},instruments);
