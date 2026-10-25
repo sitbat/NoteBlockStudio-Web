@@ -1,6 +1,6 @@
 {
   "name": "noteblockstudio-web-static",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "private": true,
   "type": "module",
   "description": "Static Note Block Studio with browser Rust SIMD audio and local FFmpeg WASM exports",
