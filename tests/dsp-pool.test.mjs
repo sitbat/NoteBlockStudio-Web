@@ -409,3 +409,115 @@ test('bounded pump catches up missed blocks and fills the ring in one task witho
   const bounded = refillRing(() => 20, () => next, 4, () => { next++; clock += .8; }, {now: () => clock, budgetMs: 3});
   assert.equal(bounded, 4);
 });
+
+async function editableCustomPool(t) {
+  const old = Object.fromEntries(['Worker', 'AudioWorkletNode', 'isSecureContext', 'crossOriginIsolated'].map(key => [key, globalThis[key]]));
+  class BrowserWorker {
+    constructor() {
+      this.sent = []; this.received = []; this.heldAcks = []; this.heldEventAcks = []; this.holdSampleAcks = false; this.holdEventAcks = false;
+      this.inner = new Worker(new URL('./dsp-worker-adapter.mjs', import.meta.url));
+      this.inner.on('message', data => { this.received.push(data); if (data.type === 'sampleLoaded' && this.holdSampleAcks) this.heldAcks.push(data); else if (data.type === 'eventsApplied' && this.holdEventAcks) this.heldEventAcks.push(data); else this.onmessage?.({data}); });
+      this.inner.on('error', error => this.onerror?.({message: error.message}));
+    }
+    postMessage(data) { this.sent.push(data); this.inner.postMessage(data); }
+    releaseSampleAcks(reverse = false) { const acks = this.heldAcks.splice(0); if (reverse) acks.reverse(); for (const data of acks) this.onmessage?.({data}); }
+    releaseEventAcks() { for (const data of this.heldEventAcks.splice(0)) this.onmessage?.({data}); }
+    terminate() { return this.inner.terminate(); }
+  }
+  class WorkletNode {
+    constructor(_context, _name, options) { this.processor = new NBSOutputProcessor(options); }
+    connect() {} disconnect() {}
+  }
+  globalThis.Worker = BrowserWorker; globalThis.AudioWorkletNode = WorkletNode; globalThis.isSecureContext = true; globalThis.crossOriginIsolated = true;
+  const constant = (value, length = 1024) => { const pcm = new Float32Array(length).fill(value); return {length, numberOfChannels: 1, sampleRate: 48000, duration: length / 48000, getChannelData: () => pcm}; };
+  let decoded = constant(.1, 1024 * 1024);
+  const context = {sampleRate: 48000, state: 'running', destination: {}, audioWorklet: {addModule: async () => {}},
+    createGain: () => ({gain: {value: 1, setTargetAtTime(value) { this.value = value; }}, connect() {}}), decodeAudioData: async () => decoded};
+  const audio = new WasmAudioEngine({context, workers: 2, blockFrames: 128, leadBlocks: 6});
+  audio._modulePromise = WebAssembly.compile(await readFile(new URL('../wasm/nbs_dsp.wasm', import.meta.url)));
+  const builtin = constant(.02); for (let id = 0; id < 16; id++) audio.buffers.set(id, builtin);
+  for (const file of BUNDLED_CUSTOM_SOUNDS) audio.bundledCustomSamples.set(file, builtin);
+  t.after(() => { audio.stop(); audio._destroyPool(); audio._previewEngine?._destroyPool(); audio._liveEngine?._destroyPool(); for (const [key, value] of Object.entries(old)) { if (value === undefined) delete globalThis[key]; else globalThis[key] = value; } });
+  // Loading before the main pool exists must not preload unused definitions.
+  await audio.setCustomSample(16, new ArrayBuffer(1)); audio.customSamples.set(1, builtin);
+  const song = {tempo: 10, length: 20, loop: false, customInstruments: [{name: 'ready', file: 'ready.wav', key: 45}, {name: 'unused', file: 'unused.wav', key: 45}],
+    layers: Array.from({length: 8}, (_, id) => ({id, volume: 50, pan: 0, reverb: 50})),
+    notes: Array.from({length: 8}, (_, layer) => ({id: `base-${layer}`, tick: 0, layer, key: 45, instrument: 0, velocity: 100, pan: 0, pitch: 0}))};
+  await audio.play(song, {stress: true});
+  const left = new Float32Array(128), right = new Float32Array(128);
+  const consume = async blocks => { for (let i = 0; i < blocks; i++) { const sequence = Atomics.load(audio._pool.control, GLOBAL.READ); await until(() => audio._pool.rings.every(ring => Atomics.load(ring.headerView, HEADER.WRITE) > sequence)); audio._pool.node.processor.process([], [[left, right]]); } };
+  await consume(1);
+  return {audio, song, constant, consume, left, right, decodeAs: value => { decoded = value; }};
+}
+
+test('first live custom use queues only needed PCM before every worker event edit and preserves voices/reverb', async t => {
+  const {audio, song, consume, decodeAs, constant} = await editableCustomPool(t), pool = audio._pool;
+  const epoch = Atomics.load(pool.control, GLOBAL.EPOCH), workers = [...pool.workers], reverbBytes = audio.getStats().reverbStateBytes;
+  for (const worker of workers) { assert.equal(worker.sent.find(message => message.type === 'init').samples.some(sample => sample.id >= 16), false); worker.holdSampleAcks = true; }
+  assert.equal(audio.getStats().activeVoices, 8);
+  song.notes.push({id: 'first-custom', tick: 1, layer: 0, key: 45, instrument: 16, velocity: 100, pan: 0, pitch: 0});
+  assert.equal(audio.updateSong(song), true); const firstRevision = audio.getEventUpdateStatus().revision;
+  song.notes.at(-1).key = 47; assert.equal(audio.updateSong(song), true); const latestRevision = audio.getEventUpdateStatus().revision;
+  await until(() => audio.getEventUpdateStatus(latestRevision).applied);
+  for (const worker of workers) {
+    const uploads = worker.sent.filter(message => message.type === 'sample');
+    assert.deepEqual(uploads.map(message => message.id), [16], 'rapid edits queue only one needed sample, not the unused definitions');
+    assert(worker.sent.indexOf(uploads[0]) < worker.sent.findIndex(message => message.type === 'events' && message.revision === firstRevision));
+    assert.equal(worker.received.filter(message => message.type === 'sampleLoaded').length, 1);
+    assert(worker.received.find(message => message.type === 'sampleLoaded').testMemoryBytes > worker.received.find(message => message.type === 'ready').testMemoryBytes, 'the PCM upload actually grows this worker heap');
+  }
+  assert.equal(pool.sampleRequests.size, 1, 'worker FIFO orders processing before the delayed host sample ACK');
+  await consume(42);
+  assert.equal(audio.getStats().activeVoices, 9, 'the new sample starts even after the large upload grows the WASM heaps');
+  assert.equal(audio.getStats().droppedVoices, 0); assert.equal(audio._pool, pool); assert.deepEqual(pool.workers, workers);
+  assert.equal(Atomics.load(pool.control, GLOBAL.EPOCH), epoch); assert.equal(audio.getStats().reverbStateBytes, reverbBytes); assert.equal(audio.getStats().verifiedReverbTracks, 8);
+  // A reload followed by an edit must use the replacement already in the FIFO.
+  decodeAs(constant(.2)); const reloaded = audio.setCustomSample(16, new ArrayBuffer(2));
+  await until(() => workers.every(worker => worker.sent.filter(message => message.type === 'sample' && message.id === 16).length === 2));
+  song.notes.at(-1).velocity = 80; audio.updateSong(song); const reloadRevision = audio.getEventUpdateStatus().revision;
+  await until(() => audio.getEventUpdateStatus(reloadRevision).applied);
+  for (const worker of workers) assert.equal(worker.sent.filter(message => message.type === 'sample' && message.id === 16).length, 2);
+  workers.forEach(worker => worker.releaseSampleAcks(true)); await reloaded; assert.equal(pool.sampleRequests.size, 0);
+  audio.updateSong(song); const afterReloadRevision = audio.getEventUpdateStatus().revision;
+  await until(() => audio.getEventUpdateStatus(afterReloadRevision).applied);
+  for (const worker of workers) assert.equal(worker.sent.filter(message => message.type === 'sample' && message.id === 16).length, 2, 'late ACKs from the old PCM cannot overwrite the queued replacement identity');
+  // Internal ID 270 remains valid and receives the documented harp fallback.
+  song.notes.push({id: 'fallback', tick: 2, layer: 4, key: 45, instrument: 270, velocity: 100, pan: 0, pitch: 0});
+  audio.updateSong(song); const fallbackRevision = audio.getEventUpdateStatus().revision;
+  await until(() => audio.getEventUpdateStatus(fallbackRevision).applied); await consume(40);
+  assert.equal(audio.getStats().activeVoices, 10); assert.equal(audio.getStats().droppedVoices, 0); assert(audio.warnings.some(warning => warning.includes('暂用竖琴')));
+  for (const worker of workers) assert.deepEqual(worker.sent.filter(message => message.type === 'sample').map(message => message.id), [16, 16, 270]);
+  workers.forEach(worker => worker.releaseSampleAcks());
+});
+
+test('held sample ACKs cannot publish a cancelled edit into a replacement song or destroyed pool', async t => {
+  const {audio, song} = await editableCustomPool(t), oldPool = audio._pool;
+  oldPool.workers.forEach(worker => { worker.holdSampleAcks = true; worker.holdEventAcks = true; });
+  song.notes.push({id: 'cancelled-custom', tick: 1, layer: 0, key: 45, instrument: 16, velocity: 100, pan: 0, pitch: 0});
+  audio.updateSong(song); const revision = audio.getEventUpdateStatus().revision;
+  await until(() => oldPool.workers.every(worker => worker.heldAcks.length === 1));
+  audio.stop(); assert.equal(audio.getEventUpdateStatus(revision).cancelled, true);
+  const replacement = {...song, customInstruments: [], notes: song.notes.filter(note => note.instrument < 16)};
+  await audio.play(replacement, {stress: true}); const newPool = audio._pool;
+  assert.notEqual(newPool, oldPool); assert.equal(oldPool.destroyed, true); assert.equal(oldPool.sampleRequests.size, 0);
+  const sentCounts = newPool.workers.map(worker => worker.sent.length);
+  oldPool.workers.forEach(worker => { worker.releaseSampleAcks(); worker.releaseEventAcks(); }); await wait(5);
+  assert.deepEqual(newPool.workers.map(worker => worker.sent.length), sentCounts, 'no async ACK continuation sends stale events');
+  assert.equal(audio._song, replacement); assert.equal(audio.playing, true); assert.equal(audio._runtimeError, null);
+  assert(newPool.workers.every(worker => !worker.sent.some(message => message.type === 'events')));
+});
+
+test('a failed live PCM message stops the pool and cancels confirmations without publishing dependent events', async t => {
+  const {audio, song} = await editableCustomPool(t), pool = audio._pool, errors = [];
+  const worker = pool.workers[1], originalPost = worker.postMessage.bind(worker), failure = new Error('sample transport failed');
+  worker.postMessage = message => { if (message.type === 'sample') throw failure; originalPost(message); };
+  audio._onError = error => errors.push(error);
+  song.notes.push({id: 'failed-custom', tick: 1, layer: 0, key: 45, instrument: 16, velocity: 100, pan: 0, pitch: 0});
+  assert.throws(() => audio.updateSong(song), error => error === failure);
+  await wait(5);
+  assert.equal(audio.playing, false); assert.equal(pool.failed, true); assert.equal(pool.key, null); assert.equal(pool.sampleRequests.size, 0);
+  assert.deepEqual(errors, [failure]); assert(pool.workers.every(item => !item.sent.some(message => message.type === 'events')));
+  const replacement = {...song, customInstruments: [], notes: song.notes.filter(note => note.instrument < 16)};
+  await audio.play(replacement, {stress: true});
+  assert.notEqual(audio._pool, pool); assert.equal(audio.playing, true); assert.equal(audio._runtimeError, null);
+});

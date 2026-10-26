@@ -2,6 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
+  <!-- Keep this before resource loads. Policy scope and runtime exceptions: docs/SECURITY-POLICY.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http: blob:; media-src 'self' blob: data:; worker-src 'self' blob:; frame-src 'none'; form-action 'none'; manifest-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#f3f3f3">
   <meta name="description" content="Note Block Studio 本地音乐编辑器">
@@ -124,6 +126,6 @@
   <div id="contextPopup" class="native-menu" popover aria-label="区间操作"></div>
   <div id="toast" class="toast" role="status" hidden></div>
   <div id="dropOverlay" class="drop-overlay" hidden><img src="assets/original/toolbar-light/01-open.png" alt=""><h2>将曲谱拖到这里</h2><p>NBS · MIDI · 项目 JSON</p></div>
-  <script type="module" src="static-bootstrap.js?v=4.4.2"></script>
+  <script type="module" src="static-bootstrap.js?v=4.4.3"></script>
 </body>
 </html>

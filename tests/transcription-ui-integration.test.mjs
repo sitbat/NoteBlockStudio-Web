@@ -4,8 +4,8 @@ import {installTranscriptionUI} from '../js/transcription-ui.js';
 
 // Event/form adapter for the real UI handlers. This does not emulate browser
 // rendering, permissions, inference, Worker execution or performance.
-function uiFixture({modelReady=false,models=[],decode,download,loadModel,microphone=false,preferences={}}={}){
-  const log=[],errors=[],commits=[],listeners=new Set(),contexts=[],nodes=[],tracks=[];let project={},pickCallback=null,frames=0;
+function uiFixture({modelReady=false,models=[],decode,download,loadModel,microphone=false,preferences={},getDownloadInfo}={}){
+  const log=[],errors=[],commits=[],listeners=new Set(),contexts=[],nodes=[],tracks=[],htmlWrites=[];let project={},pickCallback=null,frames=0;
   function events(target){target.events=new Map();target.addEventListener=(type,fn)=>target.events.set(type,[...(target.events.get(type)||[]),fn]);target.removeEventListener=(type,fn)=>target.events.set(type,(target.events.get(type)||[]).filter(item=>item!==fn));target.fire=async(type,event={})=>{for(const fn of target.events.get(type)||[])await fn({target,preventDefault(){},stopPropagation(){},...event});};return target;}
   const attributes=source=>Object.fromEntries([...source.matchAll(/([\w-]+)(?:="([^"]*)")?/g)].map(match=>[match[1],match[2]??'']));
   const camel=value=>value.replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
@@ -19,7 +19,7 @@ function uiFixture({modelReady=false,models=[],decode,download,loadModel,microph
     remove(){if(this.parent)this.parent.children=this.parent.children.filter(child=>child!==this);}
     querySelector(selector){return this.children.find(child=>matches(child,selector))||this.children.map(child=>child.querySelector(selector)).find(Boolean)||null;}
     closest(selector){return matches(this,selector)?this:this.parent?.closest(selector)||null;}
-    set innerHTML(source){this.children=[];for(const match of source.matchAll(/<(button|input|select|option|div|p|span|small|strong|progress|canvas|header|fieldset|details)\b([^>]*)>/g)){const node=new Element(match[1]),attrs=attributes(match[2]);for(const[key,value]of Object.entries(attrs))node.setAttribute(key,value);node.hidden='hidden'in attrs;node.disabled='disabled'in attrs;node.checked='checked'in attrs;node.value=attrs.value||'';node.className=attrs.class||'';if(match[1]==='select'){const block=source.slice(match.index+match[0].length).split('</select>')[0];node.children=[...block.matchAll(/<option\b([^>]*)>([^<]*)/g)].map(option=>{const item=new Element('option'),a=attributes(option[1]);item.value=a.value||option[2];item.textContent=option[2];return item;});node.value=node.children[0]?.value||'';}this.append(node);}}
+    set innerHTML(source){htmlWrites.push(source);this.children=[];for(const match of source.matchAll(/<(button|input|select|option|div|p|span|small|strong|progress|canvas|header|fieldset|details)\b([^>]*)>/g)){const node=new Element(match[1]),attrs=attributes(match[2]);for(const[key,value]of Object.entries(attrs))node.setAttribute(key,value);node.hidden='hidden'in attrs;node.disabled='disabled'in attrs;node.checked='checked'in attrs;node.value=attrs.value||'';node.className=attrs.class||'';if(match[1]==='select'){const block=source.slice(match.index+match[0].length).split('</select>')[0];node.children=[...block.matchAll(/<option\b([^>]*)>([^<]*)/g)].map(option=>{const item=new Element('option'),a=attributes(option[1]);item.value=a.value||option[2];item.textContent=option[2];return item;});node.value=node.children[0]?.value||'';}this.append(node);}}
     get options(){return this.children.filter(child=>child.tagName==='option');}
     click(){this.clicks=(this.clicks||0)+1;}
     focus(){}showModal(){this.open=true;}close(){this.open=false;}getContext(){return null;}
@@ -35,12 +35,30 @@ function uiFixture({modelReady=false,models=[],decode,download,loadModel,microph
     scope.navigator.mediaDevices={getUserMedia:async()=>{log.push('permission');const track={stopped:false,stop(){this.stopped=true;log.push('track-stop');}};tracks.push(track);return{getTracks:()=>[track]};}};
   }
   const h={document,controller,getProjectRef:()=>project,getDownloadInfo:variant=>({variant,label:variant,bytes:412000000,url:`https://www.modelscope.cn/${variant}`,available:true}),error:error=>errors.push(error),decodeAudioFile:async(file,options)=>{log.push('decode');return decode?decode(file,options):{pcm:new Float32Array(160),sampleRate:16000};},pickInsertion(callback){pickCallback=callback;return()=>{pickCallback=null;log.push('picker-clean');};},commitNotes:async(notes,options,anchor)=>{commits.push({notes,options,anchor});return {addedNotes:notes.length,selectedIds:[`created:${commits.length}`]};},showMidiMapping(){log.push('mapping');}};
+  if(getDownloadInfo)h.getDownloadInfo=getDownloadInfo;
   h.preferences=preferences;h.onPreferencesChanged=()=>log.push('save-preferences');h.downloadOptions=[];
   const downloadModel=controller.downloadModel;controller.downloadModel=(variant,options)=>{h.downloadOptions.push({...options});return downloadModel(variant);};
   const ui=installTranscriptionUI(h),panel=ui.panel,action=name=>panel.querySelector(`[data-action="${name}"]`),input=name=>panel.querySelector(`[data-input="${name}"]`),dialog=()=>document.getElementById('transcriptionDownloadDialog');
-  return{ui,controller,h,log,errors,commits,tracks,contexts,nodes,action,input,dialog,get snapshot(){return snapshot;},emit,setProject:()=>{project={};},async click(name){await panel.fire('click',{target:action(name)});},async confirmDownload(){await dialog().fire('click',{target:dialog().querySelector('[data-download-action="confirm"]')});},pick(anchor){const callback=pickCallback;pickCallback=null;callback?.(anchor);}};
+  return{ui,controller,h,log,htmlWrites,errors,commits,tracks,contexts,nodes,action,input,dialog,get snapshot(){return snapshot;},emit,setProject:()=>{project={};},async click(name){await panel.fire('click',{target:action(name)});},async confirmDownload(){await dialog().fire('click',{target:dialog().querySelector('[data-download-action="confirm"]')});},pick(anchor){const callback=pickCallback;pickCallback=null;callback?.(anchor);}};
 }
 const turn=()=>new Promise(resolve=>setTimeout(resolve,0)),file={name:'voice.flac',size:4};
+
+test('external model labels, source URLs, cache IDs and errors never enter HTML templates',async()=>{
+  const payload='<img src=x onerror="globalThis.untrusted=true">',url=`https://example.invalid/${payload}`;
+  const f=uiFixture({getDownloadInfo:variant=>({variant,label:payload,bytes:412000000,url,available:true})});
+  await f.ui.open();
+  assert.match(f.dialog().querySelector('[data-download-output="selected"]').textContent,/<img src=x onerror=/);
+  assert.equal(f.dialog().querySelector('[data-download-output="source"]').textContent,`下载来源：${url}`);
+  f.emit({state:'error',error:{message:payload}});
+  assert.equal(f.ui.panel.querySelector('[data-output="error"]').textContent,payload);
+  assert(f.htmlWrites.length>0&&f.htmlWrites.every(source=>!source.includes(payload)),'untrusted strings must only reach text sinks');
+  f.ui.destroy();
+  const cached=uiFixture({modelReady:true,models:[{id:payload,label:payload,variant:'small',testOnly:false}]});
+  await cached.ui.open();
+  assert(cached.ui.panel.querySelector('[data-setting="cache"]').options.some(option=>option.textContent.includes(payload)));
+  assert(cached.htmlWrites.every(source=>!source.includes(payload)));
+  cached.ui.destroy();
+});
 
 test('download concurrency restores preferences, freezes the active request, and persists the next retry selection',async()=>{
   const defaults=uiFixture();assert.equal(defaults.ui.panel.querySelector('[data-setting="downloadConcurrency"]').value,'2');defaults.ui.destroy();

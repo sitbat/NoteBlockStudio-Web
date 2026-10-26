@@ -46,6 +46,18 @@ test('all historical NBS versions load and normalize their missing fields', () =
   }
 });
 
+test('raw NBS custom sample keys clamp to the piano range in every supported version', () => {
+  for (let version = 0; version <= 5; version++) for (const [stored, expected] of [[0, 0], [87, 87], [88, 87], [255, 87]]) {
+    // A single custom definition ends with key and pressKey when no Web footer is written.
+    const encoded = writeNBS(sample(), {version, webExtensions: false});
+    assert.equal(encoded.at(-1), 1);
+    encoded[encoded.length - 2] = stored;
+    const actual = parseNBS(encoded), definition = actual.customInstruments[0];
+    assert.deepEqual(definition, {...sample().customInstruments[0], key: expected}, `v${version}, stored key ${stored}`);
+    assert.deepEqual(parseNBS(writeNBS(actual, {version, webExtensions: false})).customInstruments, actual.customInstruments);
+  }
+});
+
 test('native patch/channel naming is optional, source-exact and independent from the default MIDI track labels',()=>{
   const name=[...new TextEncoder().encode('Original MIDI track')],data=midi([track([[0,0xff,3,name.length,...name],[0,0xc2,0],[0,0x92,60,100],[0,0xc4,73],[0,0x94,64,100],[0,0x99,36,100],[480,0xff,0x2f,0]])]);
   const original=parseMIDI(data),patch=parseMIDI(data,{namingMode:'patch'}),channel=parseMIDI(data,{namingMode:'channel'});

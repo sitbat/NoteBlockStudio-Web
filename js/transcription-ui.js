@@ -167,6 +167,8 @@ export function createMicrophoneCapture({scope=globalThis,onAudio=()=>{},onError
 
 /** Non-modal browser-local transcription panel. The editor supplies its existing history/append pipeline. */
 export function installTranscriptionUI(h) {
+  // innerHTML below is limited to fixed templates and trusted built-in icons.
+  // Model metadata, source URLs, errors and recognition output use textContent.
   const document=h.document||globalThis.document,scope=document.defaultView||globalThis,controller=h.controller;
   if(!controller||typeof controller.subscribe!=='function')throw new Error('音频转录控制器未初始化。');
   const toolbar=document.getElementById('appTools');if(!toolbar)throw new Error('找不到编辑器工具栏。');

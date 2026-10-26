@@ -5,6 +5,14 @@ import {playSoundCommand,soundEvent,resourceId,decimal} from './sound.js';
 import {normalizeSong,createBlankSong,MAX_NOTES,MAX_LAYERS} from '../model.js';
 export const VISUALIZERS=['Arc','Fall','Rise','Bounce','Piano Roll','Fountain','Rittai Onkyou'];
 const enc=new TextEncoder(),dec=new TextDecoder('utf-8',{fatal:true}),json=value=>JSON.stringify(value,null,2)+'\n';
+function packMetadata(files,label){
+  if(!files.has('pack.mcmeta'))throw new Error(`${label}缺少根目录 pack.mcmeta。`);
+  let metadata;try{metadata=JSON.parse(dec.decode(files.get('pack.mcmeta')));}catch{throw new Error(`${label} pack.mcmeta 不是有效的 UTF-8 JSON。`);}
+  const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+  if(!object(metadata)||!object(metadata.pack))throw new Error(`${label} pack.mcmeta 必须包含对象类型的 pack 字段。`);
+  if(!Number.isSafeInteger(metadata.pack.pack_format)||metadata.pack.pack_format<1)throw new Error(`${label} pack_format 必须是有效的正整数。`);
+  return metadata;
+}
 const hash=value=>{let h=2166136261;for(const c of value)h=Math.imul(h^c.charCodeAt(0),16777619);return(h>>>0).toString(16).padStart(8,'0');};
 function functionLocation(options,song){
   const rawPath=options.functionPath??'';
@@ -60,7 +68,7 @@ export async function buildDatapack(raw,options={}){
   return{files,bytes:await writeZip([...files].map(([name,data])=>({name,data}))),namespace,name:location.name,functionPath:location.functionPath,warnings,summary:{notes:song.notes.length,files:files.size,tempo:speed/4,mcVersion:modern?'1.21':'1.20.5',name:location.name,functionPath:location.functionPath,visualizer:options.visualizer?options.visualizerType||'Arc':null},commands:{play:`/function ${functionPrefix}play`,pause:`/function ${functionPrefix}pause`,stop:`/function ${functionPrefix}stop`}};
 }
 export async function importDatapack(input,options={}){
-  const files=input instanceof Map?input:await readZip(input);if(!files.size||!files.has('pack.mcmeta'))throw new Error('数据包为空或缺少根目录 pack.mcmeta。');let metadata;try{metadata=JSON.parse(dec.decode(files.get('pack.mcmeta')));}catch{throw new Error('数据包 pack.mcmeta 不是有效 JSON。');}if(!metadata?.pack||!Number.isInteger(metadata.pack.pack_format)||metadata.pack.pack_format<1)throw new Error('数据包 pack_format 无效。');
+  const files=input instanceof Map?input:await readZip(input);if(!files.size)throw new Error('数据包为空或缺少根目录 pack.mcmeta。');packMetadata(files,'数据包');
   const own=files.get('nbs-web-project.json');if(own){const data=JSON.parse(dec.decode(own));if(data.version===1)return{song:normalizeSong(data.song),warnings:[],summary:{source:'datapack-project'}};}
   const notes=[];let maxLayer=0,maxTick=0;for(const [name,data]of files){const m=name.match(/\/(?:functions|function)\/notes\/(\d+)\.mcfunction$/);if(!m)continue;const tick=Number(m[1]);if(!Number.isSafeInteger(tick)||tick>=1000000)throw new Error('数据包时间点超过项目 tick 范围。');let layer=0;for(const line of dec.decode(data).split(/\r?\n/)){const p=line.match(/playsound\s+(\S+)\s+\S+\s+\S+\s+\^(\S*)\s+\^\s+\^\s+([\d.]+)\s+([\d.]+)/);if(!p)continue;if(notes.length>=MAX_NOTES||layer>=MAX_LAYERS)throw new Error('数据包音符或同时发声图层超过项目限制。');const event=p[1],name=event.replace(/_[-]?1$/,'').split('.').pop(),ins=['harp','bass','basedrum','snare','hat','guitar','flute','bell','chime','xylophone','iron_xylophone','cow_bell','didgeridoo','bit','banjo','pling'].indexOf(name),offset=event.endsWith('_-1')?-24:event.endsWith('_1')?24:0;notes.push({tick,layer:layer++,instrument:Math.max(0,ins),key:Math.round(45+12*Math.log2(Number(p[4]))+offset),velocity:Math.min(100,Number(p[3])*100),pan:Math.max(-100,Math.min(100,-Number(p[2]||0)*100)),pitch:0});maxLayer=Math.max(maxLayer,layer);maxTick=Math.max(maxTick,tick);}}
   if(!notes.length)throw new Error('数据包没有可导入的 Note Block Studio notes/*.mcfunction。');return{song:normalizeSong({...createBlankSong(),title:options.title||'导入的数据包',tempo:options.tempo||10,notes,layers:Array.from({length:maxLayer},(_,id)=>({id,name:`声部 ${id+1}`,volume:100})),length:maxTick+1}),warnings:['外部数据包仅解析 Note Block Studio 的 notes/<tick>.mcfunction；控制逻辑与动态命令未执行。'],summary:{source:'datapack-commands',notes:notes.length}};
@@ -69,7 +77,7 @@ export async function importDatapack(input,options={}){
 export async function buildBundledResourcePack(kind='extended',options={}){
   const filename=kind==='textures'?'instrumenttextures.zip':kind==='extended'?'extranotes.zip':null;if(!filename)throw new Error('资源包类型必须为 extended 或 textures。');
   let bytes=options.sourceBytes;if(!bytes){const response=await fetch(new URL(`../../assets/minecraft/${filename}`,import.meta.url));if(!response.ok)throw new Error('无法读取本地资源包。');bytes=new Uint8Array(await response.arrayBuffer());}
-  const files=await readZip(bytes),metadata=JSON.parse(dec.decode(files.get('pack.mcmeta')));metadata.pack.pack_format=String(options.mcVersion??'1.21')==='1.20'?32:34;files.set('pack.mcmeta',enc.encode(json(metadata)));return{bytes:await writeZip([...files].map(([name,data])=>({name,data}))),filename,warnings:[],summary:{files:files.size}};
+  const files=await readZip(bytes),metadata=packMetadata(files,'资源包');metadata.pack.pack_format=String(options.mcVersion??'1.21')==='1.20'?32:34;files.set('pack.mcmeta',enc.encode(json(metadata)));return{bytes:await writeZip([...files].map(([name,data])=>({name,data}))),filename,warnings:[],summary:{files:files.size}};
 }
 /** Minecraft Java loads OGG/Vorbis. Unsupported source codecs are reported, never renamed. */
 export async function buildCustomResourcePack(song,samples,options={}){

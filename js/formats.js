@@ -116,7 +116,7 @@ export function parseNBS(input) {
   if (!song.layers.length) song.layers.push(defaultLayer(0));
   if (r.pos < r.end) {
     const count = r.u8();
-    for (let i = 0; i < count; i++) song.customInstruments.push({ name: r.str(), file: r.str(), key: r.u8(), pressKey: !!r.u8() });
+    for (let i = 0; i < count; i++) song.customInstruments.push({ name: r.str(), file: r.str(), key: clamp(r.u8(), 0, 87), pressKey: !!r.u8() });
   }
   if (r.pos < r.end) {
     const extension = decodeProjectEffects(r.take(r.end - r.pos), song.layers);

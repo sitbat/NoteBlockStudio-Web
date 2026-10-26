@@ -229,7 +229,9 @@ export class WasmAudioEngine extends AudioEngine {
   }
 
   _uploadSample(id, buffer) {
-    return Promise.all([this._uploadPoolSample(id, buffer), this._liveEngine?._uploadPoolSample(id, buffer), this._previewEngine?._uploadPoolSample(id, buffer)]);
+    return Promise.all([this, this._liveEngine, this._previewEngine].filter(Boolean).map(engine => {
+      try { return engine._uploadPoolSample(id, buffer); } catch (error) { return Promise.reject(error); }
+    }));
   }
 
   _uploadPoolSample(id, buffer) {
@@ -238,14 +240,27 @@ export class WasmAudioEngine extends AudioEngine {
     const pcm = this._monoPCM(buffer).buffer;
     pool.sampleRequests ||= new Map();
     const request = (this._sampleRequest = (this._sampleRequest || 0) + 1);
-    return new Promise((resolve, reject) => {
-      const pending = new Set(pool.workers.map((_, index) => index));
-      const timeout = setTimeout(() => { pool.sampleRequests.delete(request); reject(new Error('本地音色上传至 Rust 线程超时。')); }, 15000);
-      const acknowledge = index => { pending.delete(index); if (!pending.size) { clearTimeout(timeout); pool.sampleRequests.delete(request); pool.key = null; resolve(); } };
-      acknowledge.cancel = () => { clearTimeout(timeout); pool.sampleRequests.delete(request); reject(new DOMException('音频池已重建，音色更新已取消。', 'AbortError')); };
-      pool.sampleRequests.set(request, acknowledge);
-      pool.workers.forEach(worker => worker.postMessage({type: 'sample', id, pcm, request}));
-    });
+    let resolve, reject, settled = false;
+    const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+    const pending = new Set(pool.workers.map((_, index) => index));
+    const finish = error => {
+      if (settled) return;
+      settled = true; clearTimeout(timeout); pool.sampleRequests.delete(request);
+      if (error) reject(error); else resolve();
+    };
+    const timeout = setTimeout(() => finish(new Error('本地音色上传至 Rust 线程超时。')), 15000);
+    const acknowledge = index => { pending.delete(index); if (!pending.size) finish(); };
+    acknowledge.cancel = error => finish(error || new DOMException('音频池已重建，音色更新已取消。', 'AbortError'));
+    pool.sampleRequests.set(request, acknowledge);
+    // Each worker handles sample allocation/copy synchronously. Its following
+    // event messages therefore see this version even before its ACK returns.
+    pool.sampleVersions ||= new Map();
+    pool.sampleVersions.set(id, idOf(buffer));
+    pool.key = null;
+    try { for (const worker of pool.workers) worker.postMessage({type: 'sample', id, pcm, request}); }
+    catch (error) { finish(error); promise.catch(() => {}); throw error; }
+    if (!pending.size) finish();
+    return promise;
   }
 
   configure(options = {}) {
@@ -291,15 +306,16 @@ export class WasmAudioEngine extends AudioEngine {
     const instruments = new Set(INSTRUMENTS.map(instrument => instrument.id));
     if (song._sampleAllCustom) for (let i = 0; i < (song.customInstruments?.length || 0); i++) instruments.add(16 + i);
     for (const note of song.notes || []) instruments.add(Number(note.instrument) || 0);
-    const samples = [], signature = [];
+    const samples = [], signature = [], versions = new Map();
     for (const instrument of [...instruments].sort((a, b) => a - b)) {
       if (controlType({instrument}, song)) continue;
       const {buffer} = this._sample({instrument}, song);
       if (!buffer) throw new Error(`音色 ${instrument + 1} 未解码，无法启动 Rust 音频。`);
       samples.push({id: instrument, pcm: this._monoPCM(buffer).buffer});
       signature.push(`${instrument}:${idOf(buffer)}`);
+      versions.set(instrument, idOf(buffer));
     }
-    return {samples, signature: signature.join(',')};
+    return {samples, signature: signature.join(','), versions};
   }
 
   async _ensurePool(song, {output = true} = {}) {
@@ -311,7 +327,7 @@ export class WasmAudioEngine extends AudioEngine {
     if (this._pool?.key === key) return this._pool;
     this._destroyPool();
     const ranges = shardRanges(tracks, this.config.workers), global = new SharedArrayBuffer(16 * 4);
-    const control = new Int32Array(global), pool = {key, global, control, tracks, ranges, workers: [], rings: [], stats: [], simd: true, destroyed: false};
+    const control = new Int32Array(global), pool = {key, global, control, tracks, ranges, workers: [], rings: [], stats: [], simd: true, destroyed: false, sampleVersions: bank.versions};
     this._pool = pool;
     const tasks = ranges.map((range, index) => new Promise((resolve, reject) => {
       const descriptor = createRing(range.tracks, this.config.blockFrames);
@@ -350,9 +366,24 @@ export class WasmAudioEngine extends AudioEngine {
   }
 
   _poolError(pool, error) {
-    if (pool !== this._pool || pool.destroyed) return;
+    if (pool !== this._pool || pool.destroyed || pool.failed) return;
+    pool.failed = true; pool.key = null;
+    for (const acknowledge of pool.sampleRequests?.values() || []) acknowledge.cancel?.(error);
     this._runtimeError = error; this.warnings.push(error.message);
     this._halt(false); this._onError?.(error);
+  }
+
+  _queueEventSamples(song, pool, events) {
+    const needed = new Set();
+    for (const list of events) for (const event of list) if (event.sample >= 16) needed.add(event.sample);
+    try {
+      for (const id of needed) {
+        const {buffer} = this._sample({instrument: id}, song);
+        if (!buffer) throw new Error(`音色 ${id + 1} 未解码，无法更新 Rust 音频。`);
+        if (pool.sampleVersions?.get(id) === idOf(buffer)) continue;
+        this._uploadPoolSample(id, buffer).catch(error => this._poolError(pool, error));
+      }
+    } catch (error) { this._poolError(pool, error); throw error; }
   }
 
   _eventsFor(song, pool) {
@@ -437,6 +468,7 @@ export class WasmAudioEngine extends AudioEngine {
     this.updateTrackParams(song);
     if (this.playing) {
       const events = this._eventsFor(song, this._pool), epoch = Atomics.load(this._pool.control, GLOBAL.EPOCH);
+      this._queueEventSamples(song, this._pool, events);
       let transport;
       const current = this._transport, options = {...this._playOptions, loop: !!song.loop};
       const next = transportConfig(song, options, this.context.sampleRate);

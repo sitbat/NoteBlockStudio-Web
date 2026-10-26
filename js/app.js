@@ -23,6 +23,7 @@ import {installTranscriptionUI,transcriptionShortcutAction} from './transcriptio
 import {BROWSER_OPEN_ACCEPT,isTranscriptionAudioFile} from './browser-files.js';
 import {decodeTranscriptionAudio} from './transcription-audio.js';
 import {findLocalFileReference} from './file-paths.js';
+import {renderInstrumentChoices} from './instrument-display.js';
 import {prepareTranscription,appendTranscription} from './transcription-mapping.js';
 
 const $ = id => document.getElementById(id);
@@ -179,11 +180,9 @@ function renderCompatibility(){const result=analyzeMinecraftCompatibility(song),
 $('compatibilityBtn').onclick=()=>{const result=analyzeMinecraftCompatibility(song);modal('Minecraft 兼容性',`<h3>${esc(result.label)}</h3><p>${esc(result.reason)}</p><p>这是原版音色、音域和速度范围提示。所需游戏版本、命令与资源设置以具体导出选项为准。</p>`,`<button class="primary-button" id="compatibilityExport">Minecraft 导入与导出…</button>`);$('compatibilityExport').onclick=features.actions.minecraft;};
 function renderRack() {
   const list=instruments();
-  $('instrumentRack').innerHTML=list.map(i=>`<button class="instrument-card ${state.instrument===i.id?'active':''}" data-instrument="${i.id}" style="--inst-color:${i.color}" title="${esc(i.name)} · ${esc(i.englishName)}${i.id>=16?'（双击重新加载音色）':''}" aria-label="${esc(i.name)}" aria-pressed="${state.instrument===i.id}"><span class="inst-symbol">${i.symbol}</span><span>${esc(i.name)}</span></button>`).join('');
-  const visible=Math.min(list.length,Math.max(5,Math.ceil((document.documentElement.clientWidth-1040)/25)));Array.from($('instrumentRack').children).forEach((button,index)=>button.hidden=index>=visible);
-  $('instrumentPopup').innerHTML=$('instrumentRack').innerHTML;Array.from($('instrumentPopup').children).forEach(button=>button.hidden=false);$('instrumentExpandBtn').hidden=list.length<=visible;
-  $('noteInstrument').innerHTML=list.map(i=>`<option value="${i.id}">${esc(i.name)} · ${esc(i.englishName)}</option>`).join('');
-  $('noteInstrument').value=state.instrument;
+  const visible=Math.min(list.length,Math.max(5,Math.ceil((document.documentElement.clientWidth-1040)/25)));
+  renderInstrumentChoices({rack:$('instrumentRack'),popup:$('instrumentPopup'),select:$('noteInstrument')},list,state.instrument,visible);
+  $('instrumentExpandBtn').hidden=list.length<=visible;
   $('activeInstrumentLabel').textContent=`${inst(state.instrument).name} · ${inst(state.instrument).englishName}`;
 }
 function chooseInstrument(id, preview=true) {
