@@ -44,7 +44,7 @@ npm start
 
 网站保留音乐编辑和文件功能；不提供 Discord 桌面 IPC、操作系统 `nbs://` / 文件关联安装、从命令行读取指定本机文件，或原生 DLL/Python 插件。粘贴的 `nbs://` 链接仍可作为 HTTP(S) 曲谱地址解析。完整差异见 [功能对照](docs/FEATURE-PARITY.md) 与 [迁移说明](docs/MIGRATION.md)。
 
-v4.4.3 修复播放中首次使用预载自定义音色时缺少采样的问题，补齐资源包元数据校验与 NBS 基准音修复，并以 DOM 文本渲染音色列表。静态入口内置 CSP，保留现有 WASM、Worker、编码及模型下载流程；保护范围见[安全策略](docs/SECURITY-POLICY.md)，验证结果见[修复记录](docs/REPAIRS-v4.4.3.md)。
+v4.4.3 修复播放中首次使用预载自定义音色时缺少采样的问题，补齐资源包元数据校验与 NBS 基准音修复，并以 DOM 文本渲染音色列表。静态入口内置 CSP，保留现有 WASM、Worker、编码及模型下载流程；保护范围见[安全策略](docs/SECURITY-POLICY.md)，验证结果见[修复记录](docs/REPAIRS-v4.4.3.md)。v4.4.4 进一步修复窄窗口与触控布局的音色弹窗定位，按实际尺寸避开屏幕边缘。
 
 Linux 与 Windows 的自定义音色路径可在选择本机采样后重新匹配；同名文件有歧义时会提示。跨电脑携带采样可使用 `.nbpz` 完整工程包，详见[文件路径说明](docs/FILE-PATHS.md)。
 

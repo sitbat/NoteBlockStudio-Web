@@ -64,7 +64,7 @@
         <button id="redoBtn" title="重做（Ctrl+Shift+Z）" aria-label="重做"><img src="assets/original/toolbar-light/31-redo.png" alt=""></button>
       </div></div>
       <div class="toolbar-separator"></div>
-      <section class="instrument-section" aria-label="乐器音色"><div id="instrumentRack" class="instrument-rack"></div><button id="instrumentExpandBtn" class="custom-instrument" title="展开全部音色" aria-label="展开全部音色" aria-expanded="false"><img src="assets/original/toolbar-light/58-insbox-expand.png" alt=""></button><button id="customInstrumentBtn" class="custom-instrument" title="添加本地自定义音色" aria-label="添加自定义音色"><img src="assets/original/layer-icons/12-add-layer-light-base.png" alt=""></button></section>
+      <section class="instrument-section" aria-label="乐器音色"><div id="instrumentRack" class="instrument-rack"></div><button id="instrumentExpandBtn" class="custom-instrument" title="展开全部音色" aria-label="展开全部音色" aria-expanded="false" popovertarget="instrumentPopup"><img src="assets/original/toolbar-light/58-insbox-expand.png" alt=""></button><button id="customInstrumentBtn" class="custom-instrument" title="添加本地自定义音色" aria-label="添加自定义音色"><img src="assets/original/layer-icons/12-add-layer-light-base.png" alt=""></button></section>
       <div class="toolbar-separator"></div>
       <div class="toolbar-group settings-tools">
         <button id="propertiesBtn" title="音符属性" aria-label="音符属性" aria-expanded="false" aria-controls="propertiesPanel"><img src="assets/original/toolbar-light/41-properties.png" alt=""></button>
@@ -126,6 +126,6 @@
   <div id="contextPopup" class="native-menu" popover aria-label="区间操作"></div>
   <div id="toast" class="toast" role="status" hidden></div>
   <div id="dropOverlay" class="drop-overlay" hidden><img src="assets/original/toolbar-light/01-open.png" alt=""><h2>将曲谱拖到这里</h2><p>NBS · MIDI · 项目 JSON</p></div>
-  <script type="module" src="static-bootstrap.js?v=4.4.3"></script>
+  <script type="module" src="static-bootstrap.js?v=4.4.4"></script>
 </body>
 </html>

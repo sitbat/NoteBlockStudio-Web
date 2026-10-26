@@ -415,8 +415,7 @@ $('sampleInput').onchange=async()=>{
 
 function instrumentClick(event){const button=event.target.closest('[data-instrument]');if(!button)return;state.selected.clear();chooseInstrument(Number(button.dataset.instrument));renderInspector();updateCursorStatus();scheduleDraw();$('instrumentPopup').hidePopover();}
 $('instrumentRack').onclick=instrumentClick;$('instrumentPopup').onclick=instrumentClick;
-$('instrumentExpandBtn').onclick=()=>{const popup=$('instrumentPopup'),rect=$('instrumentExpandBtn').getBoundingClientRect();popup.style.left=`${clamp(rect.left-150,0,innerWidth-220)}px`;popup.style.top=`${rect.bottom+2}px`;popup.togglePopover();};
-$('instrumentPopup').addEventListener('toggle',event=>$('instrumentExpandBtn').setAttribute('aria-expanded',String(event.newState==='open')));
+$('instrumentPopup').addEventListener('toggle',event=>{const popup=$('instrumentPopup'),button=$('instrumentExpandBtn'),open=event.newState==='open';button.setAttribute('aria-expanded',String(open));if(!open)return;const rect=button.getBoundingClientRect(),size=popup.getBoundingClientRect();popup.style.left=`${clamp(rect.left-150,8,Math.max(8,innerWidth-size.width-8))}px`;popup.style.top=`${clamp(rect.bottom+2,8,Math.max(8,innerHeight-size.height-8))}px`;});
 $('instrumentRack').ondblclick=event=>{const button=event.target.closest('[data-instrument]');if(button&&Number(button.dataset.instrument)>=16)addCustomSample(Number(button.dataset.instrument)-16);};
 $('customInstrumentBtn').onclick=()=>addCustomSample();
 $('addLayerBtn').onclick=()=>{if(song.layers.length>=MAX_LAYERS){toast(`最多支持 ${MAX_LAYERS} 条音轨`,true);return;}checkpoint();song.layers.push({id:song.layers.length,name:`音轨 ${song.layers.length+1}`,volume:100,pan:0,reverb:0,muted:false,solo:false,locked:false});state.layer=song.layers.length-1;refresh({save:true});$('gridScroll').scrollTop=state.layer*ROW;};
